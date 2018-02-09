@@ -8,4 +8,3 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-set_property RAM_STYLE ULTRA [get_cells -hierarchical -filter {NAME=~*NON_BUILT_IN_GEN.FIFO_SYNC_Gen.FifoSync_Inst/GEN_RAM.SimpleDualPortRam_Inst}]

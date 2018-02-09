@@ -96,28 +96,23 @@ architecture mapping of Application is
 
    -- Defined module generics as constants (in case partial reconfiguration build)
    constant TPD_G            : time             := 1 ns;
-   constant AXI_BASE_ADDR_G  : slv(31 downto 0) := BAR0_BASE_ADDR_G;
+   constant AXI_BASE_ADDR_G  : slv(31 downto 0) := BAR0_BASE_ADDR_C;
    constant AXI_ERROR_RESP_G : slv(1 downto 0)  := BAR0_ERROR_RESP_C;
-   constant NUM_VC_C         : positive         := 1;
 
-   constant NUM_AXI_MASTERS_C : natural := 19;
+   constant NUM_AXI_MASTERS_C : natural := 2;
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 23, 16);
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 23, 20);
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
 
-   signal mig1WriteMasters : AxiWriteMasterArray(3 downto 0);
-   signal mig1WriteSlaves  : AxiWriteSlaveArray(3 downto 0);
-   signal mig1ReadMasters  : AxiReadMasterArray(3 downto 0);
-   signal mig1ReadSlaves   : AxiReadSlaveArray(3 downto 0);
-
-   signal ibMasters : AxiStreamMasterArray(7 downto 0);
-   signal ibSlaves  : AxiStreamSlaveArray(7 downto 0);
-
 begin
+
+   -- Unused memory signals
+   mig1WriteMaster <= AXI_WRITE_MASTER_INIT_C;
+   mig1ReadMaster  <= AXI_READ_MASTER_INIT_C;
 
    -------------------------
    -- Unused QSFP interfaces
@@ -145,11 +140,6 @@ begin
          qsfp1RxN     => qsfp1RxN,
          qsfp1TxP     => qsfp1TxP,
          qsfp1TxN     => qsfp1TxN);
-
-   --------------------------------
-   -- Unused DMA Outbound interface
-   --------------------------------
-   dmaObSlaves <= (others => AXI_STREAM_SLAVE_FORCE_C);
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -180,7 +170,7 @@ begin
       generic map (
          TPD_G        => TPD_C,
          BUILD_INFO_G => BUILD_INFO_C,
-         CLK_PERIOD_G => (1.0/SYS_CLK_FREQ_C))
+         CLK_PERIOD_G => (0.5/SYS_CLK_FREQ_C))
       port map (
          -- AXI-Lite Interface
          axiClk         => axilClk,
@@ -193,107 +183,26 @@ begin
    ---------------
    -- PRBS Modules
    ---------------
-   GEN_VEC : for i in 7 downto 0 generate
-      U_PGPv3 : entity work.EmuPgp3Lane
-         generic map(
-            TPD_G            => TPD_G,
-            NUM_VC_G         => NUM_VC_C,
-            AXI_BASE_ADDR_G  => AXI_CONFIG_C(i).baseAddr,
-            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
-         port map(
-            -- Reference Clock and reset
-            pgpClk          => axilClk,
-            pgpRst          => axilRst,
-            -- DMA Interface
-            dmaClk          => dmaClk,
-            dmaRst          => dmaRst,
-            dmaIbMaster     => ibMasters(i),
-            dmaIbSlave      => ibSlaves(i),
-            -- AXI-Lite Interface
-            axilClk         => axilClk,
-            axilRst         => axilRst,
-            axilReadMaster  => axilReadMasters(i+1),
-            axilReadSlave   => axilReadSlaves(i+1),
-            axilWriteMaster => axilWriteMasters(i+1),
-            axilWriteSlave  => axilWriteSlaves(i+1),
-            -- AXI-Stream Monitor (axilClk domain)
-            monReadMaster   => axilReadMasters(i+9),
-            monReadSlave    => axilReadSlaves(i+9),
-            monWriteMaster  => axilWriteMasters(i+9),
-            monWriteSlave   => axilWriteSlaves(i+9));
-   end generate;
-
-   --------------------------
-   -- Monitor the DMA streams
-   --------------------------
-   LANE_MON : entity work.AxiStreamMonAxiL
-      generic map(
-         TPD_G            => TPD_G,
-         COMMON_CLK_G     => false,           -- true if axisClk = statusClk
-         AXIS_CLK_FREQ_G  => SYS_CLK_FREQ_C,  -- units of Hz
-         AXIS_NUM_SLOTS_G => 8,
-         AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C)
-      port map(
-         -- AXIS Stream Interface
-         axisClk          => dmaClk,
-         axisRst          => dmaRst,
-         axisMaster       => ibMasters,
-         axisSlave        => ibSlaves,
-         -- AXI lite slave port for register access
-         axilClk          => axilClk,
-         axilRst          => axilRst,
-         sAxilWriteMaster => axilWriteMasters(17),
-         sAxilWriteSlave  => axilWriteSlaves(17),
-         sAxilReadMaster  => axilReadMasters(17),
-         sAxilReadSlave   => axilReadSlaves(17));
-
-   dmaIbMasters <= ibMasters;
-   ibSlaves     <= dmaIbSlaves;
-
-   ----------------
-   -- Memory Tester
-   ----------------
-   U_MemTester : entity work.MemTester
+   U_Hardware : entity work.Hardware
       generic map (
-         TPD_G           => TPD_C,
-         AXI_BASE_ADDR_G => AXI_CONFIG_C(18).baseAddr)
+         TPD_G            => TPD_G,
+         NUM_VC_G         => 4,
+         AXI_ERROR_RESP_G => BAR0_ERROR_RESP_C,
+         AXI_BASE_ADDR_G  => AXI_CONFIG_C(1).baseAddr)
       port map (
-         -- AXI-Lite Interface (axilClk domain)
+         -- AXI-Lite Interface
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(18),
-         axilReadSlave   => axilReadSlaves(18),
-         axilWriteMaster => axilWriteMasters(18),
-         axilWriteSlave  => axilWriteSlaves(18),
-         -- Application AXI Interface (memClk domain)
-         memClk          => dmaClk,
-         memRst          => dmaRst,
-         memReady        => mig1Ready,
-         memWriteMasters => mig1WriteMasters,
-         memWriteSlaves  => mig1WriteSlaves,
-         memReadMasters  => mig1ReadMasters,
-         memReadSlaves   => mig1ReadSlaves);
-
-   --------------
-   -- Memory XBAR
-   --------------
-   U_MigXbar : entity work.MigXbar
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         -- Slave Interfaces
-         sAxiClk          => dmaClk,
-         sAxiRst          => dmaRst,
-         sAxiWriteMasters => mig1WriteMasters,
-         sAxiWriteSlaves  => mig1WriteSlaves,
-         sAxiReadMasters  => mig1ReadMasters,
-         sAxiReadSlaves   => mig1ReadSlaves,
-         -- Master Interface
-         mAxiClk          => mig1Clk,
-         mAxiRst          => mig1Rst,
-         mAxiWriteMaster  => mig1WriteMaster,
-         mAxiWriteSlave   => mig1WriteSlave,
-         mAxiReadMaster   => mig1ReadMaster,
-         mAxiReadSlave    => mig1ReadSlave);
+         axilReadMaster  => axilReadMasters(1),
+         axilReadSlave   => axilReadSlaves(1),
+         axilWriteMaster => axilWriteMasters(1),
+         axilWriteSlave  => axilWriteSlaves(1),
+         -- DMA Interface
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves);
 
 end mapping;
