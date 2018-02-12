@@ -2,7 +2,7 @@
 -- File       : PgpMiscCtrl.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-04
--- Last update: 2018-02-08
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -27,8 +27,7 @@ use work.AppPkg.all;
 
 entity PgpMiscCtrl is
    generic (
-      TPD_G            : time            := 1 ns;
-      AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
+      TPD_G            : time            := 1 ns);
    port (
       -- Control/Status  (axilClk domain)
       config          : out ConfigType;
@@ -97,7 +96,7 @@ begin
       axiSlaveRegister(regCon, x"84", 0, v.rxUserRst);
 
       -- Closeout the transaction
-      axiSlaveDefault(regCon, v.axilWriteSlave, v.axilReadSlave, AXI_ERROR_RESP_G);
+      axiSlaveDefault(regCon, v.axilWriteSlave, v.axilReadSlave, AXI_RESP_DECERR_C);
 
       -- Synchronous Reset
       if (axilRst = '1') then

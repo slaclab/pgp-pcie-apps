@@ -2,7 +2,7 @@
 -- File       : XilinxKcu1500Pgp3.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-24
--- Last update: 2018-02-07
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -206,7 +206,6 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G            => TPD_G,
-         AXI_ERROR_RESP_G => BAR0_ERROR_RESP_C,
          AXI_BASE_ADDR_G  => BAR0_BASE_ADDR_C)
       port map (
          ------------------------      

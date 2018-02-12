@@ -2,7 +2,7 @@
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-01-08
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: Hardware File
 -------------------------------------------------------------------------------
@@ -32,9 +32,8 @@ use unisim.vcomponents.all;
 
 entity Hardware is
    generic (
-      TPD_G            : time             := 1 ns;
-      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
-      AXI_BASE_ADDR_G  : slv(31 downto 0) := x"0000_0000");
+      TPD_G           : time             := 1 ns;
+      AXI_BASE_ADDR_G : slv(31 downto 0) := x"0000_0000");
    port (
       ------------------------      
       --  Top Level Interfaces
@@ -81,10 +80,9 @@ begin
    --------------
    U_Pgp : entity work.PgpLaneWrapper
       generic map (
-         TPD_G            => TPD_G,
-         REFCLK_WIDTH_G   => 2,
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
-         AXI_BASE_ADDR_G  => AXI_BASE_ADDR_G)
+         TPD_G           => TPD_G,
+         REFCLK_WIDTH_G  => 2,
+         AXI_BASE_ADDR_G => AXI_BASE_ADDR_G)
       port map (
          -- QSFP[0] Ports
          qsfp0RefClkP    => qsfp0RefClkP,

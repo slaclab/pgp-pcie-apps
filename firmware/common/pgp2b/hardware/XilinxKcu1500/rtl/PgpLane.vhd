@@ -2,7 +2,7 @@
 -- File       : PgpLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-04
--- Last update: 2018-02-08
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -32,10 +32,9 @@ use unisim.vcomponents.all;
 
 entity PgpLane is
    generic (
-      TPD_G            : time                  := 1 ns;
-      LANE_G           : positive range 0 to 7 := 0;
-      AXI_ERROR_RESP_G : slv(1 downto 0)       := AXI_RESP_DECERR_C;
-      AXI_BASE_ADDR_G  : slv(31 downto 0)      := (others => '0'));
+      TPD_G           : time                  := 1 ns;
+      LANE_G          : positive range 0 to 7 := 0;
+      AXI_BASE_ADDR_G : slv(31 downto 0)      := (others => '0'));
    port (
       -- DRP Clock and Reset
       drpClk          : in  sl;
@@ -107,7 +106,6 @@ begin
    U_XBAR : entity work.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
-         DEC_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          NUM_SLAVE_SLOTS_G  => 1,
          NUM_MASTER_SLOTS_G => NUM_AXI_MASTERS_C,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
@@ -128,9 +126,8 @@ begin
    -----------
    U_Pgp : entity work.Pgp2bGthUltra
       generic map (
-         TPD_G             => TPD_G,
-         VC_INTERLEAVE_G   => 1,        -- AxiStreamDmaV2 supports interleaving
-         AXIL_ERROR_RESP_G => AXI_ERROR_RESP_G)
+         TPD_G           => TPD_G,
+         VC_INTERLEAVE_G => 1)          -- AxiStreamDmaV2 supports interleaving
       port map (
          -- GT Clocking
          stableClk       => drpClk,
@@ -197,7 +194,6 @@ begin
    U_PgpMon : entity work.Pgp2bAxi
       generic map (
          TPD_G              => TPD_G,
-         AXI_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          COMMON_TX_CLK_G    => false,
          COMMON_RX_CLK_G    => false,
          WRITE_EN_G         => true,
@@ -228,8 +224,7 @@ begin
    ------------
    U_PgpMiscCtrl : entity work.PgpMiscCtrl
       generic map (
-         TPD_G            => TPD_G,
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
+         TPD_G => TPD_G)
       port map (
          -- Control/Status  (axilClk domain)
          config          => config,

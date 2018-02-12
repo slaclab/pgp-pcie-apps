@@ -2,7 +2,7 @@
 -- File       : PrbsLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-02-09
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -32,8 +32,7 @@ entity PrbsLane is
       TPD_G            : time             := 1 ns;
       LANE_G           : natural          := 0;
       NUM_VC_G         : positive         := 4;
-      AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0');
-      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_SLVERR_C);
+      AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0'));
    port (
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
@@ -93,7 +92,6 @@ begin
    U_XBAR : entity work.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
-         DEC_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          NUM_SLAVE_SLOTS_G  => 1,
          NUM_MASTER_SLOTS_G => NUM_AXI_MASTERS_C,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)

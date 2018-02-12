@@ -2,7 +2,7 @@
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-01-08
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: Hardware File
 -------------------------------------------------------------------------------
@@ -33,7 +33,6 @@ use unisim.vcomponents.all;
 entity Hardware is
    generic (
       TPD_G            : time             := 1 ns;
-      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
       AXI_BASE_ADDR_G  : slv(31 downto 0) := x"0000_0000");
    port (
       ------------------------      
@@ -83,7 +82,6 @@ begin
       generic map (
          TPD_G            => TPD_G,
          REFCLK_WIDTH_G   => 1,
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          AXI_BASE_ADDR_G  => AXI_BASE_ADDR_G)
       port map (
          -- QSFP[0] Ports

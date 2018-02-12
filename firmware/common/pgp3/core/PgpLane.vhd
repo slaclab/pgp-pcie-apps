@@ -2,7 +2,7 @@
 -- File       : PgpLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-01-10
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -28,11 +28,10 @@ use work.Pgp3Pkg.all;
 
 entity PgpLane is
    generic (
-      TPD_G            : time             := 1 ns;
-      LANE_G           : natural          := 0;
-      NUM_VC_G         : positive         := 4;
-      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
-      AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0'));
+      TPD_G           : time             := 1 ns;
+      LANE_G          : natural          := 0;
+      NUM_VC_G        : positive         := 4;
+      AXI_BASE_ADDR_G : slv(31 downto 0) := (others => '0'));
    port (
       -- QPLL Interface
       qpllLock        : in  slv(1 downto 0);
@@ -80,11 +79,10 @@ begin
    -----------
    U_Pgp : entity work.Pgp3GthUs
       generic map (
-         TPD_G             => TPD_G,
-         NUM_VC_G          => NUM_VC_G,
-         AXIL_CLK_FREQ_G   => (SYS_CLK_FREQ_C/2.0),
-         AXIL_BASE_ADDR_G  => AXI_BASE_ADDR_G,
-         AXIL_ERROR_RESP_G => AXI_ERROR_RESP_G)
+         TPD_G            => TPD_G,
+         NUM_VC_G         => NUM_VC_G,
+         AXIL_CLK_FREQ_G  => (SYS_CLK_FREQ_C/2.0),
+         AXIL_BASE_ADDR_G => AXI_BASE_ADDR_G)
       port map (
          -- Stable Clock and Reset
          stableClk       => axilClk,
@@ -142,7 +140,7 @@ begin
          pgpTxOut     => pgpTxOut,
          pgpTxMasters => pgpTxMasters,
          pgpTxSlaves  => pgpTxSlaves);
-         
+
    --------------
    -- PGP RX Path
    --------------
@@ -163,5 +161,5 @@ begin
          pgpRxOut     => pgpRxOut,
          pgpRxMasters => pgpRxMasters,
          pgpRxCtrl    => pgpRxCtrl);
-         
+
 end mapping;
