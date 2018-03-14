@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2018-01-30
--- Last update: 2018-02-02
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: Application File
 -------------------------------------------------------------------------------
@@ -97,7 +97,6 @@ architecture mapping of Application is
    -- Defined module generics as constants (in case partial reconfiguration build)
    constant TPD_G            : time             := 1 ns;
    constant AXI_BASE_ADDR_G  : slv(31 downto 0) := BAR0_BASE_ADDR_C;
-   constant AXI_ERROR_RESP_G : slv(1 downto 0)  := BAR0_ERROR_RESP_C;
 
    constant NUM_AXI_MASTERS_C : natural := 2;
 
@@ -147,7 +146,6 @@ begin
    U_XBAR : entity work.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
-         DEC_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          NUM_SLAVE_SLOTS_G  => 1,
          NUM_MASTER_SLOTS_G => NUM_AXI_MASTERS_C,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
@@ -187,7 +185,6 @@ begin
       generic map (
          TPD_G            => TPD_G,
          NUM_VC_G         => 4,
-         AXI_ERROR_RESP_G => BAR0_ERROR_RESP_C,
          AXI_BASE_ADDR_G  => AXI_CONFIG_C(1).baseAddr)
       port map (
          -- AXI-Lite Interface

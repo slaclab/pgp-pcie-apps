@@ -2,7 +2,7 @@
 -- File       : PgpQpll.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-04
--- Last update: 2017-10-04
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -28,8 +28,7 @@ use unisim.vcomponents.all;
 
 entity PgpQpll is
    generic (
-      TPD_G            : time            := 1 ns;
-      AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
+      TPD_G            : time            := 1 ns);
    port (
       -- QPLL Clocking
       pgpRefClk       : in  sl;
@@ -69,7 +68,6 @@ begin
    U_QPLL : entity work.Gtp7QuadPll
       generic map (
          TPD_G                => TPD_G,
-         AXI_ERROR_RESP_G     => AXI_ERROR_RESP_G,
          -- PLL0 Configured for 1.25 Gbps, 2.5 Gbps, 5.0 Gbps
          PLL0_REFCLK_SEL_G    => "001",
          PLL0_FBDIV_IN_G      => 2,     -- 250 MHz clock reference

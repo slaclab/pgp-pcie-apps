@@ -2,7 +2,7 @@
 -- File       : PgpCardG3PrbsTester.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-09-28
--- Last update: 2018-02-08
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -178,7 +178,6 @@ begin
       generic map (
          TPD_G            => TPD_G,
          NUM_VC_G         => 1,
-         AXI_ERROR_RESP_G => BAR0_ERROR_RESP_C,
          AXI_BASE_ADDR_G  => BAR0_BASE_ADDR_C)
       port map (
          -- AXI-Lite Interface

@@ -2,7 +2,7 @@
 -- File       : PgpLaneWrapper.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-02-07
+-- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -32,11 +32,10 @@ use unisim.vcomponents.all;
 
 entity PgpLaneWrapper is
    generic (
-      TPD_G            : time             := 1 ns;
-      REFCLK_WIDTH_G   : positive         := 2;
-      NUM_VC_G         : positive         := 4;
-      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
-      AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0'));
+      TPD_G           : time             := 1 ns;
+      REFCLK_WIDTH_G  : positive         := 2;
+      NUM_VC_G        : positive         := 4;
+      AXI_BASE_ADDR_G : slv(31 downto 0) := (others => '0'));
    port (
       -- QSFP[0] Ports
       qsfp0RefClkP    : in  slv(REFCLK_WIDTH_G-1 downto 0);
@@ -132,8 +131,7 @@ begin
 
       U_QPLL : entity work.Pgp3GthUsQpll
          generic map (
-            TPD_G             => TPD_G,
-            AXIL_ERROR_RESP_G => AXI_ERROR_RESP_G)
+            TPD_G => TPD_G)
          port map (
             -- Stable Clock and Reset
             stableClk  => axilClk,
@@ -169,7 +167,6 @@ begin
    U_XBAR : entity work.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
-         DEC_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          NUM_SLAVE_SLOTS_G  => 1,
          NUM_MASTER_SLOTS_G => NUM_AXI_MASTERS_C,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
@@ -192,11 +189,10 @@ begin
 
       U_Lane : entity work.PgpLane
          generic map (
-            TPD_G            => TPD_G,
-            LANE_G           => i,
-            NUM_VC_G         => NUM_VC_G,
-            AXI_BASE_ADDR_G  => AXI_CONFIG_C(i).baseAddr,
-            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
+            TPD_G           => TPD_G,
+            LANE_G          => i,
+            NUM_VC_G        => NUM_VC_G,
+            AXI_BASE_ADDR_G => AXI_CONFIG_C(i).baseAddr)
          port map (
             -- QPLL Interface
             qpllLock        => qpllLock(i),
