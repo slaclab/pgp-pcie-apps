@@ -2,7 +2,7 @@
 -- File       : AdmPcieKu3Pgp2b.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-24
--- Last update: 2018-02-12
+-- Last update: 2018-03-15
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -147,8 +147,8 @@ begin
 
    U_Hardware : entity work.Hardware
       generic map (
-         TPD_G            => TPD_G,
-         AXI_BASE_ADDR_G  => BAR0_BASE_ADDR_C)
+         TPD_G           => TPD_G,
+         AXI_BASE_ADDR_G => BAR0_BASE_ADDR_C)
       port map (
          ------------------------      
          --  Top Level Interfaces
