@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 ##############################################################################
 ## This file is part of 'PGP PCIe APP DEV'.
 ## It is subject to the license terms in the LICENSE.txt file found in the 
@@ -7,6 +8,4 @@
 ## may be copied, modified, propagated, or distributed except according to 
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-
-set_clock_groups -asynchronous -group [get_clocks {dmaClk}] -group [get_clocks {axilClk}]
-set_clock_groups -asynchronous -group [get_clocks {sysClk}] -group [get_clocks {axilClk}]
+# from common.Top      import *
