@@ -25,6 +25,7 @@ use work.BuildInfoPkg.all;
 use work.AxiLitePkg.all;
 use work.AxiStreamPkg.all;
 use work.AxiPciePkg.all;
+use work.Pgp3Pkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -33,6 +34,7 @@ entity PgpLaneWrapper is
    generic (
       TPD_G             : time             := 1 ns;
       REFCLK_WIDTH_G    : positive         := 2;
+      NUM_VC_G          : positive         := 4;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
@@ -77,15 +79,15 @@ architecture mapping of PgpLaneWrapper is
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
 
-   signal pgpRefClk : slv(7 downto 0);
-   signal pgpRxP    : slv(7 downto 0);
-   signal pgpRxN    : slv(7 downto 0);
-   signal pgpTxP    : slv(7 downto 0);
-   signal pgpTxN    : slv(7 downto 0);
+   signal pgpRxP : slv(7 downto 0);
+   signal pgpRxN : slv(7 downto 0);
+   signal pgpTxP : slv(7 downto 0);
+   signal pgpTxN : slv(7 downto 0);
 
-   signal drpClk   : sl;
-   signal drpReset : sl;
-   signal drpRst   : sl;
+   signal qpllLock   : Slv2Array(7 downto 0);
+   signal qpllClk    : Slv2Array(7 downto 0);
+   signal qpllRefclk : Slv2Array(7 downto 0);
+   signal qpllRst    : Slv2Array(7 downto 0);
 
    signal refClk : slv((2*REFCLK_WIDTH_G)-1 downto 0);
 
@@ -93,31 +95,6 @@ architecture mapping of PgpLaneWrapper is
    attribute dont_touch of refClk : signal is "TRUE";
 
 begin
-
-   U_DRP_CLK : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 8)
-      port map (
-         I   => dmaClk,
-         CE  => '1',
-         CLR => '0',
-         O   => drpClk);
-
-   U_RstSync : entity work.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => drpClk,
-         asyncRst => dmaRst,
-         syncRst  => drpReset);
-
-   U_RstPipe : entity work.RstPipeline
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk    => drpClk,
-         rstIn  => drpReset,
-         rstOut => drpRst);
 
    ------------------------
    -- Common PGP Clocking
@@ -150,22 +127,39 @@ begin
             O     => refClk((2*i)+1));
    end generate GEN_REFCLK;
 
+   GEN_PLLCLK :
+   for i in 1 downto 0 generate
+
+      U_QPLL : entity work.Pgp3GthUsQpll
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            -- Stable Clock and Reset
+            stableClk  => axilClk,
+            stableRst  => axilRst,
+            -- QPLL Clocking
+            pgpRefClk  => refClk(i),
+            qpllLock   => qpllLock((4*i)+3 downto (4*i)),
+            qpllClk    => qpllClk((4*i)+3 downto (4*i)),
+            qpllRefclk => qpllRefclk((4*i)+3 downto (4*i)),
+            qpllRst    => qpllRst((4*i)+3 downto (4*i)));
+
+   end generate GEN_PLLCLK;
+
    --------------------------------
    -- Mapping QSFP[1:0] to PGP[7:0]
    --------------------------------
    MAP_QSFP : for i in 3 downto 0 generate
       -- QSFP[0] to PGP[3:0]
-      pgpRefClk(i+0) <= refClk(0);
-      pgpRxP(i+0)    <= qsfp0RxP(i);
-      pgpRxN(i+0)    <= qsfp0RxN(i);
-      qsfp0TxP(i)    <= pgpTxP(i+0);
-      qsfp0TxN(i)    <= pgpTxN(i+0);
+      pgpRxP(i+0) <= qsfp0RxP(i);
+      pgpRxN(i+0) <= qsfp0RxN(i);
+      qsfp0TxP(i) <= pgpTxP(i+0);
+      qsfp0TxN(i) <= pgpTxN(i+0);
       -- QSFP[1] to PGP[7:4]
-      pgpRefClk(i+4) <= refClk(1);
-      pgpRxP(i+4)    <= qsfp1RxP(i);
-      pgpRxN(i+4)    <= qsfp1RxN(i);
-      qsfp1TxP(i)    <= pgpTxP(i+4);
-      qsfp1TxN(i)    <= pgpTxN(i+4);
+      pgpRxP(i+4) <= qsfp1RxP(i);
+      pgpRxN(i+4) <= qsfp1RxN(i);
+      qsfp1TxP(i) <= pgpTxP(i+4);
+      qsfp1TxN(i) <= pgpTxN(i+4);
    end generate MAP_QSFP;
 
    ---------------------
@@ -199,17 +193,19 @@ begin
             TPD_G             => TPD_G,
             DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
             LANE_G            => i,
+            NUM_VC_G          => NUM_VC_G,
             AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
          port map (
-            -- DRP Clock and Reset
-            drpClk          => drpClk,
-            drpRst          => drpRst,
+            -- QPLL Interface
+            qpllLock        => qpllLock(i),
+            qpllClk         => qpllClk(i),
+            qpllRefclk      => qpllRefclk(i),
+            qpllRst         => qpllRst(i),
             -- PGP Serial Ports
             pgpRxP          => pgpRxP(i),
             pgpRxN          => pgpRxN(i),
             pgpTxP          => pgpTxP(i),
             pgpTxN          => pgpTxN(i),
-            pgpRefClk       => pgpRefClk(i),
             -- DMA Interface (dmaClk domain)
             dmaClk          => dmaClk,
             dmaRst          => dmaRst,

@@ -2,7 +2,7 @@
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-02-12
+-- Last update: 2018-10-09
 -------------------------------------------------------------------------------
 -- Description: Hardware File
 -------------------------------------------------------------------------------
@@ -32,9 +32,10 @@ use unisim.vcomponents.all;
 
 entity Hardware is
    generic (
-      TPD_G            : time             := 1 ns;
-      NUM_VC_G         : positive         := 4;
-      AXI_BASE_ADDR_G  : slv(31 downto 0) := x"0000_0000");
+      TPD_G             : time             := 1 ns;
+      NUM_VC_G          : positive         := 4;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
       -- AXI-Lite Interface
       axilClk         : in  sl;
@@ -95,10 +96,11 @@ begin
 
       U_PrbsLane : entity work.PrbsLane
          generic map(
-            TPD_G            => TPD_G,
-            LANE_G           => i,
-            NUM_VC_G         => NUM_VC_G,
-            AXI_BASE_ADDR_G  => AXI_CONFIG_C(i).baseAddr)
+            TPD_G             => TPD_G,
+            LANE_G            => i,
+            NUM_VC_G          => NUM_VC_G,
+            DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
          port map(
             -- DMA Interface
             dmaClk          => dmaClk,

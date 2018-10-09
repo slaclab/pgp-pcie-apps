@@ -32,6 +32,7 @@ entity PrbsLane is
       TPD_G            : time             := 1 ns;
       LANE_G           : natural          := 0;
       NUM_VC_G         : positive         := 4;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType;      
       AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0'));
    port (
       -- DMA Interface (dmaClk domain)
@@ -154,7 +155,7 @@ begin
             FIFO_PAUSE_THRESH_G => 512,
             -- AXI Stream Port Configurations
             SLAVE_AXI_CONFIG_G  => ssiAxiStreamConfig(4),
-            MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_C)
+            MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_G)
          port map (
             -- Slave Port
             sAxisClk    => dmaClk,

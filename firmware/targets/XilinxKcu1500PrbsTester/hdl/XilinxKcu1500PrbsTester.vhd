@@ -22,6 +22,7 @@ use work.StdRtlPkg.all;
 use work.AxiPkg.all;
 use work.AxiLitePkg.all;
 use work.AxiStreamPkg.all;
+use work.SsiPkg.all;
 use work.AxiPciePkg.all;
 
 library unisim;
@@ -29,8 +30,9 @@ use unisim.vcomponents.all;
 
 entity XilinxKcu1500PrbsTester is
    generic (
-      TPD_G        : time := 1 ns;
-      BUILD_INFO_G : BuildInfoType);
+      TPD_G             : time                := 1 ns;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface      
+      BUILD_INFO_G      : BuildInfoType);
    port (
       ---------------------
       --  Application Ports
@@ -56,8 +58,6 @@ entity XilinxKcu1500PrbsTester is
       emcClk       : in    sl;
       userClkP     : in    sl;
       userClkN     : in    sl;
-      swDip        : in    slv(3 downto 0);
-      led          : out   slv(7 downto 0);
       -- QSFP[0] Ports
       qsfp0RstL    : out   sl;
       qsfp0LpMode  : out   sl;
@@ -74,11 +74,6 @@ entity XilinxKcu1500PrbsTester is
       flashMiso    : in    sl;
       flashHoldL   : out   sl;
       flashWp      : out   sl;
-      -- DDR Ports
-      ddrClkP      : in    slv(3 downto 0);
-      ddrClkN      : in    slv(3 downto 0);
-      ddrOut       : out   DdrOutArray(3 downto 0);
-      ddrInOut     : inout DdrInOutArray(3 downto 0);
       -- PCIe Ports
       pciRstL      : in    sl;
       pciRefClkP   : in    sl;
@@ -105,12 +100,6 @@ architecture top_level of XilinxKcu1500PrbsTester is
    signal dmaIbMasters : AxiStreamMasterArray(7 downto 0);
    signal dmaIbSlaves  : AxiStreamSlaveArray(7 downto 0);
 
-   signal memReady        : slv(3 downto 0);
-   signal memWriteMasters : AxiWriteMasterArray(15 downto 0);
-   signal memWriteSlaves  : AxiWriteSlaveArray(15 downto 0);
-   signal memReadMasters  : AxiReadMasterArray(15 downto 0);
-   signal memReadSlaves   : AxiReadSlaveArray(15 downto 0);
-
 begin
 
    U_axilClk : BUFGCE_DIV
@@ -132,17 +121,17 @@ begin
 
    U_Core : entity work.XilinxKcu1500Core
       generic map (
-         TPD_G        => TPD_G,
-         BUILD_INFO_G => BUILD_INFO_G,
-         DMA_SIZE_G   => 8)
+         TPD_G             => TPD_G,
+         BUILD_INFO_G      => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         DMA_SIZE_G        => 8)
       port map (
          ------------------------      
          --  Top Level Interfaces
          ------------------------        
-         -- System Clock and Reset
-         sysClk          => dmaClk,
-         sysRst          => dmaRst,
          -- DMA Interfaces
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
@@ -154,12 +143,6 @@ begin
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
          appWriteSlave   => axilWriteSlave,
-         -- Memory bus (sysClk domain)
-         memReady        => memReady,
-         memWriteMasters => memWriteMasters,
-         memWriteSlaves  => memWriteSlaves,
-         memReadMasters  => memReadMasters,
-         memReadSlaves   => memReadSlaves,
          --------------
          --  Core Ports
          --------------   
@@ -167,8 +150,6 @@ begin
          emcClk          => emcClk,
          userClkP        => userClkP,
          userClkN        => userClkN,
-         swDip           => swDip,
-         led             => led,
          -- QSFP[0] Ports
          qsfp0RstL       => qsfp0RstL,
          qsfp0LpMode     => qsfp0LpMode,
@@ -185,11 +166,6 @@ begin
          flashMiso       => flashMiso,
          flashHoldL      => flashHoldL,
          flashWp         => flashWp,
-         -- DDR Ports
-         ddrClkP         => ddrClkP,
-         ddrClkN         => ddrClkN,
-         ddrOut          => ddrOut,
-         ddrInOut        => ddrInOut,
          -- PCIe Ports 
          pciRstL         => pciRstL,
          pciRefClkP      => pciRefClkP,
@@ -198,10 +174,6 @@ begin
          pciRxN          => pciRxN,
          pciTxP          => pciTxP,
          pciTxN          => pciTxN);
-
-   -- Unused memory signals
-   memWriteMasters <= (others => AXI_WRITE_MASTER_INIT_C);
-   memReadMasters  <= (others => AXI_READ_MASTER_INIT_C);
 
    -------------------------
    -- Unused QSFP interfaces
@@ -237,7 +209,7 @@ begin
       generic map (
          TPD_G           => TPD_G,
          NUM_VC_G        => 4,
-         AXI_BASE_ADDR_G => BAR0_BASE_ADDR_C)
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          -- AXI-Lite Interface
          axilClk         => axilClk,

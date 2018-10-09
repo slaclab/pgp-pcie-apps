@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
--- File       : SlacPgpCardG3Pgp2b.vhd
+-- File       : SlacPgpCardG3PrbsTester.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-09-28
--- Last update: 2018-03-15
+-- Last update: 2018-10-09
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ use work.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity SlacPgpCardG3Pgp2b is
+entity SlacPgpCardG3PrbsTester is
    generic (
       TPD_G        : time := 1 ns;
       BUILD_INFO_G : BuildInfoType);
@@ -66,9 +66,9 @@ entity SlacPgpCardG3Pgp2b is
       pciRxN     : in    slv(3 downto 0);
       pciTxP     : out   slv(3 downto 0);
       pciTxN     : out   slv(3 downto 0));
-end SlacPgpCardG3Pgp2b;
+end SlacPgpCardG3PrbsTester;
 
-architecture top_level of SlacPgpCardG3Pgp2b is
+architecture top_level of SlacPgpCardG3PrbsTester is
 
    signal axilClk         : sl;
    signal axilRst         : sl;
@@ -148,35 +148,51 @@ begin
          gtTxP(0) => evrTxP,
          gtTxN(0) => evrTxN);
 
+   U_QSFP0 : entity work.Gtpe2ChannelDummy
+      generic map (
+         TPD_G   => TPD_G,
+         WIDTH_G => 4)
+      port map (
+         refClk => axilClk,
+         gtRxP  => pgpRxP(3 downto 0),
+         gtRxN  => pgpRxN(3 downto 0),
+         gtTxP  => pgpTxP(3 downto 0),
+         gtTxN  => pgpTxN(3 downto 0));
+
+   U_QSFP1 : entity work.Gtpe2ChannelDummy
+      generic map (
+         TPD_G   => TPD_G,
+         WIDTH_G => 4)
+      port map (
+         refClk => axilClk,
+         gtRxP  => pgpRxP(7 downto 4),
+         gtRxN  => pgpRxN(7 downto 4),
+         gtTxP  => pgpTxP(7 downto 4),
+         gtTxN  => pgpTxN(7 downto 4));
+
+   ---------------
+   -- PRBS Modules
+   ---------------
    U_Hardware : entity work.Hardware
       generic map (
-         TPD_G           => TPD_G,
-         AXI_BASE_ADDR_G => x"0080_0000")
+         TPD_G             => TPD_G,
+         NUM_VC_G          => 1,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
-         ------------------------      
-         --  Top Level Interfaces
-         ------------------------        
-         -- AXI-Lite Interface (axilClk domain)
+         -- AXI-Lite Interface
          axilClk         => axilClk,
          axilRst         => axilRst,
          axilReadMaster  => axilReadMaster,
          axilReadSlave   => axilReadSlave,
          axilWriteMaster => axilWriteMaster,
          axilWriteSlave  => axilWriteSlave,
-         -- DMA Interface (dmaClk domain)
+         -- DMA Interface
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
-         dmaIbSlaves     => dmaIbSlaves,
-         -- PGP GT Serial Ports
-         pgpRefClkP      => pgpRefClkP,
-         pgpRefClkN      => pgpRefClkN,
-         pgpRxP          => pgpRxP,
-         pgpRxN          => pgpRxN,
-         pgpTxP          => pgpTxP,
-         pgpTxN          => pgpTxN);
+         dmaIbSlaves     => dmaIbSlaves);
 
 end top_level;
 

@@ -96,13 +96,14 @@ architecture mapping of Application is
 
    -- Defined module generics as constants (in case partial reconfiguration build)
    constant TPD_G            : time             := 1 ns;
-   constant AXI_BASE_ADDR_G  : slv(31 downto 0) := BAR0_BASE_ADDR_C;
-   constant AXI_ERROR_RESP_G : slv(1 downto 0)  := BAR0_ERROR_RESP_C;
    constant NUM_VC_C         : positive         := 4;
 
+   constant START_ADDR_C : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '0');
+   constant STOP_ADDR_C  : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '1');   
+   
    constant NUM_AXI_MASTERS_C : natural := 19;
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 23, 16);
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, x"00800000", 23, 16);
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
@@ -157,7 +158,6 @@ begin
    U_XBAR : entity work.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
-         DEC_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          NUM_SLAVE_SLOTS_G  => 1,
          NUM_MASTER_SLOTS_G => NUM_AXI_MASTERS_C,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
@@ -180,7 +180,7 @@ begin
       generic map (
          TPD_G        => TPD_C,
          BUILD_INFO_G => BUILD_INFO_C,
-         CLK_PERIOD_G => (1.0/SYS_CLK_FREQ_C))
+         CLK_PERIOD_G => (1.0/DMA_CLK_FREQ_C))
       port map (
          -- AXI-Lite Interface
          axiClk         => axilClk,
@@ -198,8 +198,7 @@ begin
          generic map(
             TPD_G            => TPD_G,
             NUM_VC_G         => NUM_VC_C,
-            AXI_BASE_ADDR_G  => AXI_CONFIG_C(i).baseAddr,
-            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
+            AXI_BASE_ADDR_G  => AXI_CONFIG_C(i).baseAddr)
          port map(
             -- Reference Clock and reset
             pgpClk          => axilClk,
@@ -230,7 +229,7 @@ begin
       generic map(
          TPD_G            => TPD_G,
          COMMON_CLK_G     => false,           -- true if axisClk = statusClk
-         AXIS_CLK_FREQ_G  => SYS_CLK_FREQ_C,  -- units of Hz
+         AXIS_CLK_FREQ_G  => DMA_CLK_FREQ_C,  -- units of Hz
          AXIS_NUM_SLOTS_G => 8,
          AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C)
       port map(
@@ -253,47 +252,27 @@ begin
    ----------------
    -- Memory Tester
    ----------------
-   U_MemTester : entity work.MemTester
+   U_AxiMemTester : entity work.AxiMemTester
       generic map (
-         TPD_G           => TPD_C,
-         AXI_BASE_ADDR_G => AXI_CONFIG_C(18).baseAddr)
+         TPD_G        => TPD_G,
+         START_ADDR_G => START_ADDR_C,
+         STOP_ADDR_G  => STOP_ADDR_C,
+         AXI_CONFIG_G => MEM_AXI_CONFIG_C)
       port map (
-         -- AXI-Lite Interface (axilClk domain)
+         -- AXI-Lite Interface
          axilClk         => axilClk,
          axilRst         => axilRst,
          axilReadMaster  => axilReadMasters(18),
          axilReadSlave   => axilReadSlaves(18),
          axilWriteMaster => axilWriteMasters(18),
          axilWriteSlave  => axilWriteSlaves(18),
-         -- Application AXI Interface (memClk domain)
-         memClk          => dmaClk,
-         memRst          => dmaRst,
-         memReady        => mig1Ready,
-         memWriteMasters => mig1WriteMasters,
-         memWriteSlaves  => mig1WriteSlaves,
-         memReadMasters  => mig1ReadMasters,
-         memReadSlaves   => mig1ReadSlaves);
-
-   --------------
-   -- Memory XBAR
-   --------------
-   U_MigXbar : entity work.MigXbar
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         -- Slave Interfaces
-         sAxiClk          => dmaClk,
-         sAxiRst          => dmaRst,
-         sAxiWriteMasters => mig1WriteMasters,
-         sAxiWriteSlaves  => mig1WriteSlaves,
-         sAxiReadMasters  => mig1ReadMasters,
-         sAxiReadSlaves   => mig1ReadSlaves,
-         -- Master Interface
-         mAxiClk          => mig1Clk,
-         mAxiRst          => mig1Rst,
-         mAxiWriteMaster  => mig1WriteMaster,
-         mAxiWriteSlave   => mig1WriteSlave,
-         mAxiReadMaster   => mig1ReadMaster,
-         mAxiReadSlave    => mig1ReadSlave);
+         -- Memory Interface
+         axiClk          => dmaClk,
+         axiRst          => dmaRst,
+         start           => mig1Ready,
+         axiWriteMaster  => mig1WriteMaster,
+         axiWriteSlave   => mig1WriteSlave,
+         axiReadMaster   => mig1ReadMaster,
+         axiReadSlave    => mig1ReadSlave);   
 
 end mapping;
