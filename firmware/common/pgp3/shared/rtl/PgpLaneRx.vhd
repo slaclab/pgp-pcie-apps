@@ -2,15 +2,15 @@
 -- File       : PgpLaneRx.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-02-07
+-- Last update: 2018-06-29
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
--- This file is part of 'PGP PCIe APP DEV'.
+-- This file is part of 'ATLAS RD53 DEV'.
 -- It is subject to the license terms in the LICENSE.txt file found in the 
 -- top-level directory of this distribution and at: 
 --    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
+-- No part of 'ATLAS RD53 DEV', including this file, 
 -- may be copied, modified, propagated, or distributed except according to 
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
@@ -22,15 +22,14 @@ use ieee.std_logic_unsigned.all;
 
 use work.StdRtlPkg.all;
 use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
 use work.Pgp3Pkg.all;
 
 entity PgpLaneRx is
    generic (
-      TPD_G    : time     := 1 ns;
+      TPD_G             : time   := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      LANE_G   : natural  := 0;
-      NUM_VC_G : positive := 16);
+      LANE_G            : natural;
+      NUM_VC_G          : positive);
    port (
       -- DMA Interface (dmaClk domain)
       dmaClk       : in  sl;
@@ -40,7 +39,7 @@ entity PgpLaneRx is
       -- PGP Interface (pgpClk domain)
       pgpClk       : in  sl;
       pgpRst       : in  sl;
-      pgpRxOut     : in  Pgp3RxOutType;
+      rxlinkReady  : in  sl;
       pgpRxMasters : in  AxiStreamMasterArray(NUM_VC_G-1 downto 0);
       pgpRxCtrl    : out AxiStreamCtrlArray(NUM_VC_G-1 downto 0));
 end PgpLaneRx;
@@ -65,13 +64,13 @@ architecture mapping of PgpLaneRx is
 
 begin
 
-   BLOWOFF_FILTER : process (pgpRxMasters, pgpRxOut) is
+   BLOWOFF_FILTER : process (pgpRxMasters, rxlinkReady) is
       variable tmp : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
       variable i   : natural;
    begin
       tmp := pgpRxMasters;
       for i in NUM_VC_G-1 downto 0 loop
-         if (pgpRxOut.linkReady = '0') then
+         if (rxlinkReady = '0') then
             tmp(i).tValid := '0';
          end if;
       end loop;
@@ -91,11 +90,11 @@ begin
             VALID_THOLD_G       => 128,  -- Hold until enough to burst into the interleaving MUX
             VALID_BURST_MODE_G  => true,
             -- FIFO configurations
-            BRAM_EN_G           => true,
+            BRAM_EN_G           => true, 
             GEN_SYNC_FIFO_G     => true,
             FIFO_ADDR_WIDTH_G   => 10,
             FIFO_FIXED_THRESH_G => true,
-            FIFO_PAUSE_THRESH_G => 512,
+            FIFO_PAUSE_THRESH_G => 256,
             -- AXI Stream Port Configurations
             SLAVE_AXI_CONFIG_G  => PGP3_AXIS_CONFIG_C,
             MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_G)
@@ -143,7 +142,7 @@ begin
          SLAVE_READY_EN_G    => true,
          VALID_THOLD_G       => 1,
          -- FIFO configurations
-         BRAM_EN_G           => true,
+         BRAM_EN_G           => true, 
          GEN_SYNC_FIFO_G     => false,
          FIFO_ADDR_WIDTH_G   => 9,
          -- AXI Stream Port Configurations

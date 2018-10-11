@@ -2,15 +2,15 @@
 -- File       : PgpLaneTx.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-01-10
+-- Last update: 2018-06-29
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
--- This file is part of 'PGP PCIe APP DEV'.
+-- This file is part of 'ATLAS RD53 DEV'.
 -- It is subject to the license terms in the LICENSE.txt file found in the 
 -- top-level directory of this distribution and at: 
 --    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
+-- No part of 'ATLAS RD53 DEV', including this file, 
 -- may be copied, modified, propagated, or distributed except according to 
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
@@ -22,14 +22,13 @@ use ieee.std_logic_unsigned.all;
 
 use work.StdRtlPkg.all;
 use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
 use work.Pgp3Pkg.all;
 
 entity PgpLaneTx is
    generic (
-      TPD_G    : time     := 1 ns;
+      TPD_G             : time   := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      NUM_VC_G : positive := 4);
+      NUM_VC_G          : positive);
    port (
       -- DMA Interface (dmaClk domain)
       dmaClk       : in  sl;
@@ -39,8 +38,8 @@ entity PgpLaneTx is
       -- PGP Interface (pgpClk domain)
       pgpClk       : in  sl;
       pgpRst       : in  sl;
-      pgpRxOut     : in  Pgp3RxOutType;
-      pgpTxOut     : in  Pgp3TxOutType;
+      rxlinkReady  : in  sl;
+      txlinkReady  : in  sl;
       pgpTxMasters : out AxiStreamMasterArray(NUM_VC_G-1 downto 0);
       pgpTxSlaves  : in  AxiStreamSlaveArray(NUM_VC_G-1 downto 0));
 end PgpLaneTx;
@@ -61,7 +60,7 @@ architecture mapping of PgpLaneTx is
 
 begin
 
-   linkReady <= pgpTxOut.linkReady and pgpRxOut.linkReady;
+   linkReady <= txlinkReady and rxlinkReady;
 
    U_FlushSync : entity work.Synchronizer
       generic map (
@@ -96,7 +95,7 @@ begin
          SLAVE_READY_EN_G    => false,
          VALID_THOLD_G       => 1,
          -- FIFO configurations
-         BRAM_EN_G           => false,
+         BRAM_EN_G           => true, 
          GEN_SYNC_FIFO_G     => false,
          FIFO_ADDR_WIDTH_G   => 5,
          FIFO_PAUSE_THRESH_G => 20,
@@ -141,7 +140,7 @@ begin
          NUM_MASTERS_G => NUM_VC_G,
          MODE_G        => "INDEXED",
          PIPE_STAGES_G => 1,
-         TDEST_HIGH_G  => 3,
+         TDEST_HIGH_G  => bitSize(NUM_VC_G)-1,
          TDEST_LOW_G   => 0)
       port map (
          -- Clock and reset

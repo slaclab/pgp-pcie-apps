@@ -31,7 +31,7 @@ use unisim.vcomponents.all;
 entity XilinxKcu1500Pgp3 is
    generic (
       TPD_G             : time                := 1 ns;
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface      
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(8, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 8);  --- 8 Byte (64-bit) tData interface    
       BUILD_INFO_G      : BuildInfoType);
    port (
       ---------------------

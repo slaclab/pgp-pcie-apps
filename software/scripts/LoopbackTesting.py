@@ -55,14 +55,6 @@ parser.add_argument(
 ) 
 
 parser.add_argument(
-    "--hwEmu", 
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Flag for enabling hardware emulation (testing without hardware)",
-) 
-
-parser.add_argument(
     "--pollEn", 
     type     = argBool,
     required = False,
@@ -86,36 +78,29 @@ args = parser.parse_args()
 # Set base
 base = pr.Root(name='pciServer',description='DMA Loopback Testing')
 
-# Check if emulating the GUI interface
-if (args.hwEmu):
-    # Create emulated hardware interface
-    print ("Running in Hardware Emulation Mode:")
-    memMap = pyrogue.interfaces.simulation.MemEmulate()
+# Create PCIE memory mapped interface
+memMap = rogue.hardware.axi.AxiMemMap(args.dev)   
+
+# Add the PCIe core device to base
+base.add(pcie.AxiPcieCore(
+    memBase = memMap ,
+    offset  = 0x00000000, 
+    expand  = False, 
+))
     
-else:
-    # Create PCIE memory mapped interface
-    memMap = rogue.hardware.axi.AxiMemMap(args.dev)   
+# Loop through the DMA channels
+for lane in range(args.numLane):
 
-    # Add the PCIe core device to base
-    base.add(pcie.AxiPcieCore(
-        memBase = memMap ,
-        offset  = 0x00000000, 
-        expand  = False, 
-    ))
-    
-    # Loop through the DMA channels
-    for lane in range(args.numLane):
+    # Loop through the virtual channels
+    for vc in range(args.numVc):  
 
-        # Loop through the virtual channels
-        for vc in range(args.numVc):  
-
-            # Add the FW PRBS TX Module
-            base.add(ssi.SsiPrbsTx(
-                name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
-                memBase = memMap,
-                offset  = 0x00800000 + (0x10000*lane) + (0x1000*vc), 
-                expand  = False, 
-            ))        
+        # Add the FW PRBS TX Module
+        base.add(ssi.SsiPrbsTx(
+            name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
+            memBase = memMap,
+            offset  = 0x00800000 + (0x10000*lane) + (0x1000*vc), 
+            expand  = False, 
+        ))        
 
 #################################################################
 
@@ -130,13 +115,8 @@ for lane in range(args.numLane):
     # Loop through the virtual channels
     for vc in range(args.numVc):
 
-        # Check if emulating hardware the GUI interface
-        if (args.hwEmu):
-            # Create emulated hardware interface
-            dmaStream[lane][vc] = rogue.interfaces.stream.Fifo(1024,0)
-        else:
-            # Set the DMA loopback channel
-            dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(32*lane)+vc,1)  
+        # Set the DMA loopback channel
+        dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(32*lane)+vc,1)  
         
         # Connect the SW PRBS Receiver module
         prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=False)
@@ -154,7 +134,6 @@ for lane in range(args.numLane):
 base.start(
     pollEn   = args.pollEn,
     initRead = args.initRead,
-    timeout  = 1.0,
 )
 
 # Create GUI

@@ -31,7 +31,9 @@ use unisim.vcomponents.all;
 entity XilinxKcu1500DmaLoopback is
    generic (
       TPD_G             : time                := 1 ns;
+      DMA_SIZE_G        : positive            := 1;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface      
+      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(32, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 32 Byte (256-bit) tData interface      
       BUILD_INFO_G      : BuildInfoType);
    port (
       ---------------------
@@ -91,8 +93,8 @@ architecture top_level of XilinxKcu1500DmaLoopback is
 
    signal dmaClk     : sl;
    signal dmaRst     : sl;
-   signal dmaMasters : AxiStreamMasterArray(7 downto 0);
-   signal dmaSlaves  : AxiStreamSlaveArray(7 downto 0);
+   signal dmaMasters : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaSlaves  : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
 
 begin
 
@@ -118,7 +120,7 @@ begin
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-         DMA_SIZE_G        => 8)
+         DMA_SIZE_G        => DMA_SIZE_G)
       port map (
          ------------------------      
          --  Top Level Interfaces

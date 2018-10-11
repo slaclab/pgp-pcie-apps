@@ -83,7 +83,7 @@ begin
       generic map (
          TPD_G             => TPD_G,
          REFCLK_WIDTH_G    => 2,
-         NUM_VC_G          => 16,
+         NUM_VC_G          => 4,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          AXI_BASE_ADDR_G   => AXI_BASE_ADDR_G)
       port map (

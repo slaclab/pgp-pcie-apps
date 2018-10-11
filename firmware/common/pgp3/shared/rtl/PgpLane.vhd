@@ -138,8 +138,8 @@ begin
          -- PGP Interface
          pgpClk       => pgpClk,
          pgpRst       => pgpRst,
-         pgpRxOut     => pgpRxOut,
-         pgpTxOut     => pgpTxOut,
+         rxlinkReady  => pgpRxOut.linkReady,
+         txlinkReady  => pgpTxOut.linkReady,
          pgpTxMasters => pgpTxMasters,
          pgpTxSlaves  => pgpTxSlaves);
 
@@ -161,7 +161,7 @@ begin
          -- PGP RX Interface (pgpRxClk domain)
          pgpClk       => pgpClk,
          pgpRst       => pgpRst,
-         pgpRxOut     => pgpRxOut,
+         rxlinkReady  => pgpRxOut.linkReady,
          pgpRxMasters => pgpRxMasters,
          pgpRxCtrl    => pgpRxCtrl);
 
