@@ -55,6 +55,14 @@ parser.add_argument(
 ) 
 
 parser.add_argument(
+    "--loopback", 
+    type     = argBool,
+    required = False,
+    default  = True,
+    help     = "Enable read all variables at start",
+)  
+
+parser.add_argument(
     "--pollEn", 
     type     = argBool,
     required = False,
@@ -87,7 +95,30 @@ base.add(pcie.AxiPcieCore(
     offset  = 0x00000000, 
     expand  = False, 
 ))
-     
+    
+# Loop through the DMA channels
+for lane in range(args.numLane):
+
+    # Loop through the virtual channels
+    for vc in range(args.numVc):  
+
+        # Add the FW PRBS TX Module
+        base.add(ssi.SsiPrbsTx(
+            name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
+            memBase = memMap,
+            offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)), 
+            expand  = False, 
+        ))        
+
+        # Add the FW PRBS RX Module
+        base.add(ssi.SsiPrbsRx(
+            name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
+            memBase = memMap,
+            offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)), 
+            expand  = False, 
+        ))        
+        
+        
 #################################################################
 
 # Create an arrays to be filled
@@ -104,15 +135,23 @@ for lane in range(args.numLane):
         # Set the DMA loopback channel
         dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(32*lane)+vc,1)  
         
-        # Connect the SW PRBS Receiver module
-        prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=False)
-        pyrogue.streamConnect(dmaStream[lane][vc],prbsRx[lane][vc])
-        base.add(prbsRx[lane][vc])  
-            
-        # Connect the SW PRBS Transmitter module
-        prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),expand=False)
-        pyrogue.streamConnect(prbTx[lane][vc], dmaStream[lane][vc])
-        base.add(prbTx[lane][vc])  
+        if (args.loopback):
+            # Loopback the PRBS data
+            pyrogue.streamConnect(dmaStream[lane][vc],dmaStream[lane][vc])  
+        
+        else:
+        
+            # Connect the SW PRBS Receiver module
+            prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=False)
+            pyrogue.streamConnect(dmaStream[lane][vc],prbsRx[lane][vc])
+            base.add(prbsRx[lane][vc])  
+                
+            # Connect the SW PRBS Transmitter module
+            prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),expand=False)
+            pyrogue.streamConnect(prbTx[lane][vc], dmaStream[lane][vc])
+            base.add(prbTx[lane][vc])  
+        
+        
 
 #################################################################
 

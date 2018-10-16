@@ -2,7 +2,7 @@
 -- File       : PrbsLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-02-12
+-- Last update: 2018-10-15
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -29,11 +29,12 @@ use work.SsiPkg.all;
 
 entity PrbsLane is
    generic (
-      TPD_G            : time             := 1 ns;
-      LANE_G           : natural          := 0;
-      NUM_VC_G         : positive         := 4;
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType;      
-      AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0'));
+      TPD_G             : time                    := 1 ns;
+      LANE_G            : natural                 := 0;
+      NUM_VC_G          : positive                := 4;
+      PRBS_SEED_SIZE_G  : natural range 32 to 256 := 32;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      AXI_BASE_ADDR_G   : slv(31 downto 0)        := (others => '0'));
    port (
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
@@ -62,7 +63,7 @@ architecture mapping of PrbsLane is
       return retConf;
    end function;
 
-   constant NUM_AXI_MASTERS_C : natural := NUM_VC_G;
+   constant NUM_AXI_MASTERS_C : natural := 2*NUM_VC_G;
 
    constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 16, 12);
 
@@ -74,18 +75,10 @@ architecture mapping of PrbsLane is
    signal dmaIbMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal dmaIbSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
 
-   signal txMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
-   signal txSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
-
-   signal rxMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
-   signal rxSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
-
-   signal dmaReset  : slv(NUM_VC_G-1 downto 0);
-   signal axilRseet : slv(NUM_VC_G-1 downto 0);
+   signal dmaObMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
+   signal dmaObSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
 
 begin
-
-   dmaObSlave <= AXI_STREAM_SLAVE_FORCE_C;
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -111,81 +104,69 @@ begin
    ---------------
    -- PRBS Modules
    ---------------
-   GEN_TX :
+   GEN_VC :
    for i in NUM_VC_G-1 downto 0 generate
 
       U_SsiPrbsTx : entity work.SsiPrbsTx
          generic map (
             TPD_G                      => TPD_G,
+            PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
+            VALID_THOLD_G              => 256,  -- Hold until enough to burst into the interleaving MUX
+            VALID_BURST_MODE_G         => true,
             MASTER_AXI_PIPE_STAGES_G   => 1,
-            MASTER_AXI_STREAM_CONFIG_G => ssiAxiStreamConfig(4))
+            MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
          port map (
             -- Master Port (mAxisClk)
             mAxisClk        => dmaClk,
-            mAxisRst        => dmaReset(i),
-            mAxisMaster     => txMasters(i),
-            mAxisSlave      => txSlaves(i),
+            mAxisRst        => dmaRst,
+            mAxisMaster     => dmaIbMasters(i),
+            mAxisSlave      => dmaIbSlaves(i),
             -- Trigger Signal (locClk domain)
             locClk          => axilClk,
-            locRst          => axilRseet(i),
-            trig            => '0',
-            packetLength    => x"00000FFF",
-            tDest           => x"00",
-            tId             => x"00",
+            locRst          => axilRst,
             -- Optional: Axi-Lite Register Interface (locClk domain)
-            axilReadMaster  => axilReadMasters(i+0),
-            axilReadSlave   => axilReadSlaves(i+0),
-            axilWriteMaster => axilWriteMasters(i+0),
-            axilWriteSlave  => axilWriteSlaves(i+0));
+            axilReadMaster  => axilReadMasters(2*i+0),
+            axilReadSlave   => axilReadSlaves(2*i+0),
+            axilWriteMaster => axilWriteMasters(2*i+0),
+            axilWriteSlave  => axilWriteSlaves(2*i+0));
 
-      TX_FIFO : entity work.AxiStreamFifoV2
+      U_SsiPrbsRx : entity work.SsiPrbsRx
          generic map (
-            -- General Configurations
-            TPD_G               => TPD_G,
-            INT_PIPE_STAGES_G   => 1,
-            PIPE_STAGES_G       => 1,
-            SLAVE_READY_EN_G    => true,
-            VALID_THOLD_G       => 128,  -- Hold until enough to burst into the interleaving MUX
-            VALID_BURST_MODE_G  => true,
-            -- FIFO configurations
-            BRAM_EN_G           => true,
-            GEN_SYNC_FIFO_G     => true,
-            FIFO_ADDR_WIDTH_G   => 10,
-            FIFO_FIXED_THRESH_G => true,
-            FIFO_PAUSE_THRESH_G => 512,
-            -- AXI Stream Port Configurations
-            SLAVE_AXI_CONFIG_G  => ssiAxiStreamConfig(4),
-            MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_G)
+            TPD_G                     => TPD_G,
+            PRBS_SEED_SIZE_G          => PRBS_SEED_SIZE_G,
+            SLAVE_AXI_PIPE_STAGES_G   => 1,
+            SLAVE_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
          port map (
-            -- Slave Port
-            sAxisClk    => dmaClk,
-            sAxisRst    => dmaReset(i),
-            sAxisMaster => txMasters(i),
-            sAxisSlave  => txSlaves(i),
-            -- Master Port
-            mAxisClk    => dmaClk,
-            mAxisRst    => dmaReset(i),
-            mAxisMaster => dmaIbMasters(i),
-            mAxisSlave  => dmaIbSlaves(i));
+            sAxisClk       => dmaClk,
+            sAxisRst       => dmaRst,
+            sAxisMaster    => dmaObMasters(i),
+            sAxisSlave     => dmaObSlaves(i),
+            axiClk         => axilClk,
+            axiRst         => axilRst,
+            axiReadMaster  => axilReadMasters(2*i+1),
+            axiReadSlave   => axilReadSlaves(2*i+1),
+            axiWriteMaster => axilWriteMasters(2*i+1),
+            axiWriteSlave  => axilWriteSlaves(2*i+1));
 
+   end generate GEN_VC;
 
-      U_dmaRst : entity work.RstPipeline
-         generic map (
-            TPD_G => TPD_G)
-         port map (
-            clk    => dmaClk,
-            rstIn  => dmaRst,
-            rstOut => dmaReset(i));
-
-      U_axilRst : entity work.RstPipeline
-         generic map (
-            TPD_G => TPD_G)
-         port map (
-            clk    => axilClk,
-            rstIn  => axilRst,
-            rstOut => axilRseet(i));
-
-   end generate GEN_TX;
+   U_DeMux : entity work.AxiStreamDeMux
+      generic map (
+         TPD_G          => TPD_G,
+         NUM_MASTERS_G  => NUM_VC_G,
+         MODE_G         => "ROUTED",
+         TDEST_ROUTES_G => TdestRoutes,
+         PIPE_STAGES_G  => 1)
+      port map (
+         -- Clock and reset
+         axisClk      => dmaClk,
+         axisRst      => dmaRst,
+         -- Slave
+         sAxisMaster  => dmaObMaster,
+         sAxisSlave   => dmaObSlave,
+         -- Masters
+         mAxisMasters => dmaObMasters,
+         mAxisSlaves  => dmaObSlaves);
 
    U_Mux : entity work.AxiStreamMux
       generic map (

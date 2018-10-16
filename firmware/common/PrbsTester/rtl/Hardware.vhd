@@ -2,7 +2,7 @@
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-10-09
+-- Last update: 2018-10-15
 -------------------------------------------------------------------------------
 -- Description: Hardware File
 -------------------------------------------------------------------------------
@@ -32,10 +32,12 @@ use unisim.vcomponents.all;
 
 entity Hardware is
    generic (
-      TPD_G             : time             := 1 ns;
-      NUM_VC_G          : positive         := 4;
+      TPD_G             : time                    := 1 ns;
+      DMA_SIZE_G        : positive                := 1;
+      NUM_VC_G          : positive                := 1;
+      PRBS_SEED_SIZE_G  : natural range 32 to 256 := 32;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
+      AXI_BASE_ADDR_G   : slv(31 downto 0)        := x"0080_0000");
    port (
       -- AXI-Lite Interface
       axilClk         : in  sl;
@@ -47,25 +49,23 @@ entity Hardware is
       -- DMA Interface
       dmaClk          : in  sl;
       dmaRst          : in  sl;
-      dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0));
+      dmaObMasters    : in  AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0));
 end Hardware;
 
 architecture mapping of Hardware is
 
-   constant NUM_AXI_MASTERS_C : natural := 8;
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(DMA_SIZE_G-1 downto 0) := genAxiLiteConfig(DMA_SIZE_G, AXI_BASE_ADDR_G, 20, 16);
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 20, 16);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(DMA_SIZE_G-1 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal axilReadMasters  : AxiLiteReadMasterArray(DMA_SIZE_G-1 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G-1 downto 0);
 
-   signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
-
-   signal dmaReset  : slv(7 downto 0);
-   signal axilRseet : slv(7 downto 0);
+   signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
+   signal axilRseet : slv(DMA_SIZE_G-1 downto 0);
 
 begin
    ---------------------
@@ -75,7 +75,7 @@ begin
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => NUM_AXI_MASTERS_C,
+         NUM_MASTER_SLOTS_G => DMA_SIZE_G,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
       port map (
          axiClk              => axilClk,
@@ -92,7 +92,7 @@ begin
    ---------------
    -- PRBS Modules
    ---------------
-   GEN_VEC : for i in 7 downto 0 generate
+   GEN_VEC : for i in DMA_SIZE_G-1 downto 0 generate
 
       U_PrbsLane : entity work.PrbsLane
          generic map(
@@ -100,6 +100,7 @@ begin
             LANE_G            => i,
             NUM_VC_G          => NUM_VC_G,
             DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+            PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
             AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
          port map(
             -- DMA Interface

@@ -1,5 +1,5 @@
 # Define Firmware Version Number
-export PRJ_VERSION = 0x00000011
+export PRJ_VERSION = 0x00000026
 
 # Define target part
 export PRJ_PART = xcku115-flvb2104-2-e

@@ -23,38 +23,18 @@ set ilaName u_ila_dma
 
 CreateDebugCore ${ilaName}
 
-set_property C_DATA_DEPTH 8192 [get_debug_cores ${ilaName}]
+set_property C_DATA_DEPTH 1024 [get_debug_cores ${ilaName}]
 
 SetDebugCoreClk ${ilaName} {U_Core/U_AxiPcieDma/axiClk}
 
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadMaster[araddr][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadMaster[arcache][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadMaster[arlen][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadSlave[rdata][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadSlave[rresp][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axisMaster[tData][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axisMaster[tDest][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axisMaster[tKeep][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axisMaster[tUser][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescReq[address][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescReq[buffId][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescReq[dest][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescReq[firstUser][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescReq[lastUser][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescReq[size][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescRet[buffId][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescRet[result][*]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadMaster[arvalid]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadMaster[rready]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadSlave[arready]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadSlave[rlast]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axiReadSlave[rvalid]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axisCtrl[pause]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axisMaster[tLast]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/axisMaster[tValid]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescReq[valid]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescRet[valid]}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/dmaRdDescRetAck}
-ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_V2Gen/U_ChanGen[0].U_DmaRead/sSlave[tReady]}
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/resizeWriteMasters[1][*}
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/resizeWriteSlaves[1][*}
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/resizeReadMasters[1][*}
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/resizeReadSlaves[1][*}
+
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/sAxiWriteMasters[1][*}
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/sAxiWriteSlaves[1][*}
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/sAxiReadMasters[1][*}
+ConfigProbe ${ilaName} {U_Core/U_AxiPcieDma/U_XBAR/sAxiReadSlaves[1][*}
 
 WriteDebugProbes ${ilaName}
