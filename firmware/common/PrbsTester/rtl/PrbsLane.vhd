@@ -114,7 +114,7 @@ begin
             TPD_G                      => TPD_G,
             PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
             VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
-            VALID_BURST_MODE_G         => true,
+            VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
             MASTER_AXI_PIPE_STAGES_G   => 1,
             MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
          port map (
@@ -126,6 +126,7 @@ begin
             -- Trigger Signal (locClk domain)
             locClk          => axilClk,
             locRst          => axilRst,
+            tDest           => toSlv((32*LANE_G)+i, 8),
             -- Optional: Axi-Lite Register Interface (locClk domain)
             axilReadMaster  => axilReadMasters(2*i+0),
             axilReadSlave   => axilReadSlaves(2*i+0),
@@ -152,43 +153,59 @@ begin
 
    end generate GEN_VC;
 
-   U_DeMux : entity work.AxiStreamDeMux
-      generic map (
-         TPD_G          => TPD_G,
-         NUM_MASTERS_G  => NUM_VC_G,
-         MODE_G         => "ROUTED",
-         TDEST_ROUTES_G => TdestRoutes,
-         PIPE_STAGES_G  => 1)
-      port map (
-         -- Clock and reset
-         axisClk      => dmaClk,
-         axisRst      => dmaRst,
-         -- Slave
-         sAxisMaster  => dmaObMaster,
-         sAxisSlave   => dmaObSlave,
-         -- Masters
-         mAxisMasters => dmaObMasters,
-         mAxisSlaves  => dmaObSlaves);
 
-   U_Mux : entity work.AxiStreamMux
-      generic map (
-         TPD_G                => TPD_G,
-         NUM_SLAVES_G         => NUM_VC_G,
-         MODE_G               => "ROUTED",
-         TDEST_ROUTES_G       => TdestRoutes,
-         ILEAVE_EN_G          => true,
-         ILEAVE_ON_NOTVALID_G => false,
-         ILEAVE_REARB_G       => ILEAVE_REARB_C,
-         PIPE_STAGES_G        => 1)
-      port map (
-         -- Clock and reset
-         axisClk      => dmaClk,
-         axisRst      => dmaRst,
-         -- Slaves
-         sAxisMasters => dmaIbMasters,
-         sAxisSlaves  => dmaIbSlaves,
-         -- Master
-         mAxisMaster  => dmaIbMaster,
-         mAxisSlave   => dmaIbSlave);
+   BYP_MUX : if (NUM_VC_G = 1) generate
+
+      dmaObMasters(0) <= dmaObMaster;
+      dmaObSlave      <= dmaObSlaves(0);
+
+      dmaIbMaster    <= dmaIbMasters(0);
+      dmaIbSlaves(0) <= dmaIbSlave;
+
+   end generate;
+
+
+   GEN_MUX : if (NUM_VC_G /= 1) generate
+
+      U_DeMux : entity work.AxiStreamDeMux
+         generic map (
+            TPD_G          => TPD_G,
+            NUM_MASTERS_G  => NUM_VC_G,
+            MODE_G         => "ROUTED",
+            TDEST_ROUTES_G => TdestRoutes,
+            PIPE_STAGES_G  => 1)
+         port map (
+            -- Clock and reset
+            axisClk      => dmaClk,
+            axisRst      => dmaRst,
+            -- Slave
+            sAxisMaster  => dmaObMaster,
+            sAxisSlave   => dmaObSlave,
+            -- Masters
+            mAxisMasters => dmaObMasters,
+            mAxisSlaves  => dmaObSlaves);
+
+      U_Mux : entity work.AxiStreamMux
+         generic map (
+            TPD_G                => TPD_G,
+            NUM_SLAVES_G         => NUM_VC_G,
+            MODE_G               => "ROUTED",
+            TDEST_ROUTES_G       => TdestRoutes,
+            ILEAVE_EN_G          => true,
+            ILEAVE_ON_NOTVALID_G => false,
+            ILEAVE_REARB_G       => ILEAVE_REARB_C,
+            PIPE_STAGES_G        => 1)
+         port map (
+            -- Clock and reset
+            axisClk      => dmaClk,
+            axisRst      => dmaRst,
+            -- Slaves
+            sAxisMasters => dmaIbMasters,
+            sAxisSlaves  => dmaIbSlaves,
+            -- Master
+            mAxisMaster  => dmaIbMaster,
+            mAxisSlave   => dmaIbSlave);
+
+   end generate;
 
 end mapping;
