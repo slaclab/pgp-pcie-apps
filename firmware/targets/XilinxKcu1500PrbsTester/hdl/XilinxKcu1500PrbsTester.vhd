@@ -113,14 +113,16 @@ architecture top_level of XilinxKcu1500PrbsTester is
 
 begin
 
-   U_axilClk : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 2)
-      port map (
-         I   => dmaClk,
-         CE  => '1',
-         CLR => '0',
-         O   => axilClk);
+   -- U_axilClk : BUFGCE_DIV
+      -- generic map (
+         -- BUFGCE_DIVIDE => 2)
+      -- port map (
+         -- I   => dmaClk,
+         -- CE  => '1',
+         -- CLR => '0',
+         -- O   => axilClk);
+         
+   axilClk <= dmaClk;
 
    U_axilRst : entity work.RstSync
       generic map (
