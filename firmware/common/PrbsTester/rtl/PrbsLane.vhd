@@ -2,7 +2,7 @@
 -- File       : PrbsLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-26
--- Last update: 2018-10-15
+-- Last update: 2018-10-17
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -53,6 +53,8 @@ entity PrbsLane is
 end PrbsLane;
 
 architecture mapping of PrbsLane is
+
+   constant ILEAVE_REARB_C : positive := 2**7;
 
    function TdestRoutes return Slv8Array is
       variable retConf : Slv8Array(NUM_VC_G-1 downto 0);
@@ -111,7 +113,7 @@ begin
          generic map (
             TPD_G                      => TPD_G,
             PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
-            VALID_THOLD_G              => 256,  -- Hold until enough to burst into the interleaving MUX
+            VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
             VALID_BURST_MODE_G         => true,
             MASTER_AXI_PIPE_STAGES_G   => 1,
             MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
@@ -176,7 +178,7 @@ begin
          TDEST_ROUTES_G       => TdestRoutes,
          ILEAVE_EN_G          => true,
          ILEAVE_ON_NOTVALID_G => false,
-         ILEAVE_REARB_G       => 128,
+         ILEAVE_REARB_G       => ILEAVE_REARB_C,
          PIPE_STAGES_G        => 1)
       port map (
          -- Clock and reset
