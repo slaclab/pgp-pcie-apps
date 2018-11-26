@@ -31,8 +31,8 @@ use unisim.vcomponents.all;
 entity XilinxKcu1500PrbsTester is
    generic (
       TPD_G      : time     := 1 ns;
-      DMA_SIZE_G : positive := 1;
-      NUM_VC_G   : positive := 1;
+      DMA_SIZE_G : positive := 2;
+      NUM_VC_G   : positive := 2;
 
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(1, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 1 Byte (8-bit) tData interface      
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(2, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 2 Byte (16-bit) tData interface      
