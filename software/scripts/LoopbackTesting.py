@@ -102,7 +102,7 @@ for lane in range(args.numLane):
     for vc in range(args.numVc):
 
         # Set the DMA loopback channel
-        dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(32*lane)+vc,1)  
+        dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)  
         
         # Connect the SW PRBS Receiver module
         prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=False)
