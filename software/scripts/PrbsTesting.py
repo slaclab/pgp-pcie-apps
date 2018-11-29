@@ -58,7 +58,7 @@ parser.add_argument(
     "--loopback", 
     type     = argBool,
     required = False,
-    default  = True,
+    default  = False,
     help     = "Enable read all variables at start",
 ) 
 
@@ -167,7 +167,8 @@ for lane in range(args.numLane):
     for vc in range(args.numVc):
 
         # Set the DMA loopback channel
-        dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(32*lane)+vc,1)  
+        dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+        dmaStream[lane][vc].setDriverDebug(1)        
         
         if (args.loopback):
             # Loopback the PRBS data
@@ -176,18 +177,16 @@ for lane in range(args.numLane):
         else:
             if (args.swRx):
                 # Connect the SW PRBS Receiver module
-                prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=False)
+                prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),width=256,expand=False)
                 pyrogue.streamConnect(dmaStream[lane][vc],prbsRx[lane][vc])
                 base.add(prbsRx[lane][vc])  
                     
             if (args.swTx):
                 # Connect the SW PRBS Transmitter module
-                prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),expand=False)
+                prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),width=256,expand=False)
                 pyrogue.streamConnect(prbTx[lane][vc], dmaStream[lane][vc])
                 base.add(prbTx[lane][vc])  
-        
-        
-
+                
 #################################################################
 
 # Start the system

@@ -97,7 +97,6 @@ begin
       U_PrbsLane : entity work.PrbsLane
          generic map(
             TPD_G             => TPD_G,
-            LANE_G            => i,
             NUM_VC_G          => NUM_VC_G,
             DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
             PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,

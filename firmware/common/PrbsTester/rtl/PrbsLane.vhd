@@ -30,7 +30,6 @@ use work.SsiPkg.all;
 entity PrbsLane is
    generic (
       TPD_G             : time                    := 1 ns;
-      LANE_G            : natural                 := 0;
       NUM_VC_G          : positive                := 4;
       PRBS_SEED_SIZE_G  : natural range 32 to 256 := 32;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
@@ -55,15 +54,6 @@ end PrbsLane;
 architecture mapping of PrbsLane is
 
    constant ILEAVE_REARB_C : positive := 2**7;
-
-   function TdestRoutes return Slv8Array is
-      variable retConf : Slv8Array(NUM_VC_G-1 downto 0);
-   begin
-      for i in NUM_VC_G-1 downto 0 loop
-         retConf(i) := toSlv((32*LANE_G)+i, 8);
-      end loop;
-      return retConf;
-   end function;
 
    constant NUM_AXI_MASTERS_C : natural := 2*NUM_VC_G;
 
@@ -126,7 +116,6 @@ begin
             -- Trigger Signal (locClk domain)
             locClk          => axilClk,
             locRst          => axilRst,
-            tDest           => toSlv((32*LANE_G)+i, 8),
             -- Optional: Axi-Lite Register Interface (locClk domain)
             axilReadMaster  => axilReadMasters(2*i+0),
             axilReadSlave   => axilReadSlaves(2*i+0),
@@ -171,8 +160,6 @@ begin
          generic map (
             TPD_G          => TPD_G,
             NUM_MASTERS_G  => NUM_VC_G,
-            MODE_G         => "ROUTED",
-            TDEST_ROUTES_G => TdestRoutes,
             PIPE_STAGES_G  => 1)
          port map (
             -- Clock and reset
@@ -189,10 +176,8 @@ begin
          generic map (
             TPD_G                => TPD_G,
             NUM_SLAVES_G         => NUM_VC_G,
-            MODE_G               => "ROUTED",
-            TDEST_ROUTES_G       => TdestRoutes,
             ILEAVE_EN_G          => true,
-            ILEAVE_ON_NOTVALID_G => false,
+            ILEAVE_ON_NOTVALID_G => true,
             ILEAVE_REARB_G       => ILEAVE_REARB_C,
             PIPE_STAGES_G        => 1)
          port map (
