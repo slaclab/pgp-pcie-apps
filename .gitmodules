@@ -7,6 +7,3 @@
 [submodule "firmware/submodules/axi-pcie-core"]
 	path = firmware/submodules/axi-pcie-core
 	url = git@github.com:slaclab/axi-pcie-core
-[submodule "firmware/submodules/vcu1525-static-release"]
-	path = firmware/submodules/vcu1525-static-release
-	url = git@github.com:slaclab/vcu1525-static-release

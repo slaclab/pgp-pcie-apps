@@ -79,10 +79,10 @@ architecture top_level of SlacPgpCardG3PrbsTester is
 
    signal dmaClk       : sl;
    signal dmaRst       : sl;
-   signal dmaObMasters : AxiStreamMasterArray(7 downto 0);
-   signal dmaObSlaves  : AxiStreamSlaveArray(7 downto 0);
-   signal dmaIbMasters : AxiStreamMasterArray(7 downto 0);
-   signal dmaIbSlaves  : AxiStreamSlaveArray(7 downto 0);
+   signal dmaObMasters : AxiStreamMasterArray(0 downto 0);
+   signal dmaObSlaves  : AxiStreamSlaveArray(0 downto 0);
+   signal dmaIbMasters : AxiStreamMasterArray(0 downto 0);
+   signal dmaIbSlaves  : AxiStreamSlaveArray(0 downto 0);
 
 begin
 
@@ -93,7 +93,7 @@ begin
       generic map (
          TPD_G        => TPD_G,
          BUILD_INFO_G => BUILD_INFO_G,
-         DMA_SIZE_G   => 8)
+         DMA_SIZE_G   => 1)
       port map (
          ------------------------      
          --  Top Level Interfaces
@@ -176,6 +176,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
+         DMA_SIZE_G        => 1,
          NUM_VC_G          => 1,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (

@@ -31,11 +31,9 @@ use unisim.vcomponents.all;
 entity XilinxKcu1500PrbsTester is
    generic (
       TPD_G      : time     := 1 ns;
-      DMA_SIZE_G : positive := 8;
-      NUM_VC_G   : positive := 2;
-
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(1, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 1 Byte (8-bit) tData interface      
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(2, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 2 Byte (16-bit) tData interface      
+      DMA_SIZE_G : positive := 2;
+      NUM_VC_G   : positive := 1;
+     
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(4, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 4 Byte (32-bit) tData interface      
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(8, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 8 Byte (64-bit) tData interface      
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface      
@@ -113,16 +111,16 @@ architecture top_level of XilinxKcu1500PrbsTester is
 
 begin
 
-   -- U_axilClk : BUFGCE_DIV
-      -- generic map (
-         -- BUFGCE_DIVIDE => 2)
-      -- port map (
-         -- I   => dmaClk,
-         -- CE  => '1',
-         -- CLR => '0',
-         -- O   => axilClk);
+   U_axilClk : BUFGCE_DIV
+      generic map (
+         BUFGCE_DIVIDE => 2)
+      port map (
+         I   => dmaClk,
+         CE  => '1',
+         CLR => '0',
+         O   => axilClk);
          
-   axilClk <= dmaClk;
+   -- axilClk <= dmaClk;
 
    U_axilRst : entity work.RstSync
       generic map (

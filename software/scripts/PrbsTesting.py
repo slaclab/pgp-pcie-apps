@@ -58,7 +58,7 @@ parser.add_argument(
     "--loopback", 
     type     = argBool,
     required = False,
-    default  = False,
+    default  = True,
     help     = "Enable read all variables at start",
 ) 
 
@@ -168,7 +168,7 @@ for lane in range(args.numLane):
 
         # Set the DMA loopback channel
         dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
-        dmaStream[lane][vc].setDriverDebug(1)        
+        dmaStream[lane][vc].setDriverDebug(0)        
         
         if (args.loopback):
             # Loopback the PRBS data

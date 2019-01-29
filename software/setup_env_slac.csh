@@ -9,7 +9,7 @@
 ##############################################################################
 
 # Setup environment
-source /afs/slac/g/reseng/rogue/pre-release/setup_env.csh
+source /afs/slac/g/reseng/rogue/pre-release/setup_rogue.csh
 #source /u/re/ruckman/projects/rogue/setup_env.csh
 
 
