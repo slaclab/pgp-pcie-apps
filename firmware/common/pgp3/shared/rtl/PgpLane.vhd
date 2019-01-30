@@ -84,7 +84,7 @@ begin
          EN_DRP_G         => true,
          EN_PGP_MON_G     => true,
          NUM_VC_G         => NUM_VC_G,
-         AXIL_CLK_FREQ_G  => (DMA_CLK_FREQ_C/2.0),
+         AXIL_CLK_FREQ_G  => 156.25E+6,
          AXIL_BASE_ADDR_G => AXI_BASE_ADDR_G)
       port map (
          -- Stable Clock and Reset

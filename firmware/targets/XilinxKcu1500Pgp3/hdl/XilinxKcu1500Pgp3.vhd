@@ -2,7 +2,7 @@
 -- File       : XilinxKcu1500Pgp3.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-24
--- Last update: 2018-03-15
+-- Last update: 2019-01-29
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -38,54 +38,55 @@ entity XilinxKcu1500Pgp3 is
       --  Application Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP : in    slv(1 downto 0);
-      qsfp0RefClkN : in    slv(1 downto 0);
-      qsfp0RxP     : in    slv(3 downto 0);
-      qsfp0RxN     : in    slv(3 downto 0);
-      qsfp0TxP     : out   slv(3 downto 0);
-      qsfp0TxN     : out   slv(3 downto 0);
+      qsfp0RefClkP : in  slv(1 downto 0);
+      qsfp0RefClkN : in  slv(1 downto 0);
+      qsfp0RxP     : in  slv(3 downto 0);
+      qsfp0RxN     : in  slv(3 downto 0);
+      qsfp0TxP     : out slv(3 downto 0);
+      qsfp0TxN     : out slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP : in    slv(1 downto 0);
-      qsfp1RefClkN : in    slv(1 downto 0);
-      qsfp1RxP     : in    slv(3 downto 0);
-      qsfp1RxN     : in    slv(3 downto 0);
-      qsfp1TxP     : out   slv(3 downto 0);
-      qsfp1TxN     : out   slv(3 downto 0);
+      qsfp1RefClkP : in  slv(1 downto 0);
+      qsfp1RefClkN : in  slv(1 downto 0);
+      qsfp1RxP     : in  slv(3 downto 0);
+      qsfp1RxN     : in  slv(3 downto 0);
+      qsfp1TxP     : out slv(3 downto 0);
+      qsfp1TxN     : out slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      emcClk       : in    sl;
-      userClkP     : in    sl;
-      userClkN     : in    sl;
+      emcClk       : in  sl;
+      userClkP     : in  sl;
+      userClkN     : in  sl;
       -- QSFP[0] Ports
-      qsfp0RstL    : out   sl;
-      qsfp0LpMode  : out   sl;
-      qsfp0ModSelL : out   sl;
-      qsfp0ModPrsL : in    sl;
+      qsfp0RstL    : out sl;
+      qsfp0LpMode  : out sl;
+      qsfp0ModSelL : out sl;
+      qsfp0ModPrsL : in  sl;
       -- QSFP[1] Ports
-      qsfp1RstL    : out   sl;
-      qsfp1LpMode  : out   sl;
-      qsfp1ModSelL : out   sl;
-      qsfp1ModPrsL : in    sl;
+      qsfp1RstL    : out sl;
+      qsfp1LpMode  : out sl;
+      qsfp1ModSelL : out sl;
+      qsfp1ModPrsL : in  sl;
       -- Boot Memory Ports 
-      flashCsL     : out   sl;
-      flashMosi    : out   sl;
-      flashMiso    : in    sl;
-      flashHoldL   : out   sl;
-      flashWp      : out   sl;
+      flashCsL     : out sl;
+      flashMosi    : out sl;
+      flashMiso    : in  sl;
+      flashHoldL   : out sl;
+      flashWp      : out sl;
       -- PCIe Ports
-      pciRstL      : in    sl;
-      pciRefClkP   : in    sl;
-      pciRefClkN   : in    sl;
-      pciRxP       : in    slv(7 downto 0);
-      pciRxN       : in    slv(7 downto 0);
-      pciTxP       : out   slv(7 downto 0);
-      pciTxN       : out   slv(7 downto 0));
+      pciRstL      : in  sl;
+      pciRefClkP   : in  sl;
+      pciRefClkN   : in  sl;
+      pciRxP       : in  slv(7 downto 0);
+      pciRxN       : in  slv(7 downto 0);
+      pciTxP       : out slv(7 downto 0);
+      pciTxN       : out slv(7 downto 0));
 end XilinxKcu1500Pgp3;
 
 architecture top_level of XilinxKcu1500Pgp3 is
 
+   signal userClk156      : sl;
    signal axilClk         : sl;
    signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
@@ -102,22 +103,27 @@ architecture top_level of XilinxKcu1500Pgp3 is
 
 begin
 
-   U_axilClk : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 2)
-      port map (
-         I   => dmaClk,
-         CE  => '1',
-         CLR => '0',
-         O   => axilClk);
-
-   U_axilRst : entity work.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => axilClk,
-         asyncRst => dmaRst,
-         syncRst  => axilRst);
+   U_axilClk : entity work.ClockManagerUltraScale
+      generic map(
+         TPD_G             => TPD_G,
+         TYPE_G            => "PLL",
+         INPUT_BUFG_G      => true,
+         FB_BUFG_G         => true,
+         RST_IN_POLARITY_G => '1',
+         NUM_CLOCKS_G      => 1,
+         -- MMCM attributes
+         BANDWIDTH_G       => "OPTIMIZED",
+         CLKIN_PERIOD_G    => 6.4,      -- 156.25 MHz
+         CLKFBOUT_MULT_G   => 8,        -- 1.25GHz = 8 x 156.25 MHz
+         CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
+      port map(
+         -- Clock Input
+         clkIn     => userClk156,
+         rstIn     => dmaRst,
+         -- Clock Outputs
+         clkOut(0) => axilClk,
+         -- Reset Outputs
+         rstOut(0) => axilRst);
 
    U_Core : entity work.XilinxKcu1500Core
       generic map (
@@ -129,55 +135,56 @@ begin
          ------------------------      
          --  Top Level Interfaces
          ------------------------        
+         userClk156     => userClk156,
          -- DMA Interfaces
-         dmaClk          => dmaClk,
-         dmaRst          => dmaRst,
-         dmaObMasters    => dmaObMasters,
-         dmaObSlaves     => dmaObSlaves,
-         dmaIbMasters    => dmaIbMasters,
-         dmaIbSlaves     => dmaIbSlaves,
+         dmaClk         => dmaClk,
+         dmaRst         => dmaRst,
+         dmaObMasters   => dmaObMasters,
+         dmaObSlaves    => dmaObSlaves,
+         dmaIbMasters   => dmaIbMasters,
+         dmaIbSlaves    => dmaIbSlaves,
          -- AXI-Lite Interface
-         appClk          => axilClk,
-         appRst          => axilRst,
-         appReadMaster   => axilReadMaster,
-         appReadSlave    => axilReadSlave,
-         appWriteMaster  => axilWriteMaster,
-         appWriteSlave   => axilWriteSlave,
+         appClk         => axilClk,
+         appRst         => axilRst,
+         appReadMaster  => axilReadMaster,
+         appReadSlave   => axilReadSlave,
+         appWriteMaster => axilWriteMaster,
+         appWriteSlave  => axilWriteSlave,
          --------------
          --  Core Ports
          --------------   
          -- System Ports
-         emcClk          => emcClk,
-         userClkP        => userClkP,
-         userClkN        => userClkN,
+         emcClk         => emcClk,
+         userClkP       => userClkP,
+         userClkN       => userClkN,
          -- QSFP[0] Ports
-         qsfp0RstL       => qsfp0RstL,
-         qsfp0LpMode     => qsfp0LpMode,
-         qsfp0ModSelL    => qsfp0ModSelL,
-         qsfp0ModPrsL    => qsfp0ModPrsL,
+         qsfp0RstL      => qsfp0RstL,
+         qsfp0LpMode    => qsfp0LpMode,
+         qsfp0ModSelL   => qsfp0ModSelL,
+         qsfp0ModPrsL   => qsfp0ModPrsL,
          -- QSFP[1] Ports
-         qsfp1RstL       => qsfp1RstL,
-         qsfp1LpMode     => qsfp1LpMode,
-         qsfp1ModSelL    => qsfp1ModSelL,
-         qsfp1ModPrsL    => qsfp1ModPrsL,
+         qsfp1RstL      => qsfp1RstL,
+         qsfp1LpMode    => qsfp1LpMode,
+         qsfp1ModSelL   => qsfp1ModSelL,
+         qsfp1ModPrsL   => qsfp1ModPrsL,
          -- Boot Memory Ports 
-         flashCsL        => flashCsL,
-         flashMosi       => flashMosi,
-         flashMiso       => flashMiso,
-         flashHoldL      => flashHoldL,
-         flashWp         => flashWp,
+         flashCsL       => flashCsL,
+         flashMosi      => flashMosi,
+         flashMiso      => flashMiso,
+         flashHoldL     => flashHoldL,
+         flashWp        => flashWp,
          -- PCIe Ports 
-         pciRstL         => pciRstL,
-         pciRefClkP      => pciRefClkP,
-         pciRefClkN      => pciRefClkN,
-         pciRxP          => pciRxP,
-         pciRxN          => pciRxN,
-         pciTxP          => pciTxP,
-         pciTxN          => pciTxN);
+         pciRstL        => pciRstL,
+         pciRefClkP     => pciRefClkP,
+         pciRefClkN     => pciRefClkN,
+         pciRxP         => pciRxP,
+         pciRxN         => pciRxN,
+         pciTxP         => pciTxP,
+         pciTxN         => pciTxN);
 
    U_Hardware : entity work.Hardware
       generic map (
-         TPD_G            => TPD_G,
+         TPD_G             => TPD_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------      

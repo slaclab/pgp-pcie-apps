@@ -51,7 +51,7 @@ parser.add_argument(
     "--numVc", 
     type     = int,
     required = False,
-    default  = 2,
+    default  = 4,
     help     = "# of VC (virtual channels)",
 ) 
 
