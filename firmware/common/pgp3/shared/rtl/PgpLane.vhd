@@ -81,6 +81,8 @@ begin
    U_Pgp : entity work.Pgp3GthUs
       generic map (
          TPD_G            => TPD_G,
+         EN_DRP_G         => true,
+         EN_PGP_MON_G     => true,
          NUM_VC_G         => NUM_VC_G,
          AXIL_CLK_FREQ_G  => (DMA_CLK_FREQ_C/2.0),
          AXIL_BASE_ADDR_G => AXI_BASE_ADDR_G)
