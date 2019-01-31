@@ -8,8 +8,8 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-# # Bypass the debug chipscope generation
-# return
+# Bypass the debug chipscope generation
+return
 
 # Get variables and procedures
 source -quiet $::env(RUCKUS_DIR)/vivado_env_var.tcl
