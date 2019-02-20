@@ -57,32 +57,32 @@ set_clock_groups -asynchronous -group [get_clocks {pgpTxClk7}] -group [get_clock
 ######################
 # Area Constraint    #
 ######################
-create_pblock PGP_WEST_GRP
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_West/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_West/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_West/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_West/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_West/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_West/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_West/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_West/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_West/BUILD_FIFO.U_Rx}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_West/BUILD_FIFO.U_Rx}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_West/BUILD_FIFO.U_Rx}]
-add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_West/BUILD_FIFO.U_Rx}]
-resize_pblock [get_pblocks PGP_WEST_GRP] -add {CLOCKREGION_X0Y0:CLOCKREGION_X0Y4}
+#create_pblock PGP_WEST_GRP
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_West/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_West/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_West/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_West/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_West/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_West/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_West/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_West/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_West/BUILD_FIFO.U_Rx}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_West/BUILD_FIFO.U_Rx}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_West/BUILD_FIFO.U_Rx}]
+#add_cells_to_pblock [get_pblocks PGP_WEST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_West/BUILD_FIFO.U_Rx}]
+#resize_pblock [get_pblocks PGP_WEST_GRP] -add {CLOCKREGION_X0Y0:CLOCKREGION_X0Y4}
 
-create_pblock PGP_EAST_GRP
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_East/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_East/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_East/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_East/U_PgpMon}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_East/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_East/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_East/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_East/U_Pgp}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_East/BUILD_FIFO.U_Rx}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_East/BUILD_FIFO.U_Rx}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_East/BUILD_FIFO.U_Rx}]
-add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_East/BUILD_FIFO.U_Rx}]
-resize_pblock [get_pblocks PGP_EAST_GRP] -add {CLOCKREGION_X1Y0:CLOCKREGION_X1Y4}
+#create_pblock PGP_EAST_GRP
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_East/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_East/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_East/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_East/U_PgpMon}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_East/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_East/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_East/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_East/U_Pgp}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[0].U_East/BUILD_FIFO.U_Rx}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[1].U_East/BUILD_FIFO.U_Rx}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[2].U_East/BUILD_FIFO.U_Rx}]
+#add_cells_to_pblock [get_pblocks PGP_EAST_GRP] [get_cells {U_Hardware/U_Pgp/GEN_VEC[3].U_East/BUILD_FIFO.U_Rx}]
+#resize_pblock [get_pblocks PGP_EAST_GRP] -add {CLOCKREGION_X1Y0:CLOCKREGION_X1Y4}

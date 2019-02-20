@@ -9,3 +9,6 @@ loadRuckusTcl $::env(PROJ_DIR)/../../common/PrbsTester
 # Load local source Code and constraints
 loadSource      -dir "$::DIR_PATH/hdl"
 loadConstraints -dir "$::DIR_PATH/hdl"
+loadSource -sim_only -dir "$::DIR_PATH/tb"
+
+set_property top {XilinxKcu1500DmaLoopbackTb} [get_filesets sim_1]

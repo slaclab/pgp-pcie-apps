@@ -9,13 +9,11 @@
 ##############################################################################
 
 # Setup environment
-source /afs/slac/g/reseng/rogue/pre-release/setup_rogue.csh
-#source /u/re/ruckman/projects/rogue/setup_env.csh
-
+source /afs/slac.stanford.edu/g/reseng/rogue/anaconda/rogue_pre-release.sh
 
 # Python Package directories
-setenv SURF_DIR ${PWD}/../firmware/submodules/surf/python
-setenv PCIE_DIR ${PWD}/../firmware/submodules/axi-pcie-core/python
+export SURF_DIR=${PWD}/../firmware/submodules/surf/python
+export PCIE_DIR=${PWD}/../firmware/submodules/axi-pcie-core/python
 
 # Setup python path
-setenv PYTHONPATH ${PWD}/python:${SURF_DIR}:${PCIE_DIR}:${PYTHONPATH}
+export PYTHONPATH=${PWD}/python:${SURF_DIR}:${PCIE_DIR}:${PYTHONPATH}
