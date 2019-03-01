@@ -70,7 +70,7 @@ parser.add_argument(
     "--pollEn", 
     type     = argBool,
     required = False,
-    default  = False,
+    default  = True,
     help     = "Enable auto-polling",
 ) 
 
@@ -78,7 +78,7 @@ parser.add_argument(
     "--initRead", 
     type     = argBool,
     required = False,
-    default  = False,
+    default  = True,
     help     = "Enable read all variables at start",
 )  
 
@@ -150,7 +150,7 @@ base = MyRoot(name='pciServer',description='DMA Loopback Testing')
 base.start(
     pollEn   = args.pollEn,
     initRead = args.initRead,
-    timeout  = 5.0,
+    timeout  = 100.0,
 )
 
 # Create GUI

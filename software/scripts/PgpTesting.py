@@ -117,7 +117,7 @@ class MyRoot(pr.Root):
             else:
                 self.add(pgp.Pgp2bAxi(            
                     name    = ('Lane[%i]' % i), 
-                    offset  = (0x00800000 + i*0x00010000), 
+                    offset  = (0x00800000 + i*0x00011000), 
                     memBase = self.memMap,
                     expand  = False,
                 )) 
