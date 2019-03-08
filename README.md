@@ -39,7 +39,38 @@ git-lfs/2.1.1
 # Clone the GIT repository
 > $ git clone --recursive git@github.com:slaclab/pgp-pcie-apps
 
-<!--- ########################################################################################### -->
+<!--- ######################################################## -->
+
+# How to load the driver
+
+```
+# Confirm that you have the board the computer with VID=1a4a ("SLAC") and PID=2030 ("AXI Stream DAQ")
+$ lspci -nn | grep SLAC
+04:00.0 Signal processing controller [1180]: SLAC National Accelerator Lab TID-AIR AXI Stream DAQ PCIe card [1a4a:2030]
+
+# Clone the driver github repo:
+$ git clone --recursive https://github.com/slaclab/aes-stream-drivers
+
+# Go to the driver directory
+$ cd aes-stream-drivers/data_dev/driver/
+
+# Build the driver
+$ make
+
+# Load the driver
+$ sudo /sbin/insmod ./datadev.ko cfgSize=0x50000 cfgRxCount=256 cfgTxCount=16
+
+# Give appropriate group/permissions
+$ sudo chmod 666 /dev/data_dev*
+
+# Check for the loaded device
+$ cat /proc/data_dev0
+
+```
+Note: There is a bug (we think in the PCIe IP core) that bricks the DMA when using `rmmod` to unload the driver.
+If you want to reconfigure the PCIe card with different buffering allocation, then do a `reboot` before doing the `insmod`
+
+<!--- ######################################################## -->
 
 # Example of How to build the firmware
 

@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : PgpLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-04
--- Last update: 2018-10-09
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -32,10 +30,11 @@ use unisim.vcomponents.all;
 
 entity PgpLane is
    generic (
-      TPD_G           : time                 := 1 ns;
-      ENABLE_G        : boolean              := true;
-      LANE_G          : natural range 0 to 7 := 0;
-      AXI_BASE_ADDR_G : slv(31 downto 0)     := (others => '0'));
+      TPD_G             : time                 := 1 ns;
+      ENABLE_G          : boolean              := true;
+      LANE_G            : natural range 0 to 7 := 0;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      AXI_BASE_ADDR_G   : slv(31 downto 0)     := (others => '0'));
    port (
       -- QPLL Clocking
       gtQPllOutRefClk  : in  slv(1 downto 0);
@@ -257,7 +256,7 @@ begin
    U_Tx : entity work.PgpLaneTx
       generic map (
          TPD_G             => TPD_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          -- DMA Interface (dmaClk domain)
          dmaClk       => dmaClk,
@@ -278,7 +277,7 @@ begin
    U_Rx : entity work.PgpLaneRx
       generic map (
          TPD_G             => TPD_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          LANE_G            => LANE_G)
       port map (
          -- DMA Interface (dmaClk domain)

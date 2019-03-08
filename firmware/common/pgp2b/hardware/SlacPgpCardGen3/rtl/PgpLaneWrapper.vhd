@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : PgpLaneWrapper.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-04
--- Last update: 2018-02-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -30,8 +28,9 @@ use unisim.vcomponents.all;
 
 entity PgpLaneWrapper is
    generic (
-      TPD_G            : time             := 1 ns;
-      AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0'));
+      TPD_G             : time             := 1 ns;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
       -- PGP GT Serial Ports
       pgpRefClkP      : in  sl;
@@ -113,7 +112,7 @@ begin
 
    U_QPLL_WEST : entity work.PgpQpll
       generic map (
-         TPD_G            => TPD_G)
+         TPD_G => TPD_G)
       port map (
          pgpRefClk      => pgpRefClk,
          qPllRefClk     => qPllRefClk(0),
@@ -126,7 +125,7 @@ begin
 
    U_QPLL_EAST : entity work.PgpQpll
       generic map (
-         TPD_G            => TPD_G)
+         TPD_G => TPD_G)
       port map (
          pgpRefClk      => pgpRefClk,
          qPllRefClk     => qPllRefClk(1),
@@ -145,9 +144,10 @@ begin
 
       U_West : entity work.PgpLane
          generic map (
-            TPD_G            => TPD_G,
-            LANE_G           => (i+WEST_C),
-            AXI_BASE_ADDR_G  => AXI_CONFIG_C(i+WEST_C).baseAddr)
+            TPD_G             => TPD_G,
+            LANE_G            => (i+WEST_C),
+            DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i+WEST_C).baseAddr)
          port map (
             -- QPLL Clocking
             gtQPllOutRefClk  => qPllRefClk(0),
@@ -178,9 +178,10 @@ begin
 
       U_East : entity work.PgpLane
          generic map (
-            TPD_G            => TPD_G,
-            LANE_G           => (i+EAST_C),
-            AXI_BASE_ADDR_G  => AXI_CONFIG_C(i+EAST_C).baseAddr)
+            TPD_G             => TPD_G,
+            LANE_G            => (i+EAST_C),
+            DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i+EAST_C).baseAddr)
          port map (
             -- QPLL Clocking
             gtQPllOutRefClk  => qPllRefClk(1),

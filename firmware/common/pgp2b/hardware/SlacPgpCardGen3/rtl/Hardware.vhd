@@ -2,7 +2,7 @@
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-04
--- Last update: 2018-10-09
+-- Last update: 2019-03-06
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -26,8 +26,9 @@ use work.AxiStreamPkg.all;
 
 entity Hardware is
    generic (
-      TPD_G           : time             := 1 ns;
-      AXI_BASE_ADDR_G : slv(31 downto 0) := x"0080_0000");
+      TPD_G             : time             := 1 ns;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
       ------------------------      
       --  Top Level Interfaces
@@ -64,8 +65,9 @@ begin
    --------------
    U_Pgp : entity work.PgpLaneWrapper
       generic map (
-         TPD_G           => TPD_G,
-         AXI_BASE_ADDR_G => AXI_BASE_ADDR_G)
+         TPD_G             => TPD_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         AXI_BASE_ADDR_G   => AXI_BASE_ADDR_G)
       port map (
          -- PGP GT Serial Ports
          pgpRefClkP      => pgpRefClkP,
