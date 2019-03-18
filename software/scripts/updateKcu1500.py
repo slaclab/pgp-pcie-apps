@@ -1,1 +1,0 @@
-../../firmware/submodules/axi-pcie-core/python/updateKcu1500.py

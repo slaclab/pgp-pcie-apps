@@ -1,5 +1,5 @@
 # Define Firmware Version Number
-export PRJ_VERSION = 0x00000001
+export PRJ_VERSION = 0x00000002
 
 # Define target part
 export PRJ_PART = XC7K325TFFG900-2
