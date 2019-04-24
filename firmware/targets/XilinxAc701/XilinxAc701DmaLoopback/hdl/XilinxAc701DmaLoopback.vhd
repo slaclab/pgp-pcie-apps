@@ -28,10 +28,10 @@ use unisim.vcomponents.all;
 
 entity XilinxAc701DmaLoopback is
    generic (
-      TPD_G                : time                     := 1 ns;
-      ROGUE_SIM_EN_G       : boolean                  := false;
-      ROGUE_SIM_PORT_NUM_G : natural range 0 to 65535 := 1;
-      DMA_SIZE_G           : positive                 := 1;
+      TPD_G                : time                        := 1 ns;
+      ROGUE_SIM_EN_G       : boolean                     := false;
+      ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
+      DMA_SIZE_G           : positive                    := 1;
       BUILD_INFO_G         : BuildInfoType);
    port (
       -------------------

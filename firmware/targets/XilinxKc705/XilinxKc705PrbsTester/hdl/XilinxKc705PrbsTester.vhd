@@ -29,8 +29,8 @@ entity XilinxKc705PrbsTester is
    generic (
       TPD_G : time := 1 ns;
 
-      ROGUE_SIM_EN_G       : boolean                  := false;
-      ROGUE_SIM_PORT_NUM_G : natural range 0 to 65535 := 1;
+      ROGUE_SIM_EN_G       : boolean                     := false;
+      ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
 
       DMA_SIZE_G : positive := 1;
       NUM_VC_G   : positive := 1;

@@ -27,9 +27,9 @@ use unisim.vcomponents.all;
 
 entity SlacPgpCardG3Pgp2b is
    generic (
-      TPD_G                : time                     := 1 ns;
-      ROGUE_SIM_EN_G       : boolean                  := false;
-      ROGUE_SIM_PORT_NUM_G : natural range 0 to 65535 := 1;
+      TPD_G                : time                        := 1 ns;
+      ROGUE_SIM_EN_G       : boolean                     := false;
+      ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
       BUILD_INFO_G         : BuildInfoType);
    port (
       -- PGP GT Serial Ports
@@ -96,7 +96,7 @@ begin
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
-         DMA_SIZE_G           => 8)         
+         DMA_SIZE_G           => 8)
       port map (
          ------------------------      
          --  Top Level Interfaces
