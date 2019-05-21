@@ -42,15 +42,6 @@ end PgpLaneRx;
 
 architecture mapping of PgpLaneRx is
 
-   function TdestRoutes return Slv8Array is
-      variable retConf : Slv8Array(NUM_VC_G-1 downto 0);
-   begin
-      for i in NUM_VC_G-1 downto 0 loop
-         retConf(i) := toSlv((32*LANE_G)+i, 8);
-      end loop;
-      return retConf;
-   end function;
-
    signal pgpMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal rxMasters  : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal rxSlaves   : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
@@ -112,8 +103,7 @@ begin
       generic map (
          TPD_G                => TPD_G,
          NUM_SLAVES_G         => NUM_VC_G,
-         MODE_G               => "ROUTED",
-         TDEST_ROUTES_G       => TdestRoutes,
+         MODE_G               => "INDEXED",
          ILEAVE_EN_G          => true,
          ILEAVE_ON_NOTVALID_G => false,
          ILEAVE_REARB_G       => 128,
