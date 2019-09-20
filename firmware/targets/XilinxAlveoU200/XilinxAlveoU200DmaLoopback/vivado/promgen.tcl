@@ -11,3 +11,4 @@
 set format     "mcs"
 set inteface   "SPIx4"
 set size       "1024"
+set loadbit    "up 0x01002000 ${inputFile}"

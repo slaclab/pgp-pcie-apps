@@ -46,16 +46,13 @@ entity XilinxAlveoU200PrbsTester is
       -- System Ports
       userClkP     : in    sl;
       userClkN     : in    sl;
-      -- QSFP[0] Ports
-      qsfp0RstL    : out   sl;
-      qsfp0LpMode  : out   sl;
-      qsfp0ModSelL : out   sl;
-      qsfp0ModPrsL : in    sl;
-      -- QSFP[1] Ports
-      qsfp1RstL    : out   sl;
-      qsfp1LpMode  : out   sl;
-      qsfp1ModSelL : out   sl;
-      qsfp1ModPrsL : in    sl;
+      -- QSFP[1:0] Ports
+      qsfpFs        : out Slv2Array(1 downto 0);
+      qsfpRefClkRst : out slv(1 downto 0);
+      qsfpRstL      : out slv(1 downto 0);
+      qsfpLpMode    : out slv(1 downto 0);
+      qsfpModSelL   : out slv(1 downto 0);
+      qsfpModPrsL   : in  slv(1 downto 0);
       -- PCIe Ports
       pciRstL      : in    sl;
       pciRefClkP   : in    sl;
@@ -73,27 +70,27 @@ architecture top_level of XilinxAlveoU200PrbsTester is
 
    constant DMA_SIZE_C : positive := 1;
 
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);  -- 8  Byte (64-bit)  tData interface      
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);   -- 8  Byte (64-bit)  tData interface      
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface      
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface      
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);  -- 64 Byte (512-bit) tData interface     
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);     -- 64 Byte (512-bit) tData interface     
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
-         baseAddr     => x"0008_0000",
-         addrBits     => 16,
+         baseAddr     => x"0010_0000",
+         addrBits     => 20,
          connectivity => x"FFFF"),
       1               => (
-         baseAddr     => x"0009_0000",
-         addrBits     => 16,
+         baseAddr     => x"0020_0000",
+         addrBits     => 20,
          connectivity => x"FFFF"),
       2               => (
-         baseAddr     => x"000A_0000",
-         addrBits     => 16,
+         baseAddr     => x"0030_0000",
+         addrBits     => 20,
          connectivity => x"FFFF"),
       3               => (
-         baseAddr     => x"000B_0000",
-         addrBits     => 16,
+         baseAddr     => x"0040_0000",
+         addrBits     => 20,
          connectivity => x"FFFF"),
       4               => (
          baseAddr     => x"0080_0000",
@@ -173,7 +170,7 @@ begin
          dmaObSlaves    => dmaObSlaves,
          dmaIbMasters   => dmaIbMasters,
          dmaIbSlaves    => dmaIbSlaves,
-         -- Application AXI-Lite Interfaces [0x00080000:0x00FFFFFF]
+         -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
          appClk         => axilClk,
          appRst         => axilRst,
          appReadMaster  => axilReadMaster,
@@ -186,16 +183,13 @@ begin
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,
-         -- QSFP[0] Ports
-         qsfp0RstL      => qsfp0RstL,
-         qsfp0LpMode    => qsfp0LpMode,
-         qsfp0ModSelL   => qsfp0ModSelL,
-         qsfp0ModPrsL   => qsfp0ModPrsL,
-         -- QSFP[1] Ports
-         qsfp1RstL      => qsfp1RstL,
-         qsfp1LpMode    => qsfp1LpMode,
-         qsfp1ModSelL   => qsfp1ModSelL,
-         qsfp1ModPrsL   => qsfp1ModPrsL,
+         -- QSFP[1:0] Ports
+         qsfpFs        => qsfpFs,
+         qsfpRefClkRst => qsfpRefClkRst,
+         qsfpRstL      => qsfpRstL,
+         qsfpLpMode    => qsfpLpMode,
+         qsfpModSelL   => qsfpModSelL,
+         qsfpModPrsL   => qsfpModPrsL,
          -- PCIe Ports 
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,
@@ -284,7 +278,7 @@ begin
          TPD_G             => TPD_G,
          DMA_SIZE_G        => DMA_SIZE_C,
          NUM_VC_G          => 1,
-         PRBS_SEED_SIZE_G  => 256,
+         PRBS_SEED_SIZE_G  => 512,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
          -- AXI-Lite Interface

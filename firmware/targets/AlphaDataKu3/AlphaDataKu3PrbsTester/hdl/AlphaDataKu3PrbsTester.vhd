@@ -137,7 +137,7 @@ begin
          dmaObSlaves    => dmaObSlaves,
          dmaIbMasters   => dmaIbMasters,
          dmaIbSlaves    => dmaIbSlaves,
-         -- Application AXI-Lite Interfaces [0x00080000:0x00FFFFFF]
+         -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
          appClk         => axilClk,
          appRst         => axilRst,
          appReadMaster  => axilReadMaster,

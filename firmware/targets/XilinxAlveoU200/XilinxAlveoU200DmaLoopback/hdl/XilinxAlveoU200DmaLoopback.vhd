@@ -35,53 +35,50 @@ entity XilinxAlveoU200DmaLoopback is
       --  Application Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP : in  slv(1 downto 0);
-      qsfp0RefClkN : in  slv(1 downto 0);
-      qsfp0RxP     : in  slv(3 downto 0);
-      qsfp0RxN     : in  slv(3 downto 0);
-      qsfp0TxP     : out slv(3 downto 0);
-      qsfp0TxN     : out slv(3 downto 0);
+      qsfp0RefClkP   : in  slv(1 downto 0);
+      qsfp0RefClkN   : in  slv(1 downto 0);
+      qsfp0RxP       : in  slv(3 downto 0);
+      qsfp0RxN       : in  slv(3 downto 0);
+      qsfp0TxP       : out slv(3 downto 0);
+      qsfp0TxN       : out slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP : in  slv(1 downto 0);
-      qsfp1RefClkN : in  slv(1 downto 0);
-      qsfp1RxP     : in  slv(3 downto 0);
-      qsfp1RxN     : in  slv(3 downto 0);
-      qsfp1TxP     : out slv(3 downto 0);
-      qsfp1TxN     : out slv(3 downto 0);
+      qsfp1RefClkP   : in  slv(1 downto 0);
+      qsfp1RefClkN   : in  slv(1 downto 0);
+      qsfp1RxP       : in  slv(3 downto 0);
+      qsfp1RxN       : in  slv(3 downto 0);
+      qsfp1TxP       : out slv(3 downto 0);
+      qsfp1TxN       : out slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      userClkP     : in  sl;
-      userClkN     : in  sl;
-      -- QSFP[0] Ports
-      qsfp0RstL    : out sl;
-      qsfp0LpMode  : out sl;
-      qsfp0ModSelL : out sl;
-      qsfp0ModPrsL : in  sl;
-      -- QSFP[1] Ports
-      qsfp1RstL    : out sl;
-      qsfp1LpMode  : out sl;
-      qsfp1ModSelL : out sl;
-      qsfp1ModPrsL : in  sl;
+      userClkP       : in  sl;
+      userClkN       : in  sl;
+      -- QSFP[1:0] Ports
+      qsfpFs        : out Slv2Array(1 downto 0);
+      qsfpRefClkRst : out slv(1 downto 0);
+      qsfpRstL      : out slv(1 downto 0);
+      qsfpLpMode    : out slv(1 downto 0);
+      qsfpModSelL   : out slv(1 downto 0);
+      qsfpModPrsL   : in  slv(1 downto 0);
       -- PCIe Ports
-      pciRstL      : in  sl;
-      pciRefClkP   : in  sl;
-      pciRefClkN   : in  sl;
-      pciRxP       : in  slv(15 downto 0);
-      pciRxN       : in  slv(15 downto 0);
-      pciTxP       : out slv(15 downto 0);
-      pciTxN       : out slv(15 downto 0));
+      pciRstL        : in  sl;
+      pciRefClkP     : in  sl;
+      pciRefClkN     : in  sl;
+      pciRxP         : in  slv(15 downto 0);
+      pciRxN         : in  slv(15 downto 0);
+      pciTxP         : out slv(15 downto 0);
+      pciTxN         : out slv(15 downto 0));
 end XilinxAlveoU200DmaLoopback;
 
 architecture top_level of XilinxAlveoU200DmaLoopback is
 
    constant DMA_SIZE_C : positive := 1;
 
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);  -- 8  Byte (64-bit)  tData interface      
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);  -- 8  Byte (64-bit)  tData interface      
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface      
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface      
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);  -- 64 Byte (512-bit) tData interface      
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);  -- 64 Byte (512-bit) tData interface      
 
    signal dmaClk     : sl;
    signal dmaRst     : sl;
@@ -138,7 +135,7 @@ begin
          dmaObSlaves    => dmaSlaves,
          dmaIbMasters   => dmaMasters,
          dmaIbSlaves    => dmaSlaves,
-         -- Application AXI-Lite Interfaces [0x00080000:0x00FFFFFF]
+         -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
          appClk         => axilClk,
          appRst         => axilRst,
          appReadMaster  => axilReadMaster,
@@ -151,16 +148,13 @@ begin
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,
-         -- QSFP[0] Ports
-         qsfp0RstL      => qsfp0RstL,
-         qsfp0LpMode    => qsfp0LpMode,
-         qsfp0ModSelL   => qsfp0ModSelL,
-         qsfp0ModPrsL   => qsfp0ModPrsL,
-         -- QSFP[1] Ports
-         qsfp1RstL      => qsfp1RstL,
-         qsfp1LpMode    => qsfp1LpMode,
-         qsfp1ModSelL   => qsfp1ModSelL,
-         qsfp1ModPrsL   => qsfp1ModPrsL,
+         -- QSFP[1:0] Ports
+         qsfpFs        => qsfpFs,
+         qsfpRefClkRst => qsfpRefClkRst,
+         qsfpRstL      => qsfpRstL,
+         qsfpLpMode    => qsfpLpMode,
+         qsfpModSelL   => qsfpModSelL,
+         qsfpModPrsL   => qsfpModPrsL,
          -- PCIe Ports 
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,

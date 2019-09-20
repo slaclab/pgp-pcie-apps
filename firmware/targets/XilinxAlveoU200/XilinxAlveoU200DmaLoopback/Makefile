@@ -1,5 +1,5 @@
 # Define Firmware Version Number
-export PRJ_VERSION = 0x00000001
+export PRJ_VERSION = 0x00000010
 
 # Define target part
 export PRJ_PART = XCU200-FSGD2104-2-E
