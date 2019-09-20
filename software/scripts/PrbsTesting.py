@@ -47,6 +47,14 @@ parser.add_argument(
 ) 
 
 parser.add_argument(
+    "--prbsWidth", 
+    type     = int,
+    required = False,
+    default  = 256,
+    help     = "# of DMA Lanes",
+) 
+
+parser.add_argument(
     "--numVc", 
     type     = int,
     required = False,
@@ -58,7 +66,7 @@ parser.add_argument(
     "--loopback", 
     type     = argBool,
     required = False,
-    default  = True,
+    default  = False,
     help     = "Enable read all variables at start",
 ) 
 
@@ -66,7 +74,7 @@ parser.add_argument(
     "--fwRx", 
     type     = argBool,
     required = False,
-    default  = True,
+    default  = False,
     help     = "Enable read all variables at start",
 ) 
 
@@ -90,7 +98,7 @@ parser.add_argument(
     "--swTx", 
     type     = argBool,
     required = False,
-    default  = True,
+    default  = False,
     help     = "Enable read all variables at start",
 )  
 
@@ -123,9 +131,10 @@ memMap = rogue.hardware.axi.AxiMemMap(args.dev)
 
 # Add the PCIe core device to base
 base.add(pcie.AxiPcieCore(
-    memBase = memMap ,
-    offset  = 0x00000000, 
-    expand  = False, 
+    memBase     = memMap ,
+    offset      = 0x00000000, 
+    numDmaLanes = args.numLane, 
+    expand      = False, 
 ))
     
 # Loop through the DMA channels
@@ -177,13 +186,22 @@ for lane in range(args.numLane):
         else:
             if (args.swRx):
                 # Connect the SW PRBS Receiver module
-                prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),width=256,expand=False)
+                prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
+                    name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
+                    width        = args.prbsWidth,
+                    checkPayload = False,
+                    expand       = False,
+                )
                 pyrogue.streamConnect(dmaStream[lane][vc],prbsRx[lane][vc])
                 base.add(prbsRx[lane][vc])  
                     
             if (args.swTx):
                 # Connect the SW PRBS Transmitter module
-                prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),width=256,expand=False)
+                prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
+                    name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
+                    width   = args.prbsWidth,
+                    expand  = False,
+                )
                 pyrogue.streamConnect(prbTx[lane][vc], dmaStream[lane][vc])
                 base.add(prbTx[lane][vc])  
                 
@@ -197,7 +215,7 @@ base.start(
 
 # Create GUI
 appTop = pr.gui.application(sys.argv)
-guiTop = pr.gui.GuiTop(group='rootMesh')
+guiTop = pr.gui.GuiTop()
 appTop.setStyle('Fusion')
 guiTop.addTree(base)
 guiTop.resize(600, 800)

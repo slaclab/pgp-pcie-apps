@@ -155,7 +155,7 @@ base.start(
 
 # Create GUI
 appTop = pr.gui.application(sys.argv)
-guiTop = pr.gui.GuiTop(group='rootMesh')
+guiTop = pr.gui.GuiTop()
 appTop.setStyle('Fusion')
 guiTop.addTree(base)
 guiTop.resize(600, 800)
