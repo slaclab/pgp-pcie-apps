@@ -1,0 +1,299 @@
+-------------------------------------------------------------------------------
+-- File       : XilinxAlveoU250PrbsTester.vhd
+-- Company    : SLAC National Accelerator Laboratory
+-------------------------------------------------------------------------------
+-- Description: PRBS + DDR Memory Tester Example
+-------------------------------------------------------------------------------
+-- This file is part of 'PGP PCIe APP DEV'.
+-- It is subject to the license terms in the LICENSE.txt file found in the 
+-- top-level directory of this distribution and at: 
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
+-- No part of 'PGP PCIe APP DEV', including this file, 
+-- may be copied, modified, propagated, or distributed except according to 
+-- the terms contained in the LICENSE.txt file.
+-------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+use work.StdRtlPkg.all;
+use work.AxiPkg.all;
+use work.AxiLitePkg.all;
+use work.AxiStreamPkg.all;
+use work.SsiPkg.all;
+use work.AxiPciePkg.all;
+use work.MigPkg.all;
+
+library unisim;
+use unisim.vcomponents.all;
+
+entity XilinxAlveoU250PrbsTester is
+   generic (
+      TPD_G        : time := 1 ns;
+      BUILD_INFO_G : BuildInfoType);
+   port (
+      ---------------------
+      --  Application Ports
+      ---------------------
+      -- DDR Ports
+      ddrClkP      : in    slv(3 downto 0);
+      ddrClkN      : in    slv(3 downto 0);
+      ddrOut       : out   DdrOutArray(3 downto 0);
+      ddrInOut     : inout DdrInOutArray(3 downto 0);
+      --------------
+      --  Core Ports
+      --------------
+      -- System Ports
+      userClkP     : in    sl;
+      userClkN     : in    sl;
+      -- QSFP[1:0] Ports
+      qsfpFs        : out Slv2Array(1 downto 0);
+      qsfpRefClkRst : out slv(1 downto 0);
+      qsfpRstL      : out slv(1 downto 0);
+      qsfpLpMode    : out slv(1 downto 0);
+      qsfpModSelL   : out slv(1 downto 0);
+      qsfpModPrsL   : in  slv(1 downto 0);
+      -- PCIe Ports
+      pciRstL      : in    sl;
+      pciRefClkP   : in    sl;
+      pciRefClkN   : in    sl;
+      pciRxP       : in    slv(15 downto 0);
+      pciRxN       : in    slv(15 downto 0);
+      pciTxP       : out   slv(15 downto 0);
+      pciTxN       : out   slv(15 downto 0));
+end XilinxAlveoU250PrbsTester;
+
+architecture top_level of XilinxAlveoU250PrbsTester is
+
+   constant START_ADDR_C : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '0');
+   constant STOP_ADDR_C  : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '1');
+
+   constant DMA_SIZE_C : positive := 1;
+
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);   -- 8  Byte (64-bit)  tData interface      
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface      
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface      
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);     -- 64 Byte (512-bit) tData interface     
+
+   constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
+      0               => (
+         baseAddr     => x"0010_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      1               => (
+         baseAddr     => x"0020_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      2               => (
+         baseAddr     => x"0030_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      3               => (
+         baseAddr     => x"0040_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      4               => (
+         baseAddr     => x"0080_0000",
+         addrBits     => 23,
+         connectivity => x"FFFF"));
+
+   signal userClk156      : sl;
+   signal axilClk         : sl;
+   signal axilRst         : sl;
+   signal axilReadMaster  : AxiLiteReadMasterType;
+   signal axilReadSlave   : AxiLiteReadSlaveType;
+   signal axilWriteMaster : AxiLiteWriteMasterType;
+   signal axilWriteSlave  : AxiLiteWriteSlaveType;
+
+   signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
+
+   signal dmaClk       : sl;
+   signal dmaRst       : sl;
+   signal dmaObMasters : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObSlaves  : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbMasters : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbSlaves  : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+
+   signal ddrClk          : slv(3 downto 0);
+   signal ddrRst          : slv(3 downto 0);
+   signal ddrReady        : slv(3 downto 0);
+   signal ddrWriteMasters : AxiWriteMasterArray(3 downto 0);
+   signal ddrWriteSlaves  : AxiWriteSlaveArray(3 downto 0);
+   signal ddrReadMasters  : AxiReadMasterArray(3 downto 0);
+   signal ddrReadSlaves   : AxiReadSlaveArray(3 downto 0);
+
+begin
+
+   U_axilClk : entity work.ClockManagerUltraScale
+      generic map(
+         TPD_G             => TPD_G,
+         TYPE_G            => "PLL",
+         INPUT_BUFG_G      => true,
+         FB_BUFG_G         => true,
+         RST_IN_POLARITY_G => '1',
+         NUM_CLOCKS_G      => 1,
+         -- MMCM attributes
+         BANDWIDTH_G       => "OPTIMIZED",
+         CLKIN_PERIOD_G    => 6.4,      -- 156.25 MHz
+         CLKFBOUT_MULT_G   => 8,        -- 1.25GHz = 8 x 156.25 MHz
+         CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
+      port map(
+         -- Clock Input
+         clkIn     => userClk156,
+         rstIn     => dmaRst,
+         -- Clock Outputs
+         clkOut(0) => axilClk,
+         -- Reset Outputs
+         rstOut(0) => axilRst);
+
+   -----------------------         
+   -- axi-pcie-core module
+   -----------------------         
+   U_Core : entity work.XilinxAlveoU250Core
+      generic map (
+         TPD_G             => TPD_G,
+         BUILD_INFO_G      => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         DMA_SIZE_G        => DMA_SIZE_C)
+      port map (
+         ------------------------      
+         --  Top Level Interfaces
+         ------------------------     
+         userClk156     => userClk156,
+         -- DMA Interfaces
+         dmaClk         => dmaClk,
+         dmaRst         => dmaRst,
+         dmaObMasters   => dmaObMasters,
+         dmaObSlaves    => dmaObSlaves,
+         dmaIbMasters   => dmaIbMasters,
+         dmaIbSlaves    => dmaIbSlaves,
+         -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
+         appClk         => axilClk,
+         appRst         => axilRst,
+         appReadMaster  => axilReadMaster,
+         appReadSlave   => axilReadSlave,
+         appWriteMaster => axilWriteMaster,
+         appWriteSlave  => axilWriteSlave,
+         --------------
+         --  Core Ports
+         --------------
+         -- System Ports
+         userClkP       => userClkP,
+         userClkN       => userClkN,
+         -- QSFP[1:0] Ports
+         qsfpFs        => qsfpFs,
+         qsfpRefClkRst => qsfpRefClkRst,
+         qsfpRstL      => qsfpRstL,
+         qsfpLpMode    => qsfpLpMode,
+         qsfpModSelL   => qsfpModSelL,
+         qsfpModPrsL   => qsfpModPrsL,
+         -- PCIe Ports 
+         pciRstL        => pciRstL,
+         pciRefClkP     => pciRefClkP,
+         pciRefClkN     => pciRefClkN,
+         pciRxP         => pciRxP,
+         pciRxN         => pciRxN,
+         pciTxP         => pciTxP,
+         pciTxN         => pciTxN);
+
+   --------------------
+   -- AXI-Lite Crossbar
+   --------------------
+   U_XBAR : entity work.AxiLiteCrossbar
+      generic map (
+         TPD_G              => TPD_G,
+         NUM_SLAVE_SLOTS_G  => 1,
+         NUM_MASTER_SLOTS_G => 5,
+         MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
+      port map (
+         axiClk              => axilClk,
+         axiClkRst           => axilRst,
+         sAxiWriteMasters(0) => axilWriteMaster,
+         sAxiWriteSlaves(0)  => axilWriteSlave,
+         sAxiReadMasters(0)  => axilReadMaster,
+         sAxiReadSlaves(0)   => axilReadSlave,
+         mAxiWriteMasters    => axilWriteMasters,
+         mAxiWriteSlaves     => axilWriteSlaves,
+         mAxiReadMasters     => axilReadMasters,
+         mAxiReadSlaves      => axilReadSlaves);
+
+   --------------------
+   -- MIG[3:0] IP Cores
+   --------------------
+   U_Mig : entity work.MigAll
+      generic map (
+         TPD_G => TPD_G)
+      port map (
+         extRst          => dmaRst,
+         -- AXI MEM Interface
+         axiClk          => ddrClk,
+         axiRst          => ddrRst,
+         axiReady        => ddrReady,
+         axiWriteMasters => ddrWriteMasters,
+         axiWriteSlaves  => ddrWriteSlaves,
+         axiReadMasters  => ddrReadMasters,
+         axiReadSlaves   => ddrReadSlaves,
+         -- DDR Ports
+         ddrClkP         => ddrClkP,
+         ddrClkN         => ddrClkN,
+         ddrOut          => ddrOut,
+         ddrInOut        => ddrInOut);
+
+   ------------------------
+   -- Memory Tester Modules
+   ------------------------
+   GEN_VEC : for i in 3 downto 0 generate
+      U_AxiMemTester : entity work.AxiMemTester
+         generic map (
+            TPD_G        => TPD_G,
+            START_ADDR_G => START_ADDR_C,
+            STOP_ADDR_G  => STOP_ADDR_C,
+            AXI_CONFIG_G => MEM_AXI_CONFIG_C)
+         port map (
+            -- AXI-Lite Interface
+            axilClk         => axilClk,
+            axilRst         => axilRst,
+            axilReadMaster  => axilReadMasters(i),
+            axilReadSlave   => axilReadSlaves(i),
+            axilWriteMaster => axilWriteMasters(i),
+            axilWriteSlave  => axilWriteSlaves(i),
+            -- DDR Memory Interface
+            axiClk          => ddrClk(i),
+            axiRst          => ddrRst(i),
+            start           => ddrReady(i),
+            axiWriteMaster  => ddrWriteMasters(i),
+            axiWriteSlave   => ddrWriteSlaves(i),
+            axiReadMaster   => ddrReadMasters(i),
+            axiReadSlave    => ddrReadSlaves(i));
+   end generate GEN_VEC;
+
+   ---------------
+   -- PRBS Modules
+   ---------------
+   U_Hardware : entity work.Hardware
+      generic map (
+         TPD_G             => TPD_G,
+         DMA_SIZE_G        => DMA_SIZE_C,
+         NUM_VC_G          => 1,
+         PRBS_SEED_SIZE_G  => 512,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
+      port map (
+         -- AXI-Lite Interface
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => axilReadMasters(4),
+         axilReadSlave   => axilReadSlaves(4),
+         axilWriteMaster => axilWriteMasters(4),
+         axilWriteSlave  => axilWriteSlaves(4),
+         -- DMA Interface
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves);
+
+end top_level;

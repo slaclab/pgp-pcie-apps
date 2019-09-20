@@ -35,7 +35,7 @@ entity Hardware is
       TPD_G             : time                    := 1 ns;
       DMA_SIZE_G        : positive                := 1;
       NUM_VC_G          : positive                := 1;
-      PRBS_SEED_SIZE_G  : natural range 32 to 256 := 32;
+      PRBS_SEED_SIZE_G  : natural range 32 to 512 := 32;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0)        := x"0080_0000");
    port (
