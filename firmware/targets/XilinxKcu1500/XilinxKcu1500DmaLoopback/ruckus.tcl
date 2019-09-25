@@ -11,3 +11,5 @@ loadConstraints -dir "$::DIR_PATH/hdl"
 loadSource -sim_only -dir "$::DIR_PATH/tb"
 
 set_property top {XilinxKcu1500DmaLoopbackTb} [get_filesets sim_1]
+#set_property top {AxiPcieDmaIbFifoEofeTb} [get_filesets sim_1]
+#set_property top {SsiResizeFifoEofeTb} [get_filesets sim_1]
