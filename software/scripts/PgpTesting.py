@@ -156,7 +156,7 @@ class MyRoot(pr.Root):
             self.add(axi.AxiStreamMonitoring(            
                 name        = (f'PgpTxAxisMon[{lane}]'), 
                 offset      = (0x00800000 + lane*0x00010000 + 0x3000), 
-                numberLanes = 4,
+                numberLanes = args.numVc,
                 memBase     = self.memMap,
                 expand      = True,
             ))        
@@ -164,7 +164,7 @@ class MyRoot(pr.Root):
             self.add(axi.AxiStreamMonitoring(            
                 name        = (f'PgpRxAxisMon[{lane}]'), 
                 offset      = (0x00800000 + lane*0x00010000 + 0x4000), 
-                numberLanes = 4,
+                numberLanes = args.numVc,
                 memBase     = self.memMap,
                 expand      = True,
             ))   

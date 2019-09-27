@@ -84,9 +84,9 @@ begin
             -- FIFO configurations
             BRAM_EN_G           => true,
             GEN_SYNC_FIFO_G     => true,
-            FIFO_ADDR_WIDTH_G   => 12,
+            FIFO_ADDR_WIDTH_G   => 10,
             FIFO_FIXED_THRESH_G => true,
-            FIFO_PAUSE_THRESH_G => 512,
+            FIFO_PAUSE_THRESH_G => 128,
             -- AXI Stream Port Configurations
             SLAVE_AXI_CONFIG_G  => SSI_PGP2B_CONFIG_C,
             MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_G)
