@@ -2,7 +2,7 @@
 -- File       : PgpLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-10-04
--- Last update: 2018-10-09
+-- Last update: 2019-09-26
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -64,18 +64,20 @@ end PgpLane;
 
 architecture mapping of PgpLane is
 
-   constant NUM_AXI_MASTERS_C : natural := 3;
+   constant NUM_AXI_MASTERS_C : natural := 5;
 
-   constant GT_INDEX_C   : natural := 0;
-   constant MON_INDEX_C  : natural := 1;
-   constant CTRL_INDEX_C : natural := 2;
+   constant GT_INDEX_C     : natural := 0;
+   constant MON_INDEX_C    : natural := 1;
+   constant CTRL_INDEX_C   : natural := 2;
+   constant TX_MON_INDEX_C : natural := 3;
+   constant RX_MON_INDEX_C : natural := 4;
 
    constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 16, 12);
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_OK_C);
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_OK_C);
 
    signal pgpTxIn  : Pgp2bTxInType;
    signal pgpTxOut : Pgp2bTxOutType;
@@ -280,5 +282,53 @@ begin
          pgpRxOut     => pgpRxOut,
          pgpRxMasters => pgpRxMasters,
          pgpRxCtrl    => pgpRxCtrl);
+
+   -----------------------------
+   -- Monitor the PGP TX streams
+   -----------------------------
+   U_AXIS_TX_MON : entity work.AxiStreamMonAxiL
+      generic map(
+         TPD_G            => TPD_G,
+         COMMON_CLK_G     => false,
+         AXIS_CLK_FREQ_G  => 156.25E+6,
+         AXIS_NUM_SLOTS_G => 4,
+         AXIS_CONFIG_G    => SSI_PGP2B_CONFIG_C)
+      port map(
+         -- AXIS Stream Interface
+         axisClk          => pgpTxClk,
+         axisRst          => pgpTxRst,
+         axisMasters      => pgpTxMasters,
+         axisSlaves       => pgpTxSlaves,
+         -- AXI lite slave port for register access
+         axilClk          => axilClk,
+         axilRst          => axilRst,
+         sAxilWriteMaster => axilWriteMasters(TX_MON_INDEX_C),
+         sAxilWriteSlave  => axilWriteSlaves(TX_MON_INDEX_C),
+         sAxilReadMaster  => axilReadMasters(TX_MON_INDEX_C),
+         sAxilReadSlave   => axilReadSlaves(TX_MON_INDEX_C));
+
+   -----------------------------
+   -- Monitor the PGP RX streams
+   -----------------------------
+   U_AXIS_RX_MON : entity work.AxiStreamMonAxiL
+      generic map(
+         TPD_G            => TPD_G,
+         COMMON_CLK_G     => false,
+         AXIS_CLK_FREQ_G  => 156.25E+6,
+         AXIS_NUM_SLOTS_G => 4,
+         AXIS_CONFIG_G    => SSI_PGP2B_CONFIG_C)
+      port map(
+         -- AXIS Stream Interface
+         axisClk          => pgpRxClk,
+         axisRst          => pgpRxRst,
+         axisMasters      => pgpRxMasters,
+         axisSlaves       => (others => AXI_STREAM_SLAVE_FORCE_C),  -- SLAVE_READY_EN_G=false
+         -- AXI lite slave port for register access
+         axilClk          => axilClk,
+         axilRst          => axilRst,
+         sAxilWriteMaster => axilWriteMasters(RX_MON_INDEX_C),
+         sAxilWriteSlave  => axilWriteSlaves(RX_MON_INDEX_C),
+         sAxilReadMaster  => axilReadMasters(RX_MON_INDEX_C),
+         sAxilReadSlave   => axilReadSlaves(RX_MON_INDEX_C));
 
 end mapping;
