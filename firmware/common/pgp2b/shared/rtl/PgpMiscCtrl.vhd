@@ -20,9 +20,13 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiPciePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
+
 use work.AppPkg.all;
 
 entity PgpMiscCtrl is
@@ -120,17 +124,16 @@ begin
       end if;
    end process seq;
 
-   U_rxUserRst : entity work.PwrUpRst
+   U_rxUserRst : entity surf.PwrUpRst
       generic map (
          TPD_G       => TPD_G,
-         USE_DSP48_G => "yes",
          DURATION_G  => 125000000)
       port map (
          arst   => r.rxUserRst,
          clk    => axilClk,
          rstOut => rxUserReset);
 
-   U_RstRx : entity work.RstPipeline
+   U_RstRx : entity surf.RstPipeline
       generic map (
          TPD_G => TPD_G)
       port map (
@@ -138,17 +141,16 @@ begin
          rstIn  => rxUserReset,
          rstOut => rxUserRst);
 
-   U_txUserRst : entity work.PwrUpRst
+   U_txUserRst : entity surf.PwrUpRst
       generic map (
          TPD_G       => TPD_G,
-         USE_DSP48_G => "yes",
          DURATION_G  => 125000000)
       port map (
          arst   => r.txUserRst,
          clk    => axilClk,
          rstOut => txUserReset);
 
-   U_RstTx : entity work.RstPipeline
+   U_RstTx : entity surf.RstPipeline
       generic map (
          TPD_G => TPD_G)
       port map (

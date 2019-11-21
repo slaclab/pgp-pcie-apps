@@ -20,12 +20,14 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.BuildInfoPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
-use work.Pgp3Pkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.Pgp3Pkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -130,7 +132,7 @@ begin
    GEN_PLLCLK :
    for i in 1 downto 0 generate
 
-      U_QPLL : entity work.Pgp3GthUsQpll
+      U_QPLL : entity surf.Pgp3GthUsQpll
          generic map (
             TPD_G => TPD_G)
          port map (
@@ -165,7 +167,7 @@ begin
    ---------------------
    -- AXI-Lite Crossbar
    ---------------------
-   U_XBAR : entity work.AxiLiteCrossbar
+   U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,

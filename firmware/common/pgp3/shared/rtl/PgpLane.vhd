@@ -20,11 +20,14 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
-use work.Pgp3Pkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.Pgp3Pkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 entity PgpLane is
    generic (
@@ -93,7 +96,7 @@ begin
    ---------------------
    -- AXI-Lite Crossbar
    ---------------------
-   U_XBAR : entity work.AxiLiteCrossbar
+   U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
@@ -114,7 +117,7 @@ begin
    -----------
    -- PGP Core
    -----------
-   U_Pgp : entity work.Pgp3GthUs
+   U_Pgp : entity surf.Pgp3GthUs
       generic map (
          TPD_G            => TPD_G,
          EN_DRP_G         => false,
@@ -206,7 +209,7 @@ begin
    -----------------------------
    -- Monitor the PGP TX streams
    -----------------------------
-   U_AXIS_TX_MON : entity work.AxiStreamMonAxiL
+   U_AXIS_TX_MON : entity surf.AxiStreamMonAxiL
       generic map(
          TPD_G            => TPD_G,
          COMMON_CLK_G     => false,
@@ -230,7 +233,7 @@ begin
    -----------------------------
    -- Monitor the PGP RX streams
    -----------------------------
-   U_AXIS_RX_MON : entity work.AxiStreamMonAxiL
+   U_AXIS_RX_MON : entity surf.AxiStreamMonAxiL
       generic map(
          TPD_G            => TPD_G,
          COMMON_CLK_G     => false,

@@ -20,11 +20,15 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
-use work.Pgp2bPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.Pgp2bPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
+
 use work.AppPkg.all;
 
 library unisim;
@@ -106,7 +110,7 @@ begin
    ---------------------
    -- AXI-Lite Crossbar
    ---------------------
-   U_XBAR : entity work.AxiLiteCrossbar
+   U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
@@ -127,7 +131,7 @@ begin
    -----------
    -- PGP Core
    -----------
-   U_Pgp : entity work.Pgp2bGthUltra
+   U_Pgp : entity surf.Pgp2bGthUltra
       generic map (
          TPD_G           => TPD_G,
          VC_INTERLEAVE_G => 1)          -- AxiStreamDmaV2 supports interleaving
@@ -194,7 +198,7 @@ begin
    --------------         
    -- PGP Monitor
    --------------         
-   U_PgpMon : entity work.Pgp2bAxi
+   U_PgpMon : entity surf.Pgp2bAxi
       generic map (
          TPD_G              => TPD_G,
          COMMON_TX_CLK_G    => false,
@@ -286,7 +290,7 @@ begin
    -----------------------------
    -- Monitor the PGP TX streams
    -----------------------------
-   U_AXIS_TX_MON : entity work.AxiStreamMonAxiL
+   U_AXIS_TX_MON : entity surf.AxiStreamMonAxiL
       generic map(
          TPD_G            => TPD_G,
          COMMON_CLK_G     => false,
@@ -310,7 +314,7 @@ begin
    -----------------------------
    -- Monitor the PGP RX streams
    -----------------------------
-   U_AXIS_RX_MON : entity work.AxiStreamMonAxiL
+   U_AXIS_RX_MON : entity surf.AxiStreamMonAxiL
       generic map(
          TPD_G            => TPD_G,
          COMMON_CLK_G     => false,

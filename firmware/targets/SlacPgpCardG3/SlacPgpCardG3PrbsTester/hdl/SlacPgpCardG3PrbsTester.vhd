@@ -16,11 +16,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
-use work.SsiPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -97,7 +101,7 @@ begin
    axilClk <= dmaClk;
    axilRst <= dmaRst;
 
-   U_Core : entity work.AxiPciePgpCardG3Core
+   U_Core : entity axi_pcie_core.AxiPciePgpCardG3Core
       generic map (
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
@@ -147,7 +151,7 @@ begin
    ledGreenL <= (others => '1');
    evrMuxSel <= (others => '0');
 
-   U_Evr : entity work.Gtpe2ChannelDummy
+   U_Evr : entity surf.Gtpe2ChannelDummy
       generic map (
          TPD_G   => TPD_G,
          WIDTH_G => 1)
@@ -158,7 +162,7 @@ begin
          gtTxP(0) => evrTxP,
          gtTxN(0) => evrTxN);
 
-   U_QSFP0 : entity work.Gtpe2ChannelDummy
+   U_QSFP0 : entity surf.Gtpe2ChannelDummy
       generic map (
          TPD_G   => TPD_G,
          WIDTH_G => 4)
@@ -169,7 +173,7 @@ begin
          gtTxP  => pgpTxP(3 downto 0),
          gtTxN  => pgpTxN(3 downto 0));
 
-   U_QSFP1 : entity work.Gtpe2ChannelDummy
+   U_QSFP1 : entity surf.Gtpe2ChannelDummy
       generic map (
          TPD_G   => TPD_G,
          WIDTH_G => 4)

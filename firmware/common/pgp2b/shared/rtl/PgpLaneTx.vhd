@@ -20,10 +20,13 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
-use work.Pgp2bPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.Pgp2bPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 entity PgpLaneTx is
    generic (
@@ -62,7 +65,7 @@ begin
 
    linkReady <= pgpTxOut.linkReady and pgpRxOut.linkReady;
 
-   U_FlushSync : entity work.Synchronizer
+   U_FlushSync : entity surf.Synchronizer
       generic map (
          TPD_G          => TPD_G,
          OUT_POLARITY_G => '0')
@@ -72,7 +75,7 @@ begin
          dataIn  => linkReady,
          dataOut => flushEn);
 
-   U_Flush : entity work.AxiStreamFlush
+   U_Flush : entity surf.AxiStreamFlush
       generic map (
          TPD_G         => TPD_G,
          AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
@@ -86,7 +89,7 @@ begin
          mAxisMaster => dmaMaster,
          mAxisCtrl   => dmaCtrl);
 
-   U_RESIZE : entity work.AxiStreamFifoV2
+   U_RESIZE : entity surf.AxiStreamFifoV2
       generic map (
          -- General Configurations
          TPD_G               => TPD_G,
@@ -95,7 +98,7 @@ begin
          SLAVE_READY_EN_G    => false,
          VALID_THOLD_G       => 1,
          -- FIFO configurations
-         BRAM_EN_G           => false,
+         MEMORY_TYPE_G       => "distributed",
          GEN_SYNC_FIFO_G     => false,
          FIFO_ADDR_WIDTH_G   => 5,
          FIFO_PAUSE_THRESH_G => 20,
@@ -114,7 +117,7 @@ begin
          mAxisMaster => txMaster,
          mAxisSlave  => txSlave);
 
-   U_SOF : entity work.SsiInsertSof
+   U_SOF : entity surf.SsiInsertSof
       generic map (
          TPD_G               => TPD_G,
          COMMON_CLK_G        => true,
@@ -134,7 +137,7 @@ begin
          mAxisMaster => txMasterSof,
          mAxisSlave  => txSlaveSof);
 
-   U_DeMux : entity work.AxiStreamDeMux
+   U_DeMux : entity surf.AxiStreamDeMux
       generic map (
          TPD_G         => TPD_G,
          NUM_MASTERS_G => 4,

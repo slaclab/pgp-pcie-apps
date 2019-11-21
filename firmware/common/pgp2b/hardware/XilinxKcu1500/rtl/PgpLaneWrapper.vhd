@@ -20,11 +20,13 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.BuildInfoPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -103,7 +105,7 @@ begin
          CLR => '0',
          O   => drpClk);
 
-   U_RstSync : entity work.RstSync
+   U_RstSync : entity surf.RstSync
       generic map (
          TPD_G => TPD_G)
       port map (
@@ -111,7 +113,7 @@ begin
          asyncRst => dmaRst,
          syncRst  => drpReset);
 
-   U_RstPipe : entity work.RstPipeline
+   U_RstPipe : entity surf.RstPipeline
       generic map (
          TPD_G => TPD_G)
       port map (
@@ -171,7 +173,7 @@ begin
    ---------------------
    -- AXI-Lite Crossbar
    ---------------------
-   U_XBAR : entity work.AxiLiteCrossbar
+   U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,

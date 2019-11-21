@@ -19,10 +19,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.StdRtlPkg.all;
-use work.Pgp2bPkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiLitePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.Pgp2bPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
 
 library UNISIM;
 use UNISIM.VCOMPONENTS.all;
@@ -264,7 +265,7 @@ begin
    gtTxUserResetIn <= pgpTxReset;
    gtRxUserResetIn <= pgpRxReset or (rxRstOneShot and not(drpOverride));
 
-   U_Pgp2bLane : entity work.Pgp2bLane
+   U_Pgp2bLane : entity surf.Pgp2bLane
       generic map (
          TPD_G             => TPD_G,
          LANE_CNT_G        => 1,
@@ -294,7 +295,7 @@ begin
          phyRxReady       => phyRxReady,
          phyRxInit        => gtRxUserReset);
 
-   U_rxRstOneShot : entity work.SynchronizerOneShot
+   U_rxRstOneShot : entity surf.SynchronizerOneShot
       generic map (
          TPD_G         => TPD_G,
          PULSE_WIDTH_G => 12500000)-- 100 ms pulse
@@ -426,7 +427,7 @@ begin
             I => pgpRxRecClk(i),
             O => pgpRxClock(i));
 
-      U_AxiLiteToDrp : entity work.AxiLiteToDrp
+      U_AxiLiteToDrp : entity surf.AxiLiteToDrp
          generic map (
             TPD_G            => TPD_G,
             COMMON_CLK_G     => true,

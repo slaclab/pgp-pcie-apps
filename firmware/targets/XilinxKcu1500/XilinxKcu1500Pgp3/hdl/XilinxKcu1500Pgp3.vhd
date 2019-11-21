@@ -16,12 +16,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.SsiPkg.all;
-use work.AxiPciePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -103,7 +106,7 @@ architecture top_level of XilinxKcu1500Pgp3 is
 
 begin
 
-   U_axilClk : entity work.ClockManagerUltraScale
+   U_axilClk : entity surf.ClockManagerUltraScale
       generic map(
          TPD_G             => TPD_G,
          TYPE_G            => "PLL",
@@ -125,7 +128,7 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   U_Core : entity work.XilinxKcu1500Core
+   U_Core : entity axi_pcie_core.XilinxKcu1500Core
       generic map (
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,

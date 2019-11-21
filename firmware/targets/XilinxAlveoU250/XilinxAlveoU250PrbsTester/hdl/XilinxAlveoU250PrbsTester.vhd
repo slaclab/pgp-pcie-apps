@@ -16,13 +16,16 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.SsiPkg.all;
-use work.AxiPciePkg.all;
-use work.MigPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
+use axi_pcie_core.MigPkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -127,7 +130,7 @@ architecture top_level of XilinxAlveoU250PrbsTester is
 
 begin
 
-   U_axilClk : entity work.ClockManagerUltraScale
+   U_axilClk : entity surf.ClockManagerUltraScale
       generic map(
          TPD_G             => TPD_G,
          TYPE_G            => "PLL",
@@ -152,7 +155,7 @@ begin
    -----------------------         
    -- axi-pcie-core module
    -----------------------         
-   U_Core : entity work.XilinxAlveoU250Core
+   U_Core : entity axi_pcie_core.XilinxAlveoU250Core
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
@@ -202,7 +205,7 @@ begin
    --------------------
    -- AXI-Lite Crossbar
    --------------------
-   U_XBAR : entity work.AxiLiteCrossbar
+   U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
@@ -223,7 +226,7 @@ begin
    --------------------
    -- MIG[3:0] IP Cores
    --------------------
-   U_Mig : entity work.MigAll
+   U_Mig : entity axi_pcie_core.MigAll
       generic map (
          TPD_G => TPD_G)
       port map (
@@ -246,7 +249,7 @@ begin
    -- Memory Tester Modules
    ------------------------
    GEN_VEC : for i in 3 downto 0 generate
-      U_AxiMemTester : entity work.AxiMemTester
+      U_AxiMemTester : entity surf.AxiMemTester
          generic map (
             TPD_G        => TPD_G,
             START_ADDR_G => START_ADDR_C,

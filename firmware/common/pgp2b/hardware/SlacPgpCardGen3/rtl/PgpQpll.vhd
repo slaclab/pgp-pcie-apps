@@ -20,8 +20,9 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -65,7 +66,7 @@ begin
    pllReset(0) <= qpllReset(0) or sysRst;
    pllReset(1) <= qpllReset(1) or sysRst;
 
-   U_QPLL : entity work.Gtp7QuadPll
+   U_QPLL : entity surf.Gtp7QuadPll
       generic map (
          TPD_G                => TPD_G,
          -- PLL0 Configured for 1.25 Gbps, 2.5 Gbps, 5.0 Gbps

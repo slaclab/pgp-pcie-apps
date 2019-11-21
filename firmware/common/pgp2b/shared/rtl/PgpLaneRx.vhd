@@ -20,10 +20,13 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
-use work.Pgp2bPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.Pgp2bPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 entity PgpLaneRx is
    generic (
@@ -72,7 +75,7 @@ begin
    GEN_VEC :
    for i in 3 downto 0 generate
 
-      PGP_FIFO : entity work.AxiStreamFifoV2
+      PGP_FIFO : entity surf.AxiStreamFifoV2
          generic map (
             -- General Configurations
             TPD_G               => TPD_G,
@@ -82,7 +85,7 @@ begin
             VALID_THOLD_G       => 128,  -- Hold until enough to burst into the interleaving MUX
             VALID_BURST_MODE_G  => true,
             -- FIFO configurations
-            BRAM_EN_G           => true,
+            MEMORY_TYPE_G       => "block",
             GEN_SYNC_FIFO_G     => true,
             FIFO_ADDR_WIDTH_G   => 10,
             FIFO_FIXED_THRESH_G => true,
@@ -104,7 +107,7 @@ begin
 
    end generate GEN_VEC;
 
-   U_Mux : entity work.AxiStreamMux
+   U_Mux : entity surf.AxiStreamMux
       generic map (
          TPD_G                => TPD_G,
          NUM_SLAVES_G         => 4,
@@ -124,7 +127,7 @@ begin
          mAxisMaster  => rxMaster,
          mAxisSlave   => rxSlave);
 
-   ASYNC_FIFO : entity work.AxiStreamFifoV2
+   ASYNC_FIFO : entity surf.AxiStreamFifoV2
       generic map (
          -- General Configurations
          TPD_G               => TPD_G,
@@ -133,7 +136,7 @@ begin
          SLAVE_READY_EN_G    => true,
          VALID_THOLD_G       => 1,
          -- FIFO configurations
-         BRAM_EN_G           => true,
+         MEMORY_TYPE_G       => "block",
          GEN_SYNC_FIFO_G     => false,
          FIFO_ADDR_WIDTH_G   => 9,
          -- AXI Stream Port Configurations

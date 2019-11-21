@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : AppPkg.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-04
--- Last update: 2018-02-08
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -18,9 +16,12 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 package AppPkg is
 

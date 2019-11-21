@@ -16,12 +16,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.SsiPkg.all;
-use work.AxiPciePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -98,7 +101,7 @@ begin
          CLR => '0',
          O   => axilClk);
 
-   U_axilRst : entity work.RstSync
+   U_axilRst : entity surf.RstSync
       generic map (
          TPD_G => TPD_G)
       port map (
@@ -106,7 +109,7 @@ begin
          asyncRst => dmaRst,
          syncRst  => axilRst);
 
-   U_Core : entity work.AlphaDataKu3Core
+   U_Core : entity axi_pcie_core.AlphaDataKu3Core
       generic map (
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
@@ -153,7 +156,7 @@ begin
    -------------------------
    -- Unused QSFP interfaces
    -------------------------
-   U_UnusedQsfp : entity work.TerminateQsfp
+   U_UnusedQsfp : entity axi_pcie_core.TerminateQsfp
       generic map (
          TPD_G => TPD_G)
       port map (

@@ -16,12 +16,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.SsiPkg.all;
-use work.AxiPciePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -95,7 +98,7 @@ architecture top_level of XilinxAlveoU250DmaLoopback is
 
 begin
 
-   U_axilClk : entity work.ClockManagerUltraScale
+   U_axilClk : entity surf.ClockManagerUltraScale
       generic map(
          TPD_G             => TPD_G,
          TYPE_G            => "PLL",
@@ -117,7 +120,7 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   U_Core : entity work.XilinxAlveoU250Core
+   U_Core : entity axi_pcie_core.XilinxAlveoU250Core
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
@@ -164,7 +167,7 @@ begin
          pciTxP         => pciTxP,
          pciTxN         => pciTxN);
 
-   U_UnusedQsfp : entity work.TerminateQsfp
+   U_UnusedQsfp : entity axi_pcie_core.TerminateQsfp
       generic map (
          TPD_G => TPD_G)
       port map (

@@ -20,12 +20,14 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPkg.all;
-use work.AxiPciePkg.all;
-use work.SsiPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 entity PrbsLane is
    generic (
@@ -75,7 +77,7 @@ begin
    ---------------------
    -- AXI-Lite Crossbar
    ---------------------
-   U_XBAR : entity work.AxiLiteCrossbar
+   U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
@@ -99,7 +101,7 @@ begin
    GEN_VC :
    for i in NUM_VC_G-1 downto 0 generate
 
-      U_SsiPrbsTx : entity work.SsiPrbsTx
+      U_SsiPrbsTx : entity surf.SsiPrbsTx
          generic map (
             TPD_G                      => TPD_G,
             PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
@@ -122,7 +124,7 @@ begin
             axilWriteMaster => axilWriteMasters(2*i+0),
             axilWriteSlave  => axilWriteSlaves(2*i+0));
 
-      U_SsiPrbsRx : entity work.SsiPrbsRx
+      U_SsiPrbsRx : entity surf.SsiPrbsRx
          generic map (
             TPD_G                     => TPD_G,
             PRBS_SEED_SIZE_G          => PRBS_SEED_SIZE_G,
@@ -156,7 +158,7 @@ begin
 
    GEN_MUX : if (NUM_VC_G /= 1) generate
 
-      U_DeMux : entity work.AxiStreamDeMux
+      U_DeMux : entity surf.AxiStreamDeMux
          generic map (
             TPD_G          => TPD_G,
             NUM_MASTERS_G  => NUM_VC_G,
@@ -172,7 +174,7 @@ begin
             mAxisMasters => dmaObMasters,
             mAxisSlaves  => dmaObSlaves);
 
-      U_Mux : entity work.AxiStreamMux
+      U_Mux : entity surf.AxiStreamMux
          generic map (
             TPD_G                => TPD_G,
             NUM_SLAVES_G         => NUM_VC_G,

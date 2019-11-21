@@ -16,12 +16,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiPciePkg.all;
-use work.SsiPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -68,7 +71,7 @@ begin
    axilClk <= dmaClk;
    axilRst <= dmaRst;
 
-   U_Core : entity work.XilinxAc701Core
+   U_Core : entity axi_pcie_core.XilinxAc701Core
       generic map (
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
