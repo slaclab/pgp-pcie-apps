@@ -2,7 +2,7 @@
 export PRJ_VERSION = 0x00000010
 
 # Define target part
-export PRJ_PART = XCU50-FSVH2104-2L-E
+export PRJ_PART = XCU50-FSVH2104-2-E
 
 # Define target output
 target: prom

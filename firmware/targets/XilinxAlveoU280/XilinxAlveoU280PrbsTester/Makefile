@@ -5,7 +5,7 @@ export PRJ_VERSION = 0x00000010
 export PRJ_PART = XCU280-FSVH2892-2L-E
 
 # Define target output
-target: gui
+target: mcs
 
 # Using a non-standard target directory structure, 
 # which requires me to define the TOP_DIR path
