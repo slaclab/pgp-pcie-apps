@@ -127,9 +127,10 @@ class MyRoot(pr.Root):
             
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
-            memBase = self.memMap ,
-            offset  = 0x00000000, 
-            expand  = False, 
+            memBase      = self.memMap,
+            offset       = 0x00000000, 
+            numDmaLanes  = args.numLane, 
+            expand       = True, 
         ))            
         
         for lane in range(args.numLane):
