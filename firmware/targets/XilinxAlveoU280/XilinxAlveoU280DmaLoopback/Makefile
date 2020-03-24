@@ -1,6 +1,3 @@
-# Define Firmware Version Number
-export PRJ_VERSION = 0x00000010
-
 # Define target part
 export PRJ_PART = XCU280-FSVH2892-2L-E
 
@@ -12,5 +9,5 @@ target: mcs
 export TOP_DIR = $(abspath $(PWD)/../../..)
 
 # Use top level makefile
+include $(TOP_DIR)/targets/shared_config.mk
 include $(TOP_DIR)/submodules/ruckus/system_vivado.mk
-
