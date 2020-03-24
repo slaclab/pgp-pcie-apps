@@ -1,64 +1,195 @@
 
 GitBase: ..
 
-TopRoguePackage: atlas_rd53_atca_dev
+TopRoguePackage: pgp_pcie_apps
 
 RoguePackages:
-  - submodules/atlas-atca-link-agg-fw-lib/python
-  - submodules/atlas-rd53-fw-lib/python
   - submodules/axi-pcie-core/python
-  - submodules/rce-gen3-fw-lib/python
   - submodules/surf/python
-  - python
+  - ../software/python
 
 RogueConfig:
 
 RogueScripts:
-  - ../software/scripts/gui.py
+  - ../software/scripts/LoopbackTesting.py
+  - ../software/scripts/PgpTesting.py
+  - ../software/scripts/PrbsTesting.py
 
 Targets:
-  AtlasAtcaLinkAggRd53Rtm_EmuLpGbt:
-    ImageDir: targets/AtlasAtcaLinkAgg/AtlasAtcaLinkAggRd53Rtm_EmuLpGbt/images
+################################################################################  
+  AlphaDataKu3DmaLoopback:
+    ImageDir: targets/AlphaDataKu3/AlphaDataKu3DmaLoopback/images
     Extensions:
-      - bit
       - mcs
-  AtlasAtcaLinkAggRd53Rtm_BackplaneEth:
-    ImageDir: targets/AtlasAtcaLinkAgg/AtlasAtcaLinkAggRd53Rtm_BackplaneEth/images
+  AlphaDataKu3PrbsTester:
+    ImageDir: targets/AlphaDataKu3/AlphaDataKu3PrbsTester/images
     Extensions:
-      - bit
       - mcs
-  AtlasAtcaLinkAggTestFrontPanelSgmii:
-    ImageDir: targets/AtlasAtcaLinkAgg/AtlasAtcaLinkAggTestFrontPanelSgmii/images
+################################################################################  
+  SlacPgpCardG3DmaLoopback:
+    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3DmaLoopback/images
     Extensions:
-      - bit
+      - mcs
+  SlacPgpCardG3Pgp2b:
+    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3Pgp2b/images
+    Extensions:
+      - mcs
+  SlacPgpCardG3PrbsTester:
+    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3PrbsTester/images
+    Extensions:
+      - mcs
+################################################################################  
+  SlacPgpCardG4DmaLoopback:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4DmaLoopback/images
+    Extensions:
+      - mcs
+  SlacPgpCardG4Pgp2b:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b/images
+    Extensions:
+      - mcs
+  SlacPgpCardG4Pgp3:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3/images
+    Extensions:
+      - mcs
+  SlacPgpCardG4PrbsTester:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4PrbsTester/images
+    Extensions:
       - mcs      
-  DpmIbertTester:
-    ImageDir: targets/RceDpm/DpmIbertTester/images
+################################################################################  
+  XilinxAc701DmaLoopback:
+    ImageDir: targets/XilinxAc701/XilinxAc701DmaLoopback/images
     Extensions:
-      - bit  
-  DpmRudpNode:
-    ImageDir: targets/RceDpm/DpmRudpNode/images
+      - mcs
+  XilinxAc701PrbsTester:
+    ImageDir: targets/XilinxAc701/XilinxAc701PrbsTester/images
     Extensions:
-      - bit        
-  AtlasRd53FmcXilinxKcu105_EmuLpGbt:
-    ImageDir: targets/XilinxKcu105/AtlasRd53FmcXilinxKcu105_EmuLpGbt/images
+      - mcs
+################################################################################  
+  XilinxAlveoU50DmaLoopback:
+    ImageDir: targets/XilinxAlveoU50/XilinxAlveoU50DmaLoopback/images
     Extensions:
-      - bit
-  XilinxZcu102LpGbt:
-    ImageDir: targets/XilinxZcu102/XilinxZcu102LpGbt/images
+      - mcs
+################################################################################  
+  XilinxAlveoU200DmaLoopback:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200DmaLoopback/images
     Extensions:
-      - bin
-
+      - mcs
+  XilinxAlveoU200PrbsTester:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200PrbsTester/images
+    Extensions:
+      - mcs
+################################################################################  
+  XilinxAlveoU250DmaLoopback:
+    ImageDir: targets/XilinxAlveoU250/XilinxAlveoU250DmaLoopback/images
+    Extensions:
+      - mcs
+  XilinxAlveoU250PrbsTester:
+    ImageDir: targets/XilinxAlveoU250/XilinxAlveoU250PrbsTester/images
+    Extensions:
+      - mcs      
+################################################################################  
+  XilinxAlveoU280DmaLoopback:
+    ImageDir: targets/XilinxAlveoU280/XilinxAlveoU280DmaLoopback/images
+    Extensions:
+      - mcs
+  XilinxAlveoU280PrbsTester:
+    ImageDir: targets/XilinxAlveoU280/XilinxAlveoU280PrbsTester/images
+    Extensions:
+      - mcs
+################################################################################  
+  XilinxKc705DmaLoopback:
+    ImageDir: targets/XilinxKc705/XilinxKc705DmaLoopback/images
+    Extensions:
+      - mcs
+  XilinxKc705PrbsTester:
+    ImageDir: targets/XilinxKc705/XilinxKc705PrbsTester/images
+    Extensions:
+      - mcs      
+################################################################################  
+  XilinxKcu105DmaLoopback:
+    ImageDir: targets/XilinxKcu105/XilinxKcu105DmaLoopback/images
+    Extensions:
+      - mcs
+  XilinxKcu105PrbsTester:
+    ImageDir: targets/XilinxKcu105/XilinxKcu105PrbsTester/images
+    Extensions:
+      - mcs      
+################################################################################ 
+  XilinxKcu116DmaLoopback:
+    ImageDir: targets/XilinxKcu116/XilinxKcu116DmaLoopback/images
+    Extensions:
+      - mcs
+  XilinxKcu116PrbsTester:
+    ImageDir: targets/XilinxKcu116/XilinxKcu116PrbsTester/images
+    Extensions:
+      - mcs      
+################################################################################        
+  XilinxKcu1500DmaLoopback:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500DmaLoopback/images
+    Extensions:
+      - mcs
+  XilinxKcu1500DmaLoopbackBifurcatedPcie:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500DmaLoopbackBifurcatedPcie/images
+    Extensions:
+      - mcs
+  XilinxKcu1500Pgp2b:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
+    Extensions:
+      - mcs
+  XilinxKcu1500Pgp3:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3/images
+    Extensions:
+      - mcs
+  XilinxKcu1500PrbsTester:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500PrbsTester/images
+    Extensions:
+      - mcs
+################################################################################        
 Releases:
   all:
     Primary: True
     Targets:
-      - AtlasAtcaLinkAggRd53Rtm_EmuLpGbt
-      # - AtlasAtcaLinkAggRd53Rtm_BackplaneEth
-      # - AtlasAtcaLinkAggTestFrontPanelSgmii
-      - DpmIbertTester
-      - DpmRudpNode
-      - AtlasRd53FmcXilinxKcu105_EmuLpGbt
-      - XilinxZcu102LpGbt
+      #######################################
+      # - AlphaDataKu3DmaLoopback
+      # - AlphaDataKu3PrbsTester
+      #######################################
+      # - SlacPgpCardG3DmaLoopback
+      - SlacPgpCardG3Pgp2b
+      # - SlacPgpCardG3PrbsTester
+      #######################################
+      # - SlacPgpCardG4DmaLoopback
+      - SlacPgpCardG4Pgp2b
+      - SlacPgpCardG4Pgp3
+      # - SlacPgpCardG4PrbsTester
+      #######################################
+      # - XilinxAc701DmaLoopback
+      # - XilinxAc701PrbsTester
+      #######################################
+      # - XilinxAlveoU50DmaLoopback
+      #######################################
+      # - XilinxAlveoU200DmaLoopback
+      # - XilinxAlveoU200PrbsTester
+      #######################################
+      # - XilinxAlveoU250DmaLoopback
+      # - XilinxAlveoU250PrbsTester
+      #######################################
+      # - XilinxAlveoU280DmaLoopback
+      # - XilinxAlveoU280PrbsTester
+      #######################################
+      # - XilinxKc705DmaLoopback
+      # - XilinxKc705PrbsTester
+      #######################################
+      # - XilinxKcu105DmaLoopback
+      # - XilinxKcu105PrbsTester
+      #######################################
+      # - XilinxKcu116DmaLoopback
+      # - XilinxKcu116PrbsTester
+      #######################################
+      # - XilinxKcu1500DmaLoopback
+      # - XilinxKcu1500DmaLoopbackBifurcatedPcie
+      - XilinxKcu1500Pgp2b
+      - XilinxKcu1500Pgp3
+      # - XilinxKcu1500PrbsTester
+      #######################################
     Types:
       - Rogue
