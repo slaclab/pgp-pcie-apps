@@ -154,7 +154,7 @@ Releases:
       # - AlphaDataKu3PrbsTester
       #######################################
       # - SlacPgpCardG3DmaLoopback
-      - SlacPgpCardG3Pgp2b
+      # - SlacPgpCardG3Pgp2b
       # - SlacPgpCardG3PrbsTester
       #######################################
       # - SlacPgpCardG4DmaLoopback
