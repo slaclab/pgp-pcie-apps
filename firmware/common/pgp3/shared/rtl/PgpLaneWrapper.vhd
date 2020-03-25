@@ -38,6 +38,7 @@ entity PgpLaneWrapper is
       REFCLK_WIDTH_G    : positive         := 2;
       NUM_VC_G          : positive         := 4;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps" 
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
       -- QSFP[0] Ports
@@ -134,7 +135,8 @@ begin
 
       U_QPLL : entity surf.Pgp3GthUsQpll
          generic map (
-            TPD_G => TPD_G)
+            TPD_G  => TPD_G,
+            RATE_G => RATE_G)
          port map (
             -- Stable Clock and Reset
             stableClk  => axilClk,
@@ -193,6 +195,7 @@ begin
       U_Lane : entity work.PgpLane
          generic map (
             TPD_G             => TPD_G,
+            RATE_G            => RATE_G,
             DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
             LANE_G            => i,
             NUM_VC_G          => NUM_VC_G,

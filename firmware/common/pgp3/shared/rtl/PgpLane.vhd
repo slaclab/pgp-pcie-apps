@@ -35,6 +35,7 @@ entity PgpLane is
       LANE_G            : natural          := 0;
       NUM_VC_G          : positive         := 4;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps" 
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
       -- QPLL Interface
@@ -120,6 +121,7 @@ begin
    U_Pgp : entity surf.Pgp3GthUs
       generic map (
          TPD_G            => TPD_G,
+         RATE_G           => RATE_G,
          EN_DRP_G         => false,
          EN_PGP_MON_G     => true,
          NUM_VC_G         => NUM_VC_G,

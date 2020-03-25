@@ -136,10 +136,14 @@ Targets:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
     Extensions:
       - mcs
-  XilinxKcu1500Pgp3:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3/images
+  XilinxKcu1500Pgp3_6Gbps:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_6Gbps/images
     Extensions:
       - mcs
+  XilinxKcu1500Pgp3_10Gbps:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_10Gbps/images
+    Extensions:
+      - mcs      
   XilinxKcu1500PrbsTester:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500PrbsTester/images
     Extensions:
@@ -188,7 +192,8 @@ Releases:
       # - XilinxKcu1500DmaLoopback
       # - XilinxKcu1500DmaLoopbackBifurcatedPcie
       - XilinxKcu1500Pgp2b
-      - XilinxKcu1500Pgp3
+      - XilinxKcu1500Pgp3_6Gbps
+      - XilinxKcu1500Pgp3_10Gbps
       # - XilinxKcu1500PrbsTester
       #######################################
     Types:

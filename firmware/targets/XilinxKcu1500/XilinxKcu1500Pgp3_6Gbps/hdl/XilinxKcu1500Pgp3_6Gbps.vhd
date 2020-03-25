@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : XilinxKcu1500Pgp3.vhd
+-- File       : XilinxKcu1500Pgp3_6Gbps.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description: 
@@ -29,7 +29,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxKcu1500Pgp3 is
+entity XilinxKcu1500Pgp3_6Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -85,9 +85,9 @@ entity XilinxKcu1500Pgp3 is
       pciRxN       : in  slv(7 downto 0);
       pciTxP       : out slv(7 downto 0);
       pciTxN       : out slv(7 downto 0));
-end XilinxKcu1500Pgp3;
+end XilinxKcu1500Pgp3_6Gbps;
 
-architecture top_level of XilinxKcu1500Pgp3 is
+architecture top_level of XilinxKcu1500Pgp3_6Gbps is
 
    signal userClk156      : sl;
    signal axilClk         : sl;
@@ -190,6 +190,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
+         RATE_G            => "6.25Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------      
