@@ -192,4 +192,5 @@ Releases:
       # - XilinxKcu1500PrbsTester
       #######################################
     Types:
-      - Rogue
+      # - Rogue
+      - FW_only
