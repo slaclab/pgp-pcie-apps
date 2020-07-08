@@ -149,7 +149,7 @@ class MyRoot(pr.Root):
 
 #################################################################
 
-with MyRoot(pollEn=args.pollEn, initRead=args.initRead, timeout= 100.0) as root:
+with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
      pyrogue.pydm.runPyDM(root=root)
      
 #################################################################
