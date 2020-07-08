@@ -67,6 +67,7 @@ architecture mapping of Hardware is
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
    signal axilRseet : slv(DMA_SIZE_G-1 downto 0);
+   signal pause     : slv(7 downto 0);
 
 begin
    ---------------------
@@ -106,7 +107,7 @@ begin
             -- DMA Interface
             dmaClk          => dmaClk,
             dmaRst          => dmaReset(i),
-            dmaBuffGrpPause => dmaBuffGrpPause,
+            dmaBuffGrpPause => pause,
             dmaIbMaster     => dmaIbMasters(i),
             dmaIbSlave      => dmaIbSlaves(i),
             dmaObMaster     => dmaObMasters(i),
@@ -136,5 +137,13 @@ begin
             rstOut => axilRseet(i));
 
    end generate;
+
+   -- Help with timing
+   process(dmaClk)
+   begin
+      if rising_edge(dmaClk) then
+         pause <= dmaBuffGrpPause after TPD_G;
+      end if;
+   end process;
 
 end mapping;
