@@ -127,9 +127,10 @@ class MyRoot(pr.Root):
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
-            offset  = 0x00000000,
-            memBase = self.memMap,
-            expand  = True,
+            offset     = 0x00000000,
+            memBase     = self.memMap,
+            numDmaLanes = args.numLane,
+            expand      = True,
         ))
 
         # Add PGP Core
@@ -174,6 +175,7 @@ class MyRoot(pr.Root):
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
 
                 if (args.swRx):
+
                     # Connect the SW PRBS Receiver module
                     self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
                         name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
@@ -181,17 +183,18 @@ class MyRoot(pr.Root):
                         checkPayload = False,
                         expand       = False,
                     )
-                    pr.streamConnect(self.dmaStream[lane][vc],self.prbsRx[lane][vc])
+                    self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                     self.add(self.prbsRx[lane][vc])
 
                 if (args.swTx):
+
                     # Connect the SW PRBS Transmitter module
                     self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
                         name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
                         width   = args.prbsWidth,
                         expand  = False,
                     )
-                    pr.streamConnect(self.prbsTx[lane][vc], self.dmaStream[lane][vc])
+                    self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
                     self.add(self.prbsTx[lane][vc])
 
 
@@ -199,5 +202,5 @@ class MyRoot(pr.Root):
 
 with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
      pyrogue.pydm.runPyDM(root=root)
-     
+
 #################################################################

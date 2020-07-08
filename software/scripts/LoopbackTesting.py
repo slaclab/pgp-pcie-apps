@@ -138,18 +138,20 @@ class MyRoot(pr.Root):
 
         for lane in range(args.numLane):
             for vc in range(args.numVc):
+
                 # Connect the SW PRBS Receiver module
                 self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=True)
-                pyrogue.streamConnect(self.dmaStream[lane][vc],self.prbsRx[lane][vc])
+                self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                 self.add(self.prbsRx[lane][vc])
+
                 # Connect the SW PRBS Transmitter module
                 self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),expand=True)
-                pyrogue.streamConnect(self.prbTx[lane][vc], self.dmaStream[lane][vc])
+                self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
                 self.add(self.prbTx[lane][vc])
 
 #################################################################
 
 with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
      pyrogue.pydm.runPyDM(root=root)
-     
+
 #################################################################
