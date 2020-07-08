@@ -41,35 +41,35 @@ entity SlacPgpCardG4Pgp2b is
       --  Application Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfpRefClkP  : in  sl;
-      qsfpRefClkN  : in  sl;
-      qsfp0RxP     : in  slv(3 downto 0);
-      qsfp0RxN     : in  slv(3 downto 0);
-      qsfp0TxP     : out slv(3 downto 0);
-      qsfp0TxN     : out slv(3 downto 0);
-      qsfp1RxP     : in  slv(3 downto 0);
-      qsfp1RxN     : in  slv(3 downto 0);
-      qsfp1TxP     : out slv(3 downto 0);
-      qsfp1TxN     : out slv(3 downto 0);
+      qsfpRefClkP : in  sl;
+      qsfpRefClkN : in  sl;
+      qsfp0RxP    : in  slv(3 downto 0);
+      qsfp0RxN    : in  slv(3 downto 0);
+      qsfp0TxP    : out slv(3 downto 0);
+      qsfp0TxN    : out slv(3 downto 0);
+      qsfp1RxP    : in  slv(3 downto 0);
+      qsfp1RxN    : in  slv(3 downto 0);
+      qsfp1TxP    : out slv(3 downto 0);
+      qsfp1TxN    : out slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      emcClk       : in  sl;
+      emcClk      : in  sl;
       -- Boot Memory Ports
-      flashCsL     : out sl;
-      flashMosi    : out sl;
-      flashMiso    : in  sl;
-      flashHoldL   : out sl;
-      flashWp      : out sl;
+      flashCsL    : out sl;
+      flashMosi   : out sl;
+      flashMiso   : in  sl;
+      flashHoldL  : out sl;
+      flashWp     : out sl;
       -- PCIe Ports
-      pciRstL      : in  sl;
-      pciRefClkP   : in  sl;
-      pciRefClkN   : in  sl;
-      pciRxP       : in  slv(7 downto 0);
-      pciRxN       : in  slv(7 downto 0);
-      pciTxP       : out slv(7 downto 0);
-      pciTxN       : out slv(7 downto 0));
+      pciRstL     : in  sl;
+      pciRefClkP  : in  sl;
+      pciRefClkN  : in  sl;
+      pciRxP      : in  slv(7 downto 0);
+      pciRxN      : in  slv(7 downto 0);
+      pciTxP      : out slv(7 downto 0);
+      pciTxN      : out slv(7 downto 0));
 end SlacPgpCardG4Pgp2b;
 
 architecture top_level of SlacPgpCardG4Pgp2b is
@@ -81,12 +81,13 @@ architecture top_level of SlacPgpCardG4Pgp2b is
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
-   signal dmaClk       : sl;
-   signal dmaRst       : sl;
-   signal dmaObMasters : AxiStreamMasterArray(7 downto 0);
-   signal dmaObSlaves  : AxiStreamSlaveArray(7 downto 0);
-   signal dmaIbMasters : AxiStreamMasterArray(7 downto 0);
-   signal dmaIbSlaves  : AxiStreamSlaveArray(7 downto 0);
+   signal dmaClk          : sl;
+   signal dmaRst          : sl;
+   signal dmaBuffGrpPause : slv(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
 
 begin
 
@@ -120,38 +121,39 @@ begin
          --  Top Level Interfaces
          ------------------------
          -- DMA Interfaces
-         dmaClk         => dmaClk,
-         dmaRst         => dmaRst,
-         dmaObMasters   => dmaObMasters,
-         dmaObSlaves    => dmaObSlaves,
-         dmaIbMasters   => dmaIbMasters,
-         dmaIbSlaves    => dmaIbSlaves,
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
          -- AXI-Lite Interface
-         appClk         => axilClk,
-         appRst         => axilRst,
-         appReadMaster  => axilReadMaster,
-         appReadSlave   => axilReadSlave,
-         appWriteMaster => axilWriteMaster,
-         appWriteSlave  => axilWriteSlave,
+         appClk          => axilClk,
+         appRst          => axilRst,
+         appReadMaster   => axilReadMaster,
+         appReadSlave    => axilReadSlave,
+         appWriteMaster  => axilWriteMaster,
+         appWriteSlave   => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
          -- System Ports
-         emcClk         => emcClk,
+         emcClk          => emcClk,
          -- Boot Memory Ports
-         flashCsL       => flashCsL,
-         flashMosi      => flashMosi,
-         flashMiso      => flashMiso,
-         flashHoldL     => flashHoldL,
-         flashWp        => flashWp,
+         flashCsL        => flashCsL,
+         flashMosi       => flashMosi,
+         flashMiso       => flashMiso,
+         flashHoldL      => flashHoldL,
+         flashWp         => flashWp,
          -- PCIe Ports
-         pciRstL        => pciRstL,
-         pciRefClkP     => pciRefClkP,
-         pciRefClkN     => pciRefClkN,
-         pciRxP         => pciRxP,
-         pciRxN         => pciRxN,
-         pciTxP         => pciTxP,
-         pciTxN         => pciTxN);
+         pciRstL         => pciRstL,
+         pciRefClkP      => pciRefClkP,
+         pciRefClkN      => pciRefClkN,
+         pciRxP          => pciRxP,
+         pciRxN          => pciRxN,
+         pciTxP          => pciTxP,
+         pciTxN          => pciTxN);
 
    U_Hardware : entity work.Hardware
       generic map (
@@ -171,6 +173,7 @@ begin
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,

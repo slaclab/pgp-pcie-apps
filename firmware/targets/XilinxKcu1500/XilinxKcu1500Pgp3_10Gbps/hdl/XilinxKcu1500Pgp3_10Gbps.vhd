@@ -97,12 +97,13 @@ architecture top_level of XilinxKcu1500Pgp3_10Gbps is
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
-   signal dmaClk       : sl;
-   signal dmaRst       : sl;
-   signal dmaObMasters : AxiStreamMasterArray(7 downto 0);
-   signal dmaObSlaves  : AxiStreamSlaveArray(7 downto 0);
-   signal dmaIbMasters : AxiStreamMasterArray(7 downto 0);
-   signal dmaIbSlaves  : AxiStreamSlaveArray(7 downto 0);
+   signal dmaClk          : sl;
+   signal dmaRst          : sl;
+   signal dmaBuffGrpPause : slv(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
 
 begin
 
@@ -140,52 +141,53 @@ begin
          ------------------------
          --  Top Level Interfaces
          ------------------------
-         userClk156     => userClk156,
+         userClk156      => userClk156,
          -- DMA Interfaces
-         dmaClk         => dmaClk,
-         dmaRst         => dmaRst,
-         dmaObMasters   => dmaObMasters,
-         dmaObSlaves    => dmaObSlaves,
-         dmaIbMasters   => dmaIbMasters,
-         dmaIbSlaves    => dmaIbSlaves,
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
          -- AXI-Lite Interface
-         appClk         => axilClk,
-         appRst         => axilRst,
-         appReadMaster  => axilReadMaster,
-         appReadSlave   => axilReadSlave,
-         appWriteMaster => axilWriteMaster,
-         appWriteSlave  => axilWriteSlave,
+         appClk          => axilClk,
+         appRst          => axilRst,
+         appReadMaster   => axilReadMaster,
+         appReadSlave    => axilReadSlave,
+         appWriteMaster  => axilWriteMaster,
+         appWriteSlave   => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
          -- System Ports
-         emcClk         => emcClk,
-         userClkP       => userClkP,
-         userClkN       => userClkN,
+         emcClk          => emcClk,
+         userClkP        => userClkP,
+         userClkN        => userClkN,
          -- QSFP[0] Ports
-         qsfp0RstL      => qsfp0RstL,
-         qsfp0LpMode    => qsfp0LpMode,
-         qsfp0ModSelL   => qsfp0ModSelL,
-         qsfp0ModPrsL   => qsfp0ModPrsL,
+         qsfp0RstL       => qsfp0RstL,
+         qsfp0LpMode     => qsfp0LpMode,
+         qsfp0ModSelL    => qsfp0ModSelL,
+         qsfp0ModPrsL    => qsfp0ModPrsL,
          -- QSFP[1] Ports
-         qsfp1RstL      => qsfp1RstL,
-         qsfp1LpMode    => qsfp1LpMode,
-         qsfp1ModSelL   => qsfp1ModSelL,
-         qsfp1ModPrsL   => qsfp1ModPrsL,
+         qsfp1RstL       => qsfp1RstL,
+         qsfp1LpMode     => qsfp1LpMode,
+         qsfp1ModSelL    => qsfp1ModSelL,
+         qsfp1ModPrsL    => qsfp1ModPrsL,
          -- Boot Memory Ports
-         flashCsL       => flashCsL,
-         flashMosi      => flashMosi,
-         flashMiso      => flashMiso,
-         flashHoldL     => flashHoldL,
-         flashWp        => flashWp,
+         flashCsL        => flashCsL,
+         flashMosi       => flashMosi,
+         flashMiso       => flashMiso,
+         flashHoldL      => flashHoldL,
+         flashWp         => flashWp,
          -- PCIe Ports
-         pciRstL        => pciRstL,
-         pciRefClkP     => pciRefClkP,
-         pciRefClkN     => pciRefClkN,
-         pciRxP         => pciRxP,
-         pciRxN         => pciRxN,
-         pciTxP         => pciTxP,
-         pciTxN         => pciTxN);
+         pciRstL         => pciRstL,
+         pciRefClkP      => pciRefClkP,
+         pciRefClkN      => pciRefClkN,
+         pciRxP          => pciRxP,
+         pciRxN          => pciRxN,
+         pciTxP          => pciTxP,
+         pciTxN          => pciTxN);
 
    U_Hardware : entity work.Hardware
       generic map (
@@ -206,6 +208,7 @@ begin
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,

@@ -50,21 +50,21 @@ entity XilinxKcu116PrbsTester is
       --  Core Ports
       --------------
       -- System Ports
-      emcClk       : in  sl;
+      emcClk     : in  sl;
       -- Boot Memory Ports
-      flashCsL     : out sl;
-      flashMosi    : out sl;
-      flashMiso    : in  sl;
-      flashHoldL   : out sl;
-      flashWp      : out sl;
+      flashCsL   : out sl;
+      flashMosi  : out sl;
+      flashMiso  : in  sl;
+      flashHoldL : out sl;
+      flashWp    : out sl;
       -- PCIe Ports
-      pciRstL      : in  sl;
-      pciRefClkP   : in  sl;
-      pciRefClkN   : in  sl;
-      pciRxP       : in  slv(7 downto 0);
-      pciRxN       : in  slv(7 downto 0);
-      pciTxP       : out slv(7 downto 0);
-      pciTxN       : out slv(7 downto 0));
+      pciRstL    : in  sl;
+      pciRefClkP : in  sl;
+      pciRefClkN : in  sl;
+      pciRxP     : in  slv(7 downto 0);
+      pciRxN     : in  slv(7 downto 0);
+      pciTxP     : out slv(7 downto 0);
+      pciTxN     : out slv(7 downto 0));
 end XilinxKcu116PrbsTester;
 
 architecture top_level of XilinxKcu116PrbsTester is
@@ -76,12 +76,13 @@ architecture top_level of XilinxKcu116PrbsTester is
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
-   signal dmaClk       : sl;
-   signal dmaRst       : sl;
-   signal dmaObMasters : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaObSlaves  : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbMasters : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbSlaves  : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal dmaClk          : sl;
+   signal dmaRst          : sl;
+   signal dmaBuffGrpPause : slv(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
 
 begin
 
@@ -118,38 +119,39 @@ begin
          --  Top Level Interfaces
          ------------------------
          -- DMA Interfaces
-         dmaClk         => dmaClk,
-         dmaRst         => dmaRst,
-         dmaObMasters   => dmaObMasters,
-         dmaObSlaves    => dmaObSlaves,
-         dmaIbMasters   => dmaIbMasters,
-         dmaIbSlaves    => dmaIbSlaves,
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk         => axilClk,
-         appRst         => axilRst,
-         appReadMaster  => axilReadMaster,
-         appReadSlave   => axilReadSlave,
-         appWriteMaster => axilWriteMaster,
-         appWriteSlave  => axilWriteSlave,
+         appClk          => axilClk,
+         appRst          => axilRst,
+         appReadMaster   => axilReadMaster,
+         appReadSlave    => axilReadSlave,
+         appWriteMaster  => axilWriteMaster,
+         appWriteSlave   => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
          -- System Ports
-         emcClk         => emcClk,
+         emcClk          => emcClk,
          -- Boot Memory Ports
-         flashCsL       => flashCsL,
-         flashMosi      => flashMosi,
-         flashMiso      => flashMiso,
-         flashHoldL     => flashHoldL,
-         flashWp        => flashWp,
+         flashCsL        => flashCsL,
+         flashMosi       => flashMosi,
+         flashMiso       => flashMiso,
+         flashHoldL      => flashHoldL,
+         flashWp         => flashWp,
          -- PCIe Ports
-         pciRstL        => pciRstL,
-         pciRefClkP     => pciRefClkP,
-         pciRefClkN     => pciRefClkN,
-         pciRxP         => pciRxP,
-         pciRxN         => pciRxN,
-         pciTxP         => pciTxP,
-         pciTxN         => pciTxN);
+         pciRstL         => pciRstL,
+         pciRefClkP      => pciRefClkP,
+         pciRefClkN      => pciRefClkN,
+         pciRxP          => pciRxP,
+         pciRxN          => pciRxN,
+         pciTxP          => pciTxP,
+         pciTxN          => pciTxN);
 
    ---------------
    -- PRBS Modules
@@ -172,6 +174,7 @@ begin
          -- DMA Interface
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,

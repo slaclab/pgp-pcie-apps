@@ -141,12 +141,13 @@ architecture top_level of XilinxKcu1500PrbsTester is
    signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0);
 
-   signal dmaClk       : sl;
-   signal dmaRst       : sl;
-   signal dmaObMasters : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaObSlaves  : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbMasters : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbSlaves  : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal dmaClk          : sl;
+   signal dmaRst          : sl;
+   signal dmaBuffGrpPause : slv(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
 
    signal ddrClk          : slv(3 downto 0);
    signal ddrRst          : slv(3 downto 0);
@@ -191,50 +192,51 @@ begin
          --  Top Level Interfaces
          ------------------------
          -- DMA Interfaces
-         dmaClk         => dmaClk,
-         dmaRst         => dmaRst,
-         dmaObMasters   => dmaObMasters,
-         dmaObSlaves    => dmaObSlaves,
-         dmaIbMasters   => dmaIbMasters,
-         dmaIbSlaves    => dmaIbSlaves,
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk         => axilClk,
-         appRst         => axilRst,
-         appReadMaster  => axilReadMaster,
-         appReadSlave   => axilReadSlave,
-         appWriteMaster => axilWriteMaster,
-         appWriteSlave  => axilWriteSlave,
+         appClk          => axilClk,
+         appRst          => axilRst,
+         appReadMaster   => axilReadMaster,
+         appReadSlave    => axilReadSlave,
+         appWriteMaster  => axilWriteMaster,
+         appWriteSlave   => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
          -- System Ports
-         emcClk         => emcClk,
-         userClkP       => userClkP,
-         userClkN       => userClkN,
+         emcClk          => emcClk,
+         userClkP        => userClkP,
+         userClkN        => userClkN,
          -- QSFP[0] Ports
-         qsfp0RstL      => qsfp0RstL,
-         qsfp0LpMode    => qsfp0LpMode,
-         qsfp0ModSelL   => qsfp0ModSelL,
-         qsfp0ModPrsL   => qsfp0ModPrsL,
+         qsfp0RstL       => qsfp0RstL,
+         qsfp0LpMode     => qsfp0LpMode,
+         qsfp0ModSelL    => qsfp0ModSelL,
+         qsfp0ModPrsL    => qsfp0ModPrsL,
          -- QSFP[1] Ports
-         qsfp1RstL      => qsfp1RstL,
-         qsfp1LpMode    => qsfp1LpMode,
-         qsfp1ModSelL   => qsfp1ModSelL,
-         qsfp1ModPrsL   => qsfp1ModPrsL,
+         qsfp1RstL       => qsfp1RstL,
+         qsfp1LpMode     => qsfp1LpMode,
+         qsfp1ModSelL    => qsfp1ModSelL,
+         qsfp1ModPrsL    => qsfp1ModPrsL,
          -- Boot Memory Ports
-         flashCsL       => flashCsL,
-         flashMosi      => flashMosi,
-         flashMiso      => flashMiso,
-         flashHoldL     => flashHoldL,
-         flashWp        => flashWp,
+         flashCsL        => flashCsL,
+         flashMosi       => flashMosi,
+         flashMiso       => flashMiso,
+         flashHoldL      => flashHoldL,
+         flashWp         => flashWp,
          -- PCIe Ports
-         pciRstL        => pciRstL,
-         pciRefClkP     => pciRefClkP,
-         pciRefClkN     => pciRefClkN,
-         pciRxP         => pciRxP,
-         pciRxN         => pciRxN,
-         pciTxP         => pciTxP,
-         pciTxN         => pciTxN);
+         pciRstL         => pciRstL,
+         pciRefClkP      => pciRefClkP,
+         pciRefClkN      => pciRefClkN,
+         pciRxP          => pciRxP,
+         pciRxN          => pciRxN,
+         pciTxP          => pciTxP,
+         pciTxN          => pciTxN);
 
    -------------------------
    -- Unused QSFP interfaces
@@ -356,6 +358,7 @@ begin
          -- DMA Interface
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,

@@ -39,29 +39,29 @@ entity XilinxAlveoU280PrbsTester is
       --  Application Ports
       ---------------------
       -- DDR Ports
-      ddrClkP      : in    slv(1 downto 0);
-      ddrClkN      : in    slv(1 downto 0);
-      ddrOut       : out   DdrOutArray(1 downto 0);
-      ddrInOut     : inout DdrInOutArray(1 downto 0);
+      ddrClkP     : in    slv(1 downto 0);
+      ddrClkN     : in    slv(1 downto 0);
+      ddrOut      : out   DdrOutArray(1 downto 0);
+      ddrInOut    : inout DdrInOutArray(1 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      userClkP     : in    sl;
-      userClkN     : in    sl;
+      userClkP    : in    sl;
+      userClkN    : in    sl;
       -- QSFP[1:0] Ports
-      qsfpRstL      : out slv(1 downto 0);
-      qsfpLpMode    : out slv(1 downto 0);
-      qsfpModSelL   : out slv(1 downto 0);
-      qsfpModPrsL   : in  slv(1 downto 0);
+      qsfpRstL    : out   slv(1 downto 0);
+      qsfpLpMode  : out   slv(1 downto 0);
+      qsfpModSelL : out   slv(1 downto 0);
+      qsfpModPrsL : in    slv(1 downto 0);
       -- PCIe Ports
-      pciRstL      : in    sl;
-      pciRefClkP   : in    slv(1 downto 0);
-      pciRefClkN   : in    slv(1 downto 0);
-      pciRxP       : in    slv(15 downto 0);
-      pciRxN       : in    slv(15 downto 0);
-      pciTxP       : out   slv(15 downto 0);
-      pciTxN       : out   slv(15 downto 0));
+      pciRstL     : in    sl;
+      pciRefClkP  : in    slv(1 downto 0);
+      pciRefClkN  : in    slv(1 downto 0);
+      pciRxP      : in    slv(15 downto 0);
+      pciRxN      : in    slv(15 downto 0);
+      pciTxP      : out   slv(15 downto 0);
+      pciTxN      : out   slv(15 downto 0));
 end XilinxAlveoU280PrbsTester;
 
 architecture top_level of XilinxAlveoU280PrbsTester is
@@ -74,7 +74,7 @@ architecture top_level of XilinxAlveoU280PrbsTester is
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);   -- 8  Byte (64-bit)  tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);     -- 64 Byte (512-bit) tData interface
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);  -- 64 Byte (512-bit) tData interface
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -111,12 +111,13 @@ architecture top_level of XilinxAlveoU280PrbsTester is
    signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
 
-   signal dmaClk       : sl;
-   signal dmaRst       : sl;
-   signal dmaObMasters : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaObSlaves  : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbMasters : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbSlaves  : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaClk          : sl;
+   signal dmaRst          : sl;
+   signal dmaBuffGrpPause : slv(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
 
    signal ddrClk          : slv(1 downto 0);
    signal ddrRst          : slv(1 downto 0);
@@ -163,40 +164,41 @@ begin
          ------------------------
          --  Top Level Interfaces
          ------------------------
-         userClk156     => userClk156,
+         userClk156      => userClk156,
          -- DMA Interfaces
-         dmaClk         => dmaClk,
-         dmaRst         => dmaRst,
-         dmaObMasters   => dmaObMasters,
-         dmaObSlaves    => dmaObSlaves,
-         dmaIbMasters   => dmaIbMasters,
-         dmaIbSlaves    => dmaIbSlaves,
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk         => axilClk,
-         appRst         => axilRst,
-         appReadMaster  => axilReadMaster,
-         appReadSlave   => axilReadSlave,
-         appWriteMaster => axilWriteMaster,
-         appWriteSlave  => axilWriteSlave,
+         appClk          => axilClk,
+         appRst          => axilRst,
+         appReadMaster   => axilReadMaster,
+         appReadSlave    => axilReadSlave,
+         appWriteMaster  => axilWriteMaster,
+         appWriteSlave   => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
          -- System Ports
-         userClkP       => userClkP,
-         userClkN       => userClkN,
+         userClkP        => userClkP,
+         userClkN        => userClkN,
          -- QSFP[1:0] Ports
-         qsfpRstL      => qsfpRstL,
-         qsfpLpMode    => qsfpLpMode,
-         qsfpModSelL   => qsfpModSelL,
-         qsfpModPrsL   => qsfpModPrsL,
+         qsfpRstL        => qsfpRstL,
+         qsfpLpMode      => qsfpLpMode,
+         qsfpModSelL     => qsfpModSelL,
+         qsfpModPrsL     => qsfpModPrsL,
          -- PCIe Ports
-         pciRstL        => pciRstL,
-         pciRefClkP     => pciRefClkP,
-         pciRefClkN     => pciRefClkN,
-         pciRxP         => pciRxP,
-         pciRxN         => pciRxN,
-         pciTxP         => pciTxP,
-         pciTxN         => pciTxN);
+         pciRstL         => pciRstL,
+         pciRefClkP      => pciRefClkP,
+         pciRefClkN      => pciRefClkN,
+         pciRxP          => pciRxP,
+         pciRxN          => pciRxN,
+         pciTxP          => pciTxP,
+         pciTxN          => pciTxN);
 
    --------------------
    -- AXI-Lite Crossbar
@@ -290,6 +292,7 @@ begin
          -- DMA Interface
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
