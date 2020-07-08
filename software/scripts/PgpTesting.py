@@ -17,7 +17,7 @@ import rogue.hardware.axi
 import rogue.interfaces.stream
 
 import pyrogue as pr
-import pyrogue.gui
+import pyrogue.pydm
 import pyrogue.utilities.prbs
 
 import axipcie            as pcie
@@ -108,14 +108,12 @@ parser.add_argument(
 # Get the arguments
 args = parser.parse_args()
 
-
-
 #################################################################
 
 class MyRoot(pr.Root):
     def __init__(   self,
-            name        = "MyRoot",
-            description = "my root container",
+            name        = "pciServer",
+            description = "DMA Loopback Testing",
             **kwargs):
         super().__init__(name=name, description=description, **kwargs)
 
@@ -199,27 +197,7 @@ class MyRoot(pr.Root):
 
 #################################################################
 
-# Set base
-base = MyRoot(name='pciServer',description='DMA Loopback Testing')
-
-# Start the system
-base.start(
-    pollEn   = args.pollEn,
-    initRead = args.initRead,
-)
-
-# Create GUI
-appTop = pr.gui.application(sys.argv)
-guiTop = pr.gui.GuiTop()
-appTop.setStyle('Fusion')
-guiTop.addTree(base)
-guiTop.resize(600, 800)
-
-print("Starting GUI...\n");
-
-# Run GUI
-appTop.exec_()
-
-# Close
-base.stop()
-exit()
+with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
+     pyrogue.pydm.runPyDM(root=root)
+     
+#################################################################

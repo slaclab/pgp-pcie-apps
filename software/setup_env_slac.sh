@@ -16,4 +16,4 @@ export SURF_DIR=${PWD}/../firmware/submodules/surf/python
 export PCIE_DIR=${PWD}/../firmware/submodules/axi-pcie-core/python
 
 # Setup python path
-export PYTHONPATH=${PWD}/python:${SURF_DIR}:${PCIE_DIR}:${PYTHONPATH}
+export PYTHONPATH=${SURF_DIR}:${PCIE_DIR}:${PYTHONPATH}
