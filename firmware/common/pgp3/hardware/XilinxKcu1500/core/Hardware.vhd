@@ -52,6 +52,7 @@ entity Hardware is
       -- DMA Interface
       dmaClk          : in  sl;
       dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
       dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
       dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
