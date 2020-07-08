@@ -4,14 +4,14 @@
 -- Created    : 2017-10-04
 -- Last update: 2019-09-26
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -167,7 +167,7 @@ begin
          -- Frame Receive Interface
          pgpRxMasters    => pgpRxMasters,
          pgpRxCtrl       => pgpRxCtrl,
-         -- AXI-Lite Interface 
+         -- AXI-Lite Interface
          axilClk         => axilClk,
          axilRst         => axilRst,
          axilReadMaster  => axilReadMasters(GT_INDEX_C),
@@ -195,9 +195,9 @@ begin
          DIV     => "000",              -- Divide by 1
          O       => pgpRxClk);
 
-   --------------         
+   --------------
    -- PGP Monitor
-   --------------         
+   --------------
    U_PgpMon : entity surf.Pgp2bAxi
       generic map (
          TPD_G              => TPD_G,

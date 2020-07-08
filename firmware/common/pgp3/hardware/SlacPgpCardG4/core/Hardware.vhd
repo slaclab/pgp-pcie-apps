@@ -5,11 +5,11 @@
 -- Description: Hardware File
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -36,9 +36,9 @@ entity Hardware is
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
-      ------------------------      
+      ------------------------
       --  Top Level Interfaces
-      ------------------------    
+      ------------------------
       -- AXI-Lite Interface
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -55,7 +55,7 @@ entity Hardware is
       dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
       ---------------------
       --  Hardware Ports
-      ---------------------    
+      ---------------------
       -- QSFP[0] Ports
       qsfpRefClkP     : in  sl;
       qsfpRefClkN     : in  sl;

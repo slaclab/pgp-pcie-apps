@@ -5,11 +5,11 @@
 -- Description: PRBS + DDR Memory Tester Example
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -73,10 +73,10 @@ architecture top_level of XilinxAlveoU250PrbsTester is
 
    constant DMA_SIZE_C : positive := 1;
 
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);   -- 8  Byte (64-bit)  tData interface      
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface      
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface      
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);     -- 64 Byte (512-bit) tData interface     
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);   -- 8  Byte (64-bit)  tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);     -- 64 Byte (512-bit) tData interface
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -152,9 +152,9 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   -----------------------         
+   -----------------------
    -- axi-pcie-core module
-   -----------------------         
+   -----------------------
    U_Core : entity axi_pcie_core.XilinxAlveoU250Core
       generic map (
          TPD_G             => TPD_G,
@@ -162,9 +162,9 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          DMA_SIZE_G        => DMA_SIZE_C)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------     
+         ------------------------
          userClk156     => userClk156,
          -- DMA Interfaces
          dmaClk         => dmaClk,
@@ -193,7 +193,7 @@ begin
          qsfpLpMode    => qsfpLpMode,
          qsfpModSelL   => qsfpModSelL,
          qsfpModPrsL   => qsfpModPrsL,
-         -- PCIe Ports 
+         -- PCIe Ports
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,
          pciRefClkN     => pciRefClkN,

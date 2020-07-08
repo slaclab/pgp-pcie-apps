@@ -2,14 +2,14 @@
 -- File       : XilinxAc701PrbsTester.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ entity XilinxAc701PrbsTester is
    port (
       -------------------
       --  Top Level Ports
-      -------------------      
+      -------------------
       -- System Ports
       emcClk     : in  sl;
       -- Boot Memory Ports
@@ -91,9 +91,9 @@ begin
          BUILD_INFO_G         => BUILD_INFO_G,
          DMA_SIZE_G           => DMA_SIZE_G)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------              
+         ------------------------
          -- DMA Interfaces
          dmaClk         => dmaClk,
          dmaRst         => dmaRst,
@@ -110,14 +110,14 @@ begin
          appWriteSlave  => axilWriteSlave,
          -------------------
          --  Top Level Ports
-         -------------------     
+         -------------------
          -- System Ports
          emcClk         => emcClk,
-         -- Boot Memory Ports 
+         -- Boot Memory Ports
          bootCsL        => bootCsL,
          bootMosi       => bootMosi,
          bootMiso       => bootMiso,
-         -- PCIe Ports 
+         -- PCIe Ports
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,
          pciRefClkN     => pciRefClkN,

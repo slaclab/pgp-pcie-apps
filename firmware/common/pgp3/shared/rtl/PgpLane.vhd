@@ -4,14 +4,14 @@
 -- Created    : 2017-10-26
 -- Last update: 2019-09-26
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ entity PgpLane is
       LANE_G            : natural          := 0;
       NUM_VC_G          : positive         := 4;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps" 
+      RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps"
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
       -- QPLL Interface

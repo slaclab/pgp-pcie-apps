@@ -2,14 +2,14 @@
 -- File       : XilinxKcu1500DmaLoopbackBifurcatedPcie.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -34,9 +34,9 @@ entity XilinxKcu1500DmaLoopbackBifurcatedPcie is
       TPD_G             : time                := 1 ns;
       ROGUE_SIM_EN_G    : boolean             := false;
       DMA_SIZE_G        : positive            := 8;
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(8, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 8 Byte (64-bit) tData interface      
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface      
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(32, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 32 Byte (256-bit) tData interface     
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(8, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 8 Byte (64-bit) tData interface
+      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface
+      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(32, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 32 Byte (256-bit) tData interface
       BUILD_INFO_G      : BuildInfoType);
    port (
       ---------------------
@@ -73,7 +73,7 @@ entity XilinxKcu1500DmaLoopbackBifurcatedPcie is
       qsfp1LpMode   : out sl;
       qsfp1ModSelL  : out sl;
       qsfp1ModPrsL  : in  sl;
-      -- Boot Memory Ports 
+      -- Boot Memory Ports
       flashCsL      : out sl;
       flashMosi     : out sl;
       flashMiso     : in  sl;
@@ -87,7 +87,7 @@ entity XilinxKcu1500DmaLoopbackBifurcatedPcie is
       pciRxN        : in  slv(7 downto 0);
       pciTxP        : out slv(7 downto 0);
       pciTxN        : out slv(7 downto 0);
-      -- Extended PCIe Ports 
+      -- Extended PCIe Ports
       pciExtRefClkP : in  sl;
       pciExtRefClkN : in  sl;
       pciExtRxP     : in  slv(7 downto 0);
@@ -117,9 +117,9 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          DMA_SIZE_G        => DMA_SIZE_G)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------        
+         ------------------------
          -- DMA Interfaces
          dmaClk       => dmaPriClk,
          dmaRst       => dmaPriRst,
@@ -129,7 +129,7 @@ begin
          dmaIbSlaves  => dmaPriSlaves,
          --------------
          --  Core Ports
-         --------------   
+         --------------
          -- System Ports
          emcClk       => emcClk,
          userClkP     => userClkP,
@@ -144,13 +144,13 @@ begin
          qsfp1LpMode  => qsfp1LpMode,
          qsfp1ModSelL => qsfp1ModSelL,
          qsfp1ModPrsL => qsfp1ModPrsL,
-         -- Boot Memory Ports 
+         -- Boot Memory Ports
          flashCsL     => flashCsL,
          flashMosi    => flashMosi,
          flashMiso    => flashMiso,
          flashHoldL   => flashHoldL,
          flashWp      => flashWp,
-         -- PCIe Ports 
+         -- PCIe Ports
          pciRstL      => pciRstL,
          pciRefClkP   => pciRefClkP,
          pciRefClkN   => pciRefClkN,
@@ -166,9 +166,9 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          DMA_SIZE_G        => DMA_SIZE_G)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------        
+         ------------------------
          -- DMA Interfaces
          dmaClk        => dmaSecClk,
          dmaRst        => dmaSecRst,
@@ -178,8 +178,8 @@ begin
          dmaIbSlaves   => dmaSecSlaves,
          --------------
          --  Core Ports
-         --------------   
-         -- Extended PCIe Ports 
+         --------------
+         -- Extended PCIe Ports
          pciRstL       => pciRstL,
          pciExtRefClkP => pciExtRefClkP,
          pciExtRefClkN => pciExtRefClkN,
@@ -199,7 +199,7 @@ begin
          axilRst      => dmaPriRst,
          ---------------------
          --  Application Ports
-         ---------------------         
+         ---------------------
          -- QSFP[0] Ports
          qsfp0RefClkP => qsfp0RefClkP,
          qsfp0RefClkN => qsfp0RefClkN,

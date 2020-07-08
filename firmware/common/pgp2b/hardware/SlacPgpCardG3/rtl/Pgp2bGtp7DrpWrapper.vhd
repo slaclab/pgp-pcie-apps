@@ -7,11 +7,11 @@
 -- Description: Gtp7 Variable Latency, multi-lane Module
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -73,12 +73,12 @@ entity Pgp2bGtp7DrpWrapper is
       pgpRxMasterMuxed : out AxiStreamMasterType;
       pgpRxCtrl        : in  AxiStreamCtrlArray(3 downto 0);
 
-      -- Debug Interface 
+      -- Debug Interface
       txPreCursor      : in  slv(4 downto 0);
       txPostCursor     : in  slv(4 downto 0);
       txDiffCtrl       : in  slv(3 downto 0);
       drpOverride      : in  sl;
-      -- AXI-Lite Interface 
+      -- AXI-Lite Interface
       axilClk          : in  sl;
       axilRst          : in  sl;
       axilReadMasters  : in  AxiLiteReadMasterArray((LANE_CNT_G-1) downto 0);

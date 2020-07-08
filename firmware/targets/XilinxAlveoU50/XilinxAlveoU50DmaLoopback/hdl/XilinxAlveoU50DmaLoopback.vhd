@@ -5,11 +5,11 @@
 -- Description: Simple DMA loopback Example
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -64,10 +64,10 @@ architecture top_level of XilinxAlveoU50DmaLoopback is
 
    constant DMA_SIZE_C : positive := 1;
 
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);  -- 8  Byte (64-bit)  tData interface      
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface      
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface      
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);  -- 64 Byte (512-bit) tData interface      
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(8);  -- 8  Byte (64-bit)  tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);  -- 16 Byte (128-bit) tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(32);  -- 32 Byte (256-bit) tData interface
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(64);  -- 64 Byte (512-bit) tData interface
 
    signal dmaClk     : sl;
    signal dmaRst     : sl;
@@ -113,9 +113,9 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          DMA_SIZE_G        => DMA_SIZE_C)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------          
+         ------------------------
          userClk156     => userClk156,
          -- DMA Interfaces
          dmaClk         => dmaClk,
@@ -133,11 +133,11 @@ begin
          appWriteSlave  => axilWriteSlave,
          --------------
          --  Core Ports
-         --------------   
+         --------------
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,
-         -- PCIe Ports 
+         -- PCIe Ports
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,
          pciRefClkN     => pciRefClkN,
@@ -159,7 +159,7 @@ begin
          axilWriteSlave  => axilWriteSlave,
          ---------------------
          --  Application Ports
-         ---------------------         
+         ---------------------
          -- QSFP Ports
          qsfpRefClkP    => qsfpRefClkP,
          qsfpRefClkN    => qsfpRefClkN,

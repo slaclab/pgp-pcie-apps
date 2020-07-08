@@ -2,14 +2,14 @@
 -- File       : SlacPgpCardG3Pgp2b.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ entity SlacPgpCardG3Pgp2b is
       ledRedL    : out   slv(5 downto 0);
       ledBlueL   : out   slv(5 downto 0);
       ledGreenL  : out   slv(5 downto 0);
-      -- FLASH Interface 
+      -- FLASH Interface
       flashAddr  : out   slv(28 downto 0);
       flashData  : inout slv(15 downto 0);
       flashAdv   : out   sl;
@@ -102,9 +102,9 @@ begin
          BUILD_INFO_G         => BUILD_INFO_G,
          DMA_SIZE_G           => 8)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------              
+         ------------------------
          -- DMA Interfaces
          dmaClk         => dmaClk,
          dmaRst         => dmaRst,
@@ -121,15 +121,15 @@ begin
          appWriteSlave  => axilWriteSlave,
          -------------------
          --  Top Level Ports
-         -------------------             
-         -- Boot Memory Ports 
+         -------------------
+         -- Boot Memory Ports
          flashAddr      => flashAddr,
          flashData      => flashData,
          flashAdv       => flashAdv,
          flashCeL       => flashCeL,
          flashOeL       => flashOeL,
          flashWeL       => flashWeL,
-         -- PCIe Ports 
+         -- PCIe Ports
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,
          pciRefClkN     => pciRefClkN,
@@ -160,9 +160,9 @@ begin
          TPD_G             => TPD_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------        
+         ------------------------
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,

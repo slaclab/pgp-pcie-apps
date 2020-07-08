@@ -2,14 +2,14 @@
 -- File       : PgpLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'PGP PCIe APP DEV', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'PGP PCIe APP DEV', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -192,11 +192,11 @@ begin
          -- Frame Receive Interface
          pgpRxMasters        => pgpRxMasters,
          pgpRxCtrl           => pgpRxCtrl,
-         -- Debug Interface 
+         -- Debug Interface
          txPreCursor         => config.txPreCursor,
          txPostCursor        => config.txPostCursor,
          txDiffCtrl          => config.txDiffCtrl,
-         -- AXI-Lite Interface 
+         -- AXI-Lite Interface
          axilClk             => axilClk,
          axilRst             => axilRst,
          axilReadMasters(0)  => axilReadMasters(GT_INDEX_C),
@@ -204,9 +204,9 @@ begin
          axilWriteMasters(0) => axilWriteMasters(GT_INDEX_C),
          axilWriteSlaves(0)  => axilWriteSlaves(GT_INDEX_C));
 
-   --------------         
+   --------------
    -- PGP Monitor
-   --------------         
+   --------------
    U_PgpMon : entity surf.Pgp2bAxi
       generic map (
          TPD_G              => TPD_G,
