@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-26
--- Last update: 2018-10-15
 -------------------------------------------------------------------------------
 -- Description: Hardware File
 -------------------------------------------------------------------------------
@@ -108,6 +106,7 @@ begin
             -- DMA Interface
             dmaClk          => dmaClk,
             dmaRst          => dmaReset(i),
+            dmaBuffGrpPause => dmaBuffGrpPause,
             dmaIbMaster     => dmaIbMasters(i),
             dmaIbSlave      => dmaIbSlaves(i),
             dmaObMaster     => dmaObMasters(i),

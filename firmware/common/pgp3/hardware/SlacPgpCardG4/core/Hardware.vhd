@@ -192,6 +192,7 @@ begin
             -- DMA Interface (dmaClk domain)
             dmaClk          => dmaClk,
             dmaRst          => dmaRst,
+            dmaBuffGrpPause => dmaBuffGrpPause,
             dmaObMaster     => dmaObMasters(i),
             dmaObSlave      => dmaObSlaves(i),
             dmaIbMaster     => dmaIbMasters(i),

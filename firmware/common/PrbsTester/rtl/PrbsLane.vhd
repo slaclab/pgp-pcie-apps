@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : PrbsLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-26
--- Last update: 2018-10-17
 -------------------------------------------------------------------------------
 -- Description:
 -------------------------------------------------------------------------------
@@ -40,6 +38,7 @@ entity PrbsLane is
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
       dmaObMaster     : in  AxiStreamMasterType;
       dmaObSlave      : out AxiStreamSlaveType;
       dmaIbMaster     : out AxiStreamMasterType;
@@ -160,9 +159,9 @@ begin
 
       U_DeMux : entity surf.AxiStreamDeMux
          generic map (
-            TPD_G          => TPD_G,
-            NUM_MASTERS_G  => NUM_VC_G,
-            PIPE_STAGES_G  => 1)
+            TPD_G         => TPD_G,
+            NUM_MASTERS_G => NUM_VC_G,
+            PIPE_STAGES_G => 1)
          port map (
             -- Clock and reset
             axisClk      => dmaClk,
@@ -178,6 +177,8 @@ begin
          generic map (
             TPD_G                => TPD_G,
             NUM_SLAVES_G         => NUM_VC_G,
+            TID_EN_G             => true,
+            MODE_G               => "INDEXED",
             ILEAVE_EN_G          => true,
             ILEAVE_ON_NOTVALID_G => true,
             ILEAVE_REARB_G       => ILEAVE_REARB_C,
@@ -187,6 +188,7 @@ begin
             axisClk      => dmaClk,
             axisRst      => dmaRst,
             -- Slaves
+            disableSel   => dmaBuffGrpPause(NUM_VC_G-1 downto 0),
             sAxisMasters => dmaIbMasters,
             sAxisSlaves  => dmaIbSlaves,
             -- Master

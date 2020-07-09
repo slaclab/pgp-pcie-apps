@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : PgpLaneRx.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-26
--- Last update: 2018-10-09
 -------------------------------------------------------------------------------
 -- Description:
 -------------------------------------------------------------------------------
@@ -35,17 +33,18 @@ entity PgpLaneRx is
       LANE_G            : natural := 0);
    port (
       -- DMA Interface (dmaClk domain)
-      dmaClk       : in  sl;
-      dmaRst       : in  sl;
-      dmaIbMaster  : out AxiStreamMasterType;
-      dmaIbSlave   : in  AxiStreamSlaveType;
+      dmaClk          : in  sl;
+      dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
+      dmaIbMaster     : out AxiStreamMasterType;
+      dmaIbSlave      : in  AxiStreamSlaveType;
       -- PGP RX Interface (pgpRxClk domain)
-      pgpRxClk     : in  sl;
-      pgpRxRst     : in  sl;
-      pgpRxOut     : in  Pgp2bRxOutType;
-      pgpRxMasters : in  AxiStreamMasterArray(3 downto 0);
-      pgpRxSlaves  : out AxiStreamSlaveArray(3 downto 0);
-      pgpRxCtrl    : out AxiStreamCtrlArray(3 downto 0));
+      pgpRxClk        : in  sl;
+      pgpRxRst        : in  sl;
+      pgpRxOut        : in  Pgp2bRxOutType;
+      pgpRxMasters    : in  AxiStreamMasterArray(3 downto 0);
+      pgpRxSlaves     : out AxiStreamSlaveArray(3 downto 0);
+      pgpRxCtrl       : out AxiStreamCtrlArray(3 downto 0));
 end PgpLaneRx;
 
 architecture mapping of PgpLaneRx is
@@ -53,6 +52,7 @@ architecture mapping of PgpLaneRx is
    signal pgpMasters : AxiStreamMasterArray(3 downto 0);
    signal rxMasters  : AxiStreamMasterArray(3 downto 0);
    signal rxSlaves   : AxiStreamSlaveArray(3 downto 0);
+   signal disableSel : slv(3 downto 0);
 
    signal rxMaster : AxiStreamMasterType;
    signal rxSlave  : AxiStreamSlaveType;
@@ -111,6 +111,7 @@ begin
       generic map (
          TPD_G                => TPD_G,
          NUM_SLAVES_G         => 4,
+         TID_EN_G             => true,
          MODE_G               => "INDEXED",
          ILEAVE_EN_G          => true,
          ILEAVE_ON_NOTVALID_G => false,
@@ -123,9 +124,19 @@ begin
          -- Slaves
          sAxisMasters => rxMasters,
          sAxisSlaves  => rxSlaves,
+         disableSel   => disableSel,
          -- Master
          mAxisMaster  => rxMaster,
          mAxisSlave   => rxSlave);
+
+   U_disableSel : entity surf.SynchronizerVector
+      generic map (
+         TPD_G   => TPD_G,
+         WIDTH_G => 4)
+      port map (
+         clk     => pgpRxClk,
+         dataIn  => dmaBuffGrpPause(3 downto 0),
+         dataOut => disableSel);
 
    ASYNC_FIFO : entity surf.AxiStreamFifoV2
       generic map (

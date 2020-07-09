@@ -23,22 +23,23 @@ use surf.Pgp3Pkg.all;
 
 entity PgpLaneRx is
    generic (
-      TPD_G             : time   := 1 ns;
+      TPD_G             : time := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       LANE_G            : natural;
       NUM_VC_G          : positive);
    port (
       -- DMA Interface (dmaClk domain)
-      dmaClk       : in  sl;
-      dmaRst       : in  sl;
-      dmaIbMaster  : out AxiStreamMasterType;
-      dmaIbSlave   : in  AxiStreamSlaveType;
+      dmaClk          : in  sl;
+      dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
+      dmaIbMaster     : out AxiStreamMasterType;
+      dmaIbSlave      : in  AxiStreamSlaveType;
       -- PGP Interface (pgpClk domain)
-      pgpClk       : in  sl;
-      pgpRst       : in  sl;
-      rxlinkReady  : in  sl;
-      pgpRxMasters : in  AxiStreamMasterArray(NUM_VC_G-1 downto 0);
-      pgpRxCtrl    : out AxiStreamCtrlArray(NUM_VC_G-1 downto 0));
+      pgpClk          : in  sl;
+      pgpRst          : in  sl;
+      rxlinkReady     : in  sl;
+      pgpRxMasters    : in  AxiStreamMasterArray(NUM_VC_G-1 downto 0);
+      pgpRxCtrl       : out AxiStreamCtrlArray(NUM_VC_G-1 downto 0));
 end PgpLaneRx;
 
 architecture mapping of PgpLaneRx is
@@ -46,6 +47,7 @@ architecture mapping of PgpLaneRx is
    signal pgpMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal rxMasters  : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal rxSlaves   : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
+   signal disableSel : slv(NUM_VC_G-1 downto 0);
 
    signal rxMaster : AxiStreamMasterType;
    signal rxSlave  : AxiStreamSlaveType;
@@ -104,6 +106,7 @@ begin
       generic map (
          TPD_G                => TPD_G,
          NUM_SLAVES_G         => NUM_VC_G,
+         TID_EN_G             => true,
          MODE_G               => "INDEXED",
          ILEAVE_EN_G          => true,
          ILEAVE_ON_NOTVALID_G => false,
@@ -114,11 +117,21 @@ begin
          axisClk      => pgpClk,
          axisRst      => pgpRst,
          -- Slaves
+         disableSel   => disableSel,
          sAxisMasters => rxMasters,
          sAxisSlaves  => rxSlaves,
          -- Master
          mAxisMaster  => rxMaster,
          mAxisSlave   => rxSlave);
+
+   U_disableSel : entity surf.SynchronizerVector
+      generic map (
+         TPD_G   => TPD_G,
+         WIDTH_G => NUM_VC_G)
+      port map (
+         clk     => pgpClk,
+         dataIn  => dmaBuffGrpPause(NUM_VC_G-1 downto 0),
+         dataOut => disableSel);
 
    ASYNC_FIFO : entity surf.AxiStreamFifoV2
       generic map (
