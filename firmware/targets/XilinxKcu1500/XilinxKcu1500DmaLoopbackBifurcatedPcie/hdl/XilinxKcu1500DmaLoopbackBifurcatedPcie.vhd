@@ -34,9 +34,11 @@ entity XilinxKcu1500DmaLoopbackBifurcatedPcie is
       TPD_G             : time                := 1 ns;
       ROGUE_SIM_EN_G    : boolean             := false;
       DMA_SIZE_G        : positive            := 8;
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(8, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 8 Byte (64-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(32, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 32 Byte (256-bit) tData interface
+
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
+      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
+      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  --- 32 Byte (256-bit) tData interface
+
       BUILD_INFO_G      : BuildInfoType);
    port (
       ---------------------
