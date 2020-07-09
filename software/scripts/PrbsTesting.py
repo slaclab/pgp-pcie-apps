@@ -161,7 +161,7 @@ class MyRoot(pr.Root):
                         name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
                         memBase = self.memMap,
                         offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
-                        expand  = True,
+                        expand  = False,
                     ))
 
                 if (args.fwRx):
@@ -212,6 +212,16 @@ class MyRoot(pr.Root):
 #################################################################
 
 with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
-     pyrogue.pydm.runPyDM(root=root)
+
+    fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
+    swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
+
+    for tx in fwTxDevices:
+        tx.TxEn.set(True)
+
+    for rx in swRxDevices:
+        rx.checkPayload.set(False)
+
+    pyrogue.pydm.runPyDM(root=root)
 
 #################################################################
