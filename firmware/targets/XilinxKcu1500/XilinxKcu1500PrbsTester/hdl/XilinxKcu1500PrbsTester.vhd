@@ -34,7 +34,8 @@ entity XilinxKcu1500PrbsTester is
    generic (
       TPD_G      : time     := 1 ns;
       DMA_SIZE_G : positive := 2;
-      NUM_VC_G   : positive := 8;       -- Testing all 8 dmaBuffGrpPause paths
+      NUM_VC_G   : positive := 4;
+      -- NUM_VC_G   : positive := 8;       -- Testing all 8 dmaBuffGrpPause paths
 
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
