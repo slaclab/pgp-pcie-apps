@@ -40,9 +40,9 @@ entity XilinxKcu1500PrbsTester is
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
 
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(8, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 8 Byte (64-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 16 Byte (128-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(32, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  --- 32 Byte (256-bit) tData interface
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 8);  --- 8 Byte (64-bit) tData interface
+      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 8);  --- 16 Byte (128-bit) tData interface
+      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 8);  --- 32 Byte (256-bit) tData interface
 
       PRBS_SEED_SIZE_G : natural range 32 to 256 := 32;
 
