@@ -177,8 +177,8 @@ begin
          generic map (
             TPD_G                => TPD_G,
             NUM_SLAVES_G         => NUM_VC_G,
-            TID_EN_G             => true,
             MODE_G               => "INDEXED",
+            TID_MODE_G           => "INDEXED",
             ILEAVE_EN_G          => true,
             ILEAVE_ON_NOTVALID_G => true,
             ILEAVE_REARB_G       => ILEAVE_REARB_C,
