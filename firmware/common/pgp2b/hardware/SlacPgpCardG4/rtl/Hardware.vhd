@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-26
--- Last update: 2019-12-09
 -------------------------------------------------------------------------------
 -- Description: Hardware File
 -------------------------------------------------------------------------------
@@ -51,6 +49,7 @@ entity Hardware is
       -- DMA Interface
       dmaClk          : in  sl;
       dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
       dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
       dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
@@ -199,6 +198,7 @@ begin
             -- DMA Interface (dmaClk domain)
             dmaClk          => dmaClk,
             dmaRst          => dmaRst,
+            dmaBuffGrpPause => dmaBuffGrpPause,
             dmaObMaster     => dmaObMasters(i),
             dmaObSlave      => dmaObSlaves(i),
             dmaIbMaster     => dmaIbMasters(i),

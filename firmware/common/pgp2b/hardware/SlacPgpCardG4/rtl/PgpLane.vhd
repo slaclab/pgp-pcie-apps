@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : PgpLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-04
--- Last update: 2019-09-26
 -------------------------------------------------------------------------------
 -- Description:
 -------------------------------------------------------------------------------
@@ -53,6 +51,7 @@ entity PgpLane is
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
       dmaObMaster     : in  AxiStreamMasterType;
       dmaObSlave      : out AxiStreamSlaveType;
       dmaIbMaster     : out AxiStreamMasterType;
@@ -276,16 +275,17 @@ begin
          LANE_G            => LANE_G)
       port map (
          -- DMA Interface (dmaClk domain)
-         dmaClk       => dmaClk,
-         dmaRst       => dmaRst,
-         dmaIbMaster  => dmaIbMaster,
-         dmaIbSlave   => dmaIbSlave,
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaIbMaster     => dmaIbMaster,
+         dmaIbSlave      => dmaIbSlave,
          -- PGP RX Interface (pgpRxClk domain)
-         pgpRxClk     => pgpRxClk,
-         pgpRxRst     => pgpRxRst,
-         pgpRxOut     => pgpRxOut,
-         pgpRxMasters => pgpRxMasters,
-         pgpRxCtrl    => pgpRxCtrl);
+         pgpRxClk        => pgpRxClk,
+         pgpRxRst        => pgpRxRst,
+         pgpRxOut        => pgpRxOut,
+         pgpRxMasters    => pgpRxMasters,
+         pgpRxCtrl       => pgpRxCtrl);
 
    -----------------------------
    -- Monitor the PGP TX streams

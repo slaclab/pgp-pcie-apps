@@ -10,16 +10,19 @@
 ##############################################################################
 
 import sys
+import argparse
+
 import rogue
 import rogue.hardware.axi
 import rogue.interfaces.stream
 import rogue.interfaces.memory
+
 import pyrogue as pr
-import pyrogue.gui
+import pyrogue.pydm
 import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
-import argparse
-import axipcie as pcie
+
+import axipcie            as pcie
 import surf.protocols.ssi as ssi
 
 # rogue.Logging.setLevel(rogue.Logging.Warning)
@@ -89,8 +92,8 @@ args = parser.parse_args()
 
 class MyRoot(pr.Root):
     def __init__(   self,
-            name        = "MyRoot",
-            description = "my root container",
+            name        = "pciServer",
+            description = "DMA Loopback Testing",
             **kwargs):
         super().__init__(name=name, description=description, **kwargs)
 
@@ -135,37 +138,20 @@ class MyRoot(pr.Root):
 
         for lane in range(args.numLane):
             for vc in range(args.numVc):
+
                 # Connect the SW PRBS Receiver module
                 self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=True)
-                pyrogue.streamConnect(self.dmaStream[lane][vc],self.prbsRx[lane][vc])
+                self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                 self.add(self.prbsRx[lane][vc])
+
                 # Connect the SW PRBS Transmitter module
                 self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),expand=True)
-                pyrogue.streamConnect(self.prbTx[lane][vc], self.dmaStream[lane][vc])
+                self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
                 self.add(self.prbTx[lane][vc])
 
-# Set base
-base = MyRoot(name='pciServer',description='DMA Loopback Testing')
+#################################################################
 
-# Start the system
-base.start(
-    pollEn   = args.pollEn,
-    initRead = args.initRead,
-    timeout  = 100.0,
-)
+with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
+     pyrogue.pydm.runPyDM(root=root)
 
-# Create GUI
-appTop = pr.gui.application(sys.argv)
-guiTop = pr.gui.GuiTop()
-appTop.setStyle('Fusion')
-guiTop.addTree(base)
-guiTop.resize(600, 800)
-
-print("Starting GUI...\n");
-
-# Run GUI
-appTop.exec_()
-
-# Close
-base.stop()
-exit()
+#################################################################

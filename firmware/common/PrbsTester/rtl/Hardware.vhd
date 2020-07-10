@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 2017-10-26
--- Last update: 2018-10-15
 -------------------------------------------------------------------------------
 -- Description: Hardware File
 -------------------------------------------------------------------------------
@@ -51,6 +49,7 @@ entity Hardware is
       -- DMA Interface
       dmaClk          : in  sl;
       dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
       dmaObMasters    : in  AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
       dmaObSlaves     : out AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
@@ -68,6 +67,7 @@ architecture mapping of Hardware is
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
    signal axilRseet : slv(DMA_SIZE_G-1 downto 0);
+   signal pause     : slv(7 downto 0);
 
 begin
    ---------------------
@@ -107,6 +107,7 @@ begin
             -- DMA Interface
             dmaClk          => dmaClk,
             dmaRst          => dmaReset(i),
+            dmaBuffGrpPause => pause,
             dmaIbMaster     => dmaIbMasters(i),
             dmaIbSlave      => dmaIbSlaves(i),
             dmaObMaster     => dmaObMasters(i),
@@ -136,5 +137,13 @@ begin
             rstOut => axilRseet(i));
 
    end generate;
+
+   -- Help with timing
+   process(dmaClk)
+   begin
+      if rising_edge(dmaClk) then
+         pause <= dmaBuffGrpPause after TPD_G;
+      end if;
+   end process;
 
 end mapping;

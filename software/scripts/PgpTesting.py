@@ -17,7 +17,7 @@ import rogue.hardware.axi
 import rogue.interfaces.stream
 
 import pyrogue as pr
-import pyrogue.gui
+import pyrogue.pydm
 import pyrogue.utilities.prbs
 
 import axipcie            as pcie
@@ -108,14 +108,12 @@ parser.add_argument(
 # Get the arguments
 args = parser.parse_args()
 
-
-
 #################################################################
 
 class MyRoot(pr.Root):
     def __init__(   self,
-            name        = "MyRoot",
-            description = "my root container",
+            name        = "pciServer",
+            description = "DMA Loopback Testing",
             **kwargs):
         super().__init__(name=name, description=description, **kwargs)
 
@@ -129,9 +127,10 @@ class MyRoot(pr.Root):
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
-            offset  = 0x00000000,
-            memBase = self.memMap,
-            expand  = True,
+            offset     = 0x00000000,
+            memBase     = self.memMap,
+            numDmaLanes = args.numLane,
+            expand      = True,
         ))
 
         # Add PGP Core
@@ -176,6 +175,7 @@ class MyRoot(pr.Root):
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
 
                 if (args.swRx):
+
                     # Connect the SW PRBS Receiver module
                     self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
                         name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
@@ -183,43 +183,24 @@ class MyRoot(pr.Root):
                         checkPayload = False,
                         expand       = False,
                     )
-                    pr.streamConnect(self.dmaStream[lane][vc],self.prbsRx[lane][vc])
+                    self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                     self.add(self.prbsRx[lane][vc])
 
                 if (args.swTx):
+
                     # Connect the SW PRBS Transmitter module
                     self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
                         name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
                         width   = args.prbsWidth,
                         expand  = False,
                     )
-                    pr.streamConnect(self.prbsTx[lane][vc], self.dmaStream[lane][vc])
+                    self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
                     self.add(self.prbsTx[lane][vc])
 
 
 #################################################################
 
-# Set base
-base = MyRoot(name='pciServer',description='DMA Loopback Testing')
+with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
+     pyrogue.pydm.runPyDM(root=root)
 
-# Start the system
-base.start(
-    pollEn   = args.pollEn,
-    initRead = args.initRead,
-)
-
-# Create GUI
-appTop = pr.gui.application(sys.argv)
-guiTop = pr.gui.GuiTop()
-appTop.setStyle('Fusion')
-guiTop.addTree(base)
-guiTop.resize(600, 800)
-
-print("Starting GUI...\n");
-
-# Run GUI
-appTop.exec_()
-
-# Close
-base.stop()
-exit()
+#################################################################

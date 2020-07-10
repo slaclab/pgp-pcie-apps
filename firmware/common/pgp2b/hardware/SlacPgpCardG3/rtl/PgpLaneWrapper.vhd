@@ -45,6 +45,7 @@ entity PgpLaneWrapper is
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
+      dmaBuffGrpPause : in  slv(7 downto 0);
       dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
       dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
@@ -200,6 +201,7 @@ begin
             -- DMA Interfaces (dmaClk domain)
             dmaClk           => dmaClk,
             dmaRst           => dmaRst,
+            dmaBuffGrpPause  => dmaBuffGrpPause,
             dmaObMaster      => dmaObMasters(i+EAST_C),
             dmaObSlave       => dmaObSlaves(i+EAST_C),
             dmaIbMaster      => dmaIbMasters(i+EAST_C),

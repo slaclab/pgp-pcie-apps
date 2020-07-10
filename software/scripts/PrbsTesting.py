@@ -10,15 +10,18 @@
 ##############################################################################
 
 import sys
+import argparse
+
 import rogue
 import rogue.hardware.axi
 import rogue.interfaces.stream
+
 import pyrogue as pr
-import pyrogue.gui
+import pyrogue.pydm
 import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
-import argparse
-import axipcie as pcie
+
+import axipcie            as pcie
 import surf.protocols.ssi as ssi
 
 #################################################################
@@ -51,6 +54,7 @@ parser.add_argument(
     type     = int,
     required = False,
     default  = 256,
+#    default  = 32,
     help     = "# of DMA Lanes",
 )
 
@@ -123,108 +127,110 @@ args = parser.parse_args()
 
 #################################################################
 
-# Set base
-base = pr.Root(name='pciServer',description='DMA Loopback Testing')
+class MyRoot(pr.Root):
+    def __init__(   self,
+            name        = "pciServer",
+            description = "DMA Loopback Testing",
+            **kwargs):
+        super().__init__(name=name, description=description, **kwargs)
 
-# Create PCIE memory mapped interface
-memMap = rogue.hardware.axi.AxiMemMap(args.dev)
+        # Create an arrays to be filled
+        self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+        self.prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+        self.prbTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
 
-# Add the PCIe core device to base
-base.add(pcie.AxiPcieCore(
-    memBase     = memMap ,
-    offset      = 0x00000000,
-    numDmaLanes = args.numLane,
-    expand      = False,
-))
+        # Create PCIE memory mapped interface
+        self.memMap = rogue.hardware.axi.AxiMemMap(args.dev,)
 
-# Loop through the DMA channels
-for lane in range(args.numLane):
+        # Add the PCIe core device to base
+        self.add(pcie.AxiPcieCore(
+            offset      = 0x00000000,
+            memBase     = self.memMap,
+            numDmaLanes = args.numLane,
+            expand      = True,
+        ))
 
-    # Loop through the virtual channels
-    for vc in range(args.numVc):
+        # Loop through the DMA channels
+        for lane in range(args.numLane):
 
-        if (args.fwTx):
-            # Add the FW PRBS TX Module
-            base.add(ssi.SsiPrbsTx(
-                name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
-                memBase = memMap,
-                offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
-                expand  = False,
-            ))
+            # Loop through the virtual channels
+            for vc in range(args.numVc):
 
-        if (args.fwRx):
-            # Add the FW PRBS RX Module
-            base.add(ssi.SsiPrbsRx(
-                name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
-                memBase = memMap,
-                offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
-                expand  = False,
-            ))
+                if (args.fwTx):
+                    # Add the FW PRBS TX Module
+                    self.add(ssi.SsiPrbsTx(
+                        name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
+                        memBase = self.memMap,
+                        offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
+                        expand  = False,
+                    ))
+
+                if (args.fwRx):
+                    # Add the FW PRBS RX Module
+                    self.add(ssi.SsiPrbsRx(
+                        name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
+                        memBase = self.memMap,
+                        offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
+                        expand  = False,
+                    ))
+
+        # Loop through the DMA channels
+        for lane in range(args.numLane):
+
+            # Loop through the virtual channels
+            for vc in range(args.numVc):
+
+                # Set the DMA loopback channel
+                self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+                # self.dmaStream[lane][vc].setDriverDebug(0)
+
+                if (args.loopback):
+                    # Loopback the PRBS data
+                    self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
+
+                else:
+                    if (args.swRx):
+                        # Connect the SW PRBS Receiver module
+                        self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
+                            name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
+                            width        = args.prbsWidth,
+                            checkPayload = False,
+                            expand       = True,
+                        )
+                        self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
+                        self.add(self.prbsRx[lane][vc])
+
+                    if (args.swTx):
+                        # Connect the SW PRBS Transmitter module
+                        self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
+                            name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
+                            width   = args.prbsWidth,
+                            expand  = False,
+                        )
+                        self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
+                        self.add(self.prbTx[lane][vc])
+
+        @self.command()
+        def EnableAllFwTx():
+            fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
+            for tx in fwTxDevices:
+                tx.TxEn.set(True)
+
+        @self.command()
+        def DisableAllFwTx():
+            fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
+            for tx in fwTxDevices:
+                tx.TxEn.set(False)
 
 
 #################################################################
 
-# Create an arrays to be filled
-dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-prbTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
 
-# Loop through the DMA channels
-for lane in range(args.numLane):
+    swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
+    for rx in swRxDevices:
+        rx.checkPayload.set(False)
 
-    # Loop through the virtual channels
-    for vc in range(args.numVc):
-
-        # Set the DMA loopback channel
-        dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
-        dmaStream[lane][vc].setDriverDebug(0)
-
-        if (args.loopback):
-            # Loopback the PRBS data
-            pyrogue.streamConnect(dmaStream[lane][vc],dmaStream[lane][vc])
-
-        else:
-            if (args.swRx):
-                # Connect the SW PRBS Receiver module
-                prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
-                    name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
-                    width        = args.prbsWidth,
-                    checkPayload = False,
-                    expand       = False,
-                )
-                pyrogue.streamConnect(dmaStream[lane][vc],prbsRx[lane][vc])
-                base.add(prbsRx[lane][vc])
-
-            if (args.swTx):
-                # Connect the SW PRBS Transmitter module
-                prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
-                    name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
-                    width   = args.prbsWidth,
-                    expand  = False,
-                )
-                pyrogue.streamConnect(prbTx[lane][vc], dmaStream[lane][vc])
-                base.add(prbTx[lane][vc])
+    pyrogue.pydm.runPyDM(root=root)
 
 #################################################################
-
-# Start the system
-base.start(
-    pollEn   = args.pollEn,
-    initRead = args.initRead,
-)
-
-# Create GUI
-appTop = pr.gui.application(sys.argv)
-guiTop = pr.gui.GuiTop()
-appTop.setStyle('Fusion')
-guiTop.addTree(base)
-guiTop.resize(600, 800)
-
-print("Starting GUI...\n");
-
-# Run GUI
-appTop.exec_()
-
-# Close
-base.stop()
-exit()
