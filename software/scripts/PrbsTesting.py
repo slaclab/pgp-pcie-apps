@@ -54,6 +54,7 @@ parser.add_argument(
     type     = int,
     required = False,
     default  = 256,
+#    default  = 32,
     help     = "# of DMA Lanes",
 )
 
@@ -209,16 +210,24 @@ class MyRoot(pr.Root):
                         self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
                         self.add(self.prbTx[lane][vc])
 
+        @self.command()
+        def EnableAllFwTx():
+            fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
+            for tx in fwTxDevices:
+                tx.TxEn.set(True)
+
+        @self.command()
+        def DisableAllFwTx():
+            fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
+            for tx in fwTxDevices:
+                tx.TxEn.set(False)
+
+
 #################################################################
 
 with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
 
-    fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
-
-    for tx in fwTxDevices:
-        tx.TxEn.set(True)
-
     for rx in swRxDevices:
         rx.checkPayload.set(False)
 
