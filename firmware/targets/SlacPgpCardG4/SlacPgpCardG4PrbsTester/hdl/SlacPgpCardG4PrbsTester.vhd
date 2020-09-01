@@ -71,19 +71,19 @@ architecture top_level of SlacPgpCardG4PrbsTester is
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
-         baseAddr     => x"0008_0000",
+         baseAddr     => x"0010_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       1               => (
-         baseAddr     => x"0009_0000",
+         baseAddr     => x"0011_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       2               => (
-         baseAddr     => x"000A_0000",
+         baseAddr     => x"0012_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       3               => (
-         baseAddr     => x"000B_0000",
+         baseAddr     => x"0013_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       4               => (

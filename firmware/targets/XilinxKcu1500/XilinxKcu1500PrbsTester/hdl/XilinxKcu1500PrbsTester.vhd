@@ -43,7 +43,8 @@ entity XilinxKcu1500PrbsTester is
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  --- 32 Byte (256-bit) tData interface
 
-      PRBS_SEED_SIZE_G : natural range 32 to 256 := 256;
+      PRBS_SEED_SIZE_G : natural range 32 to 256 := 32;
+      -- PRBS_SEED_SIZE_G : natural range 32 to 256 := 256;
 
       BUILD_INFO_G : BuildInfoType);
    port (
@@ -109,19 +110,19 @@ architecture top_level of XilinxKcu1500PrbsTester is
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
-         baseAddr     => x"0008_0000",
+         baseAddr     => x"0010_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       1               => (
-         baseAddr     => x"0009_0000",
+         baseAddr     => x"0011_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       2               => (
-         baseAddr     => x"000A_0000",
+         baseAddr     => x"0012_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       3               => (
-         baseAddr     => x"000B_0000",
+         baseAddr     => x"0013_0000",
          addrBits     => 16,
          connectivity => x"FFFF"),
       4               => (
