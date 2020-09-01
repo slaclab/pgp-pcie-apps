@@ -53,7 +53,7 @@ parser.add_argument(
     "--numVc",
     type     = int,
     required = False,
-    default  = 4,
+    default  = 1,
     help     = "# of VC (virtual channels)",
 )
 
@@ -69,7 +69,7 @@ parser.add_argument(
     "--swRx",
     type     = argBool,
     required = False,
-    default  = False,
+    default  = True,
     help     = "Enable read all variables at start",
 )
 
@@ -77,7 +77,7 @@ parser.add_argument(
     "--swTx",
     type     = argBool,
     required = False,
-    default  = False,
+    default  = True,
     help     = "Enable read all variables at start",
 )
 
@@ -142,14 +142,14 @@ class MyRoot(pr.Root):
                     memBase = self.memMap,
                     numVc   = args.numVc,
                     writeEn = True,
-                    expand  = True,
+                    expand  = False,
                 ))
             else:
                 self.add(pgp.Pgp2bAxi(
                     name    = f'Lane[{lane}]',
                     offset  = (0x00800000 + lane*0x00010000 + 0x1000),
                     memBase = self.memMap,
-                    expand  = True,
+                    expand  = False,
                 ))
 
             self.add(axi.AxiStreamMonAxiL(
@@ -157,7 +157,7 @@ class MyRoot(pr.Root):
                 offset      = (0x00800000 + lane*0x00010000 + 0x3000),
                 numberLanes = args.numVc,
                 memBase     = self.memMap,
-                expand      = True,
+                expand      = False,
             ))
 
             self.add(axi.AxiStreamMonAxiL(
@@ -165,7 +165,7 @@ class MyRoot(pr.Root):
                 offset      = (0x00800000 + lane*0x00010000 + 0x4000),
                 numberLanes = args.numVc,
                 memBase     = self.memMap,
-                expand      = True,
+                expand      = False,
             ))
 
             # Loop through the virtual channels
@@ -180,8 +180,8 @@ class MyRoot(pr.Root):
                     self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
                         name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
                         width        = args.prbsWidth,
-                        checkPayload = False,
-                        expand       = False,
+                        checkPayload = True,
+                        expand       = True,
                     )
                     self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                     self.add(self.prbsRx[lane][vc])
@@ -197,6 +197,17 @@ class MyRoot(pr.Root):
                     self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
                     self.add(self.prbsTx[lane][vc])
 
+        @self.command()
+        def EnableAllSwTx():
+            swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
+            for tx in swTxDevices:
+                tx.txEnable.set(True)
+
+        @self.command()
+        def DisableAllSwTx():
+            swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
+            for tx in swTxDevices:
+                tx.txEnable.set(False)
 
 #################################################################
 

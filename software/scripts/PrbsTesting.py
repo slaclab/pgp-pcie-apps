@@ -22,6 +22,7 @@ import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
 
 import axipcie            as pcie
+import surf.axi           as axi
 import surf.protocols.ssi as ssi
 
 #################################################################
@@ -149,6 +150,14 @@ class MyRoot(pr.Root):
             numDmaLanes = args.numLane,
             expand      = True,
         ))
+
+        for i in range(4):
+            self.add(axi.AxiMemTester(
+                name    = f'AxiMemTester[{i}]',
+                offset  = 0x0010_0000+i*0x1_0000,
+                memBase = self.memMap,
+                expand  = True,
+            ))
 
         # Loop through the DMA channels
         for lane in range(args.numLane):
