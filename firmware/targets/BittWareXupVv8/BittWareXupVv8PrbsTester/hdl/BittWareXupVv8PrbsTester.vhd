@@ -32,31 +32,32 @@ use unisim.vcomponents.all;
 
 entity BittWareXupVv8PrbsTester is
    generic (
-      TPD_G        : time := 1 ns;
+      TPD_G        : time     := 1 ns;
+      NUM_DIMM_G   : positive := 4;
       BUILD_INFO_G : BuildInfoType);
    port (
       ---------------------
       --  Application Ports
       ---------------------
       -- DDR Ports
-      ddrClkP       : in    slv(3 downto 0);
-      ddrClkN       : in    slv(3 downto 0);
-      ddrOut        : out   DdrOutArray(3 downto 0);
-      ddrInOut      : inout DdrInOutArray(3 downto 0);
+      ddrClkP    : in    slv(NUM_DIMM_G-1 downto 0);
+      ddrClkN    : in    slv(NUM_DIMM_G-1 downto 0);
+      ddrOut     : out   DdrOutArray(NUM_DIMM_G-1 downto 0);
+      ddrInOut   : inout DdrInOutArray(NUM_DIMM_G-1 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      userClkP      : in    sl;
-      userClkN      : in    sl;
+      userClkP   : in    sl;
+      userClkN   : in    sl;
       -- PCIe Ports
-      pciRstL       : in    sl;
-      pciRefClkP    : in    sl;
-      pciRefClkN    : in    sl;
-      pciRxP        : in    slv(15 downto 0);
-      pciRxN        : in    slv(15 downto 0);
-      pciTxP        : out   slv(15 downto 0);
-      pciTxN        : out   slv(15 downto 0));
+      pciRstL    : in    sl;
+      pciRefClkP : in    sl;
+      pciRefClkN : in    sl;
+      pciRxP     : in    slv(15 downto 0);
+      pciRxN     : in    slv(15 downto 0);
+      pciTxP     : out   slv(15 downto 0);
+      pciTxN     : out   slv(15 downto 0));
 end BittWareXupVv8PrbsTester;
 
 architecture top_level of BittWareXupVv8PrbsTester is
@@ -114,13 +115,13 @@ architecture top_level of BittWareXupVv8PrbsTester is
    signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
    signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
 
-   signal ddrClk          : slv(3 downto 0);
-   signal ddrRst          : slv(3 downto 0);
-   signal ddrReady        : slv(3 downto 0);
-   signal ddrWriteMasters : AxiWriteMasterArray(3 downto 0);
-   signal ddrWriteSlaves  : AxiWriteSlaveArray(3 downto 0);
-   signal ddrReadMasters  : AxiReadMasterArray(3 downto 0);
-   signal ddrReadSlaves   : AxiReadSlaveArray(3 downto 0);
+   signal ddrClk          : slv(NUM_DIMM_G-1 downto 0);
+   signal ddrRst          : slv(NUM_DIMM_G-1 downto 0);
+   signal ddrReady        : slv(NUM_DIMM_G-1 downto 0);
+   signal ddrWriteMasters : AxiWriteMasterArray(NUM_DIMM_G-1 downto 0);
+   signal ddrWriteSlaves  : AxiWriteSlaveArray(NUM_DIMM_G-1 downto 0);
+   signal ddrReadMasters  : AxiReadMasterArray(NUM_DIMM_G-1 downto 0);
+   signal ddrReadSlaves   : AxiReadSlaveArray(NUM_DIMM_G-1 downto 0);
 
 begin
 
@@ -134,9 +135,9 @@ begin
          NUM_CLOCKS_G      => 1,
          -- MMCM attributes
          BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 10.0,      -- 100 MHz
-         CLKFBOUT_MULT_G   => 10,        -- 1GHz = 10 x 100 MHz
-         CLKOUT0_DIVIDE_G  => 8)         -- 125MHz = 1GHz/8
+         CLKIN_PERIOD_G    => 10.0,     -- 100 MHz
+         CLKFBOUT_MULT_G   => 10,       -- 1GHz = 10 x 100 MHz
+         CLKOUT0_DIVIDE_G  => 8)        -- 125MHz = 1GHz/8
       port map(
          -- Clock Input
          clkIn     => userClk100,
@@ -211,12 +212,13 @@ begin
          mAxiReadMasters     => axilReadMasters,
          mAxiReadSlaves      => axilReadSlaves);
 
-   --------------------
-   -- MIG[3:0] IP Cores
-   --------------------
+   -------------------------------
+   -- MIG[NUM_DIMM_G-1:0] IP Cores
+   -------------------------------
    U_Mig : entity axi_pcie_core.MigAll
       generic map (
-         TPD_G => TPD_G)
+         TPD_G      => TPD_G,
+         NUM_DIMM_G => NUM_DIMM_G)
       port map (
          extRst          => dmaRst,
          -- AXI MEM Interface
@@ -236,7 +238,7 @@ begin
    ------------------------
    -- Memory Tester Modules
    ------------------------
-   GEN_VEC : for i in 3 downto 0 generate
+   GEN_VEC : for i in NUM_DIMM_G-1 downto 0 generate
       U_AxiMemTester : entity surf.AxiMemTester
          generic map (
             TPD_G        => TPD_G,
