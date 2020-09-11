@@ -38,38 +38,39 @@ entity XilinxAlveoU280DmaLoopback is
       --  Application Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP   : in  slv(1 downto 0);
-      qsfp0RefClkN   : in  slv(1 downto 0);
-      qsfp0RxP       : in  slv(3 downto 0);
-      qsfp0RxN       : in  slv(3 downto 0);
-      qsfp0TxP       : out slv(3 downto 0);
-      qsfp0TxN       : out slv(3 downto 0);
+      qsfp0RefClkP : in  slv(1 downto 0);
+      qsfp0RefClkN : in  slv(1 downto 0);
+      qsfp0RxP     : in  slv(3 downto 0);
+      qsfp0RxN     : in  slv(3 downto 0);
+      qsfp0TxP     : out slv(3 downto 0);
+      qsfp0TxN     : out slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP   : in  slv(1 downto 0);
-      qsfp1RefClkN   : in  slv(1 downto 0);
-      qsfp1RxP       : in  slv(3 downto 0);
-      qsfp1RxN       : in  slv(3 downto 0);
-      qsfp1TxP       : out slv(3 downto 0);
-      qsfp1TxN       : out slv(3 downto 0);
+      qsfp1RefClkP : in  slv(1 downto 0);
+      qsfp1RefClkN : in  slv(1 downto 0);
+      qsfp1RxP     : in  slv(3 downto 0);
+      qsfp1RxN     : in  slv(3 downto 0);
+      qsfp1TxP     : out slv(3 downto 0);
+      qsfp1TxN     : out slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      userClkP       : in  sl;
-      userClkN       : in  sl;
+      userClkP     : in  sl;
+      userClkN     : in  sl;
+      pinD32       : out sl;  -- https://www.xilinx.com/support/answers/72926.html
       -- QSFP[1:0] Ports
-      qsfpRstL      : out slv(1 downto 0);
-      qsfpLpMode    : out slv(1 downto 0);
-      qsfpModSelL   : out slv(1 downto 0);
-      qsfpModPrsL   : in  slv(1 downto 0);
+      qsfpRstL     : out slv(1 downto 0);
+      qsfpLpMode   : out slv(1 downto 0);
+      qsfpModSelL  : out slv(1 downto 0);
+      qsfpModPrsL  : in  slv(1 downto 0);
       -- PCIe Ports
-      pciRstL        : in  sl;
-      pciRefClkP     : in  slv(1 downto 0);
-      pciRefClkN     : in  slv(1 downto 0);
-      pciRxP         : in  slv(15 downto 0);
-      pciRxN         : in  slv(15 downto 0);
-      pciTxP         : out slv(15 downto 0);
-      pciTxN         : out slv(15 downto 0));
+      pciRstL      : in  sl;
+      pciRefClkP   : in  slv(1 downto 0);
+      pciRefClkN   : in  slv(1 downto 0);
+      pciRxP       : in  slv(15 downto 0);
+      pciRxN       : in  slv(15 downto 0);
+      pciTxP       : out slv(15 downto 0);
+      pciTxN       : out slv(15 downto 0));
 end XilinxAlveoU280DmaLoopback;
 
 architecture top_level of XilinxAlveoU280DmaLoopback is
@@ -149,11 +150,12 @@ begin
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,
+         pinD32         => pinD32,
          -- QSFP[1:0] Ports
-         qsfpRstL      => qsfpRstL,
-         qsfpLpMode    => qsfpLpMode,
-         qsfpModSelL   => qsfpModSelL,
-         qsfpModPrsL   => qsfpModPrsL,
+         qsfpRstL       => qsfpRstL,
+         qsfpLpMode     => qsfpLpMode,
+         qsfpModSelL    => qsfpModSelL,
+         qsfpModPrsL    => qsfpModPrsL,
          -- PCIe Ports
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,

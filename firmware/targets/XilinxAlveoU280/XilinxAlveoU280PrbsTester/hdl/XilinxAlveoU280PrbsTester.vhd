@@ -49,6 +49,7 @@ entity XilinxAlveoU280PrbsTester is
       -- System Ports
       userClkP    : in    sl;
       userClkN    : in    sl;
+      pinD32      : out   sl;  -- https://www.xilinx.com/support/answers/72926.html
       -- QSFP[1:0] Ports
       qsfpRstL    : out   slv(1 downto 0);
       qsfpLpMode  : out   slv(1 downto 0);
@@ -186,6 +187,7 @@ begin
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,
+         pinD32          => pinD32,
          -- QSFP[1:0] Ports
          qsfpRstL        => qsfpRstL,
          qsfpLpMode      => qsfpLpMode,
