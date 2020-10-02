@@ -38,15 +38,17 @@ entity BittWareXupVv8DmaLoopback is
       --  Application Ports
       ---------------------
       -- QSFP[31:0] Ports
-      qsfpRefClkP     : in  slv(7 downto 0);
-      qsfpRefClkN     : in  slv(7 downto 0);
-      qsfpRxP         : in  slv(31 downto 0);
-      qsfpRxN         : in  slv(31 downto 0);
-      qsfpTxP         : out slv(31 downto 0);
-      qsfpTxN         : out slv(31 downto 0);
+      qsfpRefClkP    : in  slv(7 downto 0);
+      qsfpRefClkN    : in  slv(7 downto 0);
+      qsfpRxP        : in  slv(31 downto 0);
+      qsfpRxN        : in  slv(31 downto 0);
+      qsfpTxP        : out slv(31 downto 0);
+      qsfpTxN        : out slv(31 downto 0);
       --------------
       --  Core Ports
       --------------
+      -- FPGA I2C Master
+      fpgaI2cMasterL : out sl;
       -- System Ports
       userClkP       : in  sl;
       userClkN       : in  sl;
@@ -94,9 +96,9 @@ begin
          NUM_CLOCKS_G      => 1,
          -- MMCM attributes
          BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 10.0,      -- 100 MHz
-         CLKFBOUT_MULT_G   => 10,        -- 1GHz = 10 x 100 MHz
-         CLKOUT0_DIVIDE_G  => 8)         -- 125MHz = 1GHz/8
+         CLKIN_PERIOD_G    => 10.0,     -- 100 MHz
+         CLKFBOUT_MULT_G   => 10,       -- 1GHz = 10 x 100 MHz
+         CLKOUT0_DIVIDE_G  => 8)        -- 125MHz = 1GHz/8
       port map(
          -- Clock Input
          clkIn     => userClk100,
@@ -134,6 +136,8 @@ begin
          --------------
          --  Core Ports
          --------------
+         -- FPGA I2C Master
+         fpgaI2cMasterL => fpgaI2cMasterL,
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,
@@ -161,11 +165,11 @@ begin
          --  Application Ports
          ---------------------
          -- QSFP[31:0] Ports
-         qsfpRefClkP    => qsfpRefClkP,
-         qsfpRefClkN    => qsfpRefClkN,
-         qsfpRxP        => qsfpRxP,
-         qsfpRxN        => qsfpRxN,
-         qsfpTxP        => qsfpTxP,
-         qsfpTxN        => qsfpTxN);
+         qsfpRefClkP     => qsfpRefClkP,
+         qsfpRefClkN     => qsfpRefClkN,
+         qsfpRxP         => qsfpRxP,
+         qsfpRxN         => qsfpRxN,
+         qsfpTxP         => qsfpTxP,
+         qsfpTxN         => qsfpTxN);
 
 end top_level;

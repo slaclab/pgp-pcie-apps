@@ -40,24 +40,26 @@ entity BittWareXupVv8PrbsTester is
       --  Application Ports
       ---------------------
       -- DDR Ports
-      ddrClkP    : in    slv(NUM_DIMM_G-1 downto 0);
-      ddrClkN    : in    slv(NUM_DIMM_G-1 downto 0);
-      ddrOut     : out   DdrOutArray(NUM_DIMM_G-1 downto 0);
-      ddrInOut   : inout DdrInOutArray(NUM_DIMM_G-1 downto 0);
+      ddrClkP        : in    slv(NUM_DIMM_G-1 downto 0);
+      ddrClkN        : in    slv(NUM_DIMM_G-1 downto 0);
+      ddrOut         : out   DdrOutArray(NUM_DIMM_G-1 downto 0);
+      ddrInOut       : inout DdrInOutArray(NUM_DIMM_G-1 downto 0);
       --------------
       --  Core Ports
       --------------
+      -- FPGA I2C Master
+      fpgaI2cMasterL : out   sl;
       -- System Ports
-      userClkP   : in    sl;
-      userClkN   : in    sl;
+      userClkP       : in    sl;
+      userClkN       : in    sl;
       -- PCIe Ports
-      pciRstL    : in    sl;
-      pciRefClkP : in    sl;
-      pciRefClkN : in    sl;
-      pciRxP     : in    slv(15 downto 0);
-      pciRxN     : in    slv(15 downto 0);
-      pciTxP     : out   slv(15 downto 0);
-      pciTxN     : out   slv(15 downto 0));
+      pciRstL        : in    sl;
+      pciRefClkP     : in    sl;
+      pciRefClkN     : in    sl;
+      pciRxP         : in    slv(15 downto 0);
+      pciRxN         : in    slv(15 downto 0);
+      pciTxP         : out   slv(15 downto 0);
+      pciTxN         : out   slv(15 downto 0));
 end BittWareXupVv8PrbsTester;
 
 architecture top_level of BittWareXupVv8PrbsTester is
@@ -179,6 +181,8 @@ begin
          --------------
          --  Core Ports
          --------------
+         -- FPGA I2C Master
+         fpgaI2cMasterL  => fpgaI2cMasterL,
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,

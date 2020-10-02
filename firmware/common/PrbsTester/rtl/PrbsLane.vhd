@@ -54,7 +54,7 @@ end PrbsLane;
 
 architecture mapping of PrbsLane is
 
-   constant ILEAVE_REARB_C : positive := 2**7;
+   constant ILEAVE_REARB_C : positive := 2**8;
 
    constant NUM_AXI_MASTERS_C : natural := 2*NUM_VC_G;
 
