@@ -114,7 +114,7 @@ begin
          MODE_G               => "INDEXED",
          TID_MODE_G           => "INDEXED",
          ILEAVE_EN_G          => true,
-         ILEAVE_ON_NOTVALID_G => false,
+         ILEAVE_ON_NOTVALID_G => true,
          ILEAVE_REARB_G       => 128,
          PIPE_STAGES_G        => 1)
       port map (
