@@ -74,6 +74,14 @@ Targets:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200DmaLoopback/images
     Extensions:
       - mcs
+  XilinxAlveoU200Pgp3_6Gbps:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_6Gbps/images
+    Extensions:
+      - mcs
+  XilinxAlveoU200Pgp3_10Gbps:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_10Gbps/images
+    Extensions:
+      - mcs
   XilinxAlveoU200PrbsTester:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200PrbsTester/images
     Extensions:
@@ -172,6 +180,8 @@ Releases:
       # - XilinxAlveoU50DmaLoopback
       #######################################
       # - XilinxAlveoU200DmaLoopback
+      - XilinxAlveoU200Pgp3_6Gbps
+      - XilinxAlveoU200Pgp3_10Gbps
       # - XilinxAlveoU200PrbsTester
       #######################################
       # - XilinxAlveoU250DmaLoopback
