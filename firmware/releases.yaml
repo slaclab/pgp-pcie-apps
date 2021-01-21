@@ -189,7 +189,7 @@ Releases:
       # - XilinxAlveoU50DmaLoopback
       #######################################
       # - XilinxAlveoU200DmaLoopback
-      - XilinxAlveoU200Pgp2b
+      # - XilinxAlveoU200Pgp2b
       - XilinxAlveoU200Pgp3_6Gbps
       - XilinxAlveoU200Pgp3_10Gbps
       # - XilinxAlveoU200PrbsTester
