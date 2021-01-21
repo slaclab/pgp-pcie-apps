@@ -179,6 +179,8 @@ Releases:
       #######################################
       # - SlacPgpCardG4DmaLoopback
       - SlacPgpCardG4Pgp2b
+      - SlacPgpCardG4Pgp3_6Gbps
+      - SlacPgpCardG4Pgp3_10Gbps
       - SlacPgpCardG4Pgp3
       # - SlacPgpCardG4PrbsTester
       #######################################
