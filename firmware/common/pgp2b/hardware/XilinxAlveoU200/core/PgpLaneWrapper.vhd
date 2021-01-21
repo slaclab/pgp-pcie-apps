@@ -84,41 +84,12 @@ architecture mapping of PgpLaneWrapper is
    signal pgpTxP    : slv(7 downto 0);
    signal pgpTxN    : slv(7 downto 0);
 
-   signal drpClk   : sl;
-   signal drpReset : sl;
-   signal drpRst   : sl;
-
    signal refClk : slv((2*REFCLK_WIDTH_G)-1 downto 0);
 
    attribute dont_touch           : string;
    attribute dont_touch of refClk : signal is "TRUE";
 
 begin
-
-   U_DRP_CLK : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 8)
-      port map (
-         I   => dmaClk,
-         CE  => '1',
-         CLR => '0',
-         O   => drpClk);
-
-   U_RstSync : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => drpClk,
-         asyncRst => dmaRst,
-         syncRst  => drpReset);
-
-   U_RstPipe : entity surf.RstPipeline
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk    => drpClk,
-         rstIn  => drpReset,
-         rstOut => drpRst);
 
    ------------------------
    -- Common PGP Clocking
@@ -202,9 +173,6 @@ begin
             LANE_G            => i,
             AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
          port map (
-            -- DRP Clock and Reset
-            drpClk          => drpClk,
-            drpRst          => drpRst,
             -- PGP Serial Ports
             pgpRxP          => pgpRxP(i),
             pgpRxN          => pgpRxN(i),

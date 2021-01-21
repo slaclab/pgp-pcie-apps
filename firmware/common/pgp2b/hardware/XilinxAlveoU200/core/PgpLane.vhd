@@ -39,9 +39,6 @@ entity PgpLane is
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0)      := (others => '0'));
    port (
-      -- DRP Clock and Reset
-      drpClk          : in  sl;
-      drpRst          : in  sl;
       -- PGP Serial Ports
       pgpTxP          : out sl;
       pgpTxN          : out sl;
@@ -136,8 +133,8 @@ begin
          VC_INTERLEAVE_G => 1)          -- AxiStreamDmaV2 supports interleaving
       port map (
          -- GT Clocking
-         stableClk       => drpClk,
-         stableRst       => drpRst,
+         stableClk       => axilClk,
+         stableRst       => axilRst,
          gtRefClk        => pgpRefClk,
          -- Gt Serial IO
          pgpGtTxP        => pgpTxP,
@@ -203,7 +200,7 @@ begin
          COMMON_TX_CLK_G    => false,
          COMMON_RX_CLK_G    => false,
          WRITE_EN_G         => true,
-         AXI_CLK_FREQ_G     => (DMA_CLK_FREQ_C/2),
+         AXI_CLK_FREQ_G     => 156.25E+6,
          STATUS_CNT_WIDTH_G => 16,
          ERROR_CNT_WIDTH_G  => 16)
       port map (
