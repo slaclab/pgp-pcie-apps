@@ -34,6 +34,7 @@ entity Hardware is
    generic (
       TPD_G             : time             := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps"
       AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
       ------------------------
@@ -174,6 +175,7 @@ begin
       U_Lane : entity work.PgpLane
          generic map (
             TPD_G             => TPD_G,
+            RATE_G            => RATE_G,
             DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
             LANE_G            => i,
             NUM_VC_G          => 4,

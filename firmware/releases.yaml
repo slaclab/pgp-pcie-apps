@@ -47,8 +47,12 @@ Targets:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b/images
     Extensions:
       - mcs
-  SlacPgpCardG4Pgp3:
-    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3/images
+  SlacPgpCardG4Pgp3_6Gbps:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_6Gbps/images
+    Extensions:
+      - mcs
+  SlacPgpCardG4Pgp3_10Gbps:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_10Gbps/images
     Extensions:
       - mcs
   SlacPgpCardG4PrbsTester:
