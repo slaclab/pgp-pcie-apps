@@ -17,205 +17,76 @@ RogueScripts:
 
 Targets:
 ################################################################################  
-  AlphaDataKu3DmaLoopback:
-    ImageDir: targets/AlphaDataKu3/AlphaDataKu3DmaLoopback/images
-    Extensions:
-      - mcs
-  AlphaDataKu3PrbsTester:
-    ImageDir: targets/AlphaDataKu3/AlphaDataKu3PrbsTester/images
-    Extensions:
-      - mcs
-################################################################################  
-  SlacPgpCardG3DmaLoopback:
-    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3DmaLoopback/images
-    Extensions:
-      - mcs
-  SlacPgpCardG3Pgp2b:
-    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3Pgp2b/images
-    Extensions:
-      - mcs
-  SlacPgpCardG3PrbsTester:
-    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3PrbsTester/images
-    Extensions:
-      - mcs
-################################################################################  
-  SlacPgpCardG4DmaLoopback:
-    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4DmaLoopback/images
-    Extensions:
-      - mcs
   SlacPgpCardG4Pgp2b:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b/images
-    Extensions:
-      - mcs
+    Extensions: mcs
   SlacPgpCardG4Pgp3_6Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_6Gbps/images
-    Extensions:
-      - mcs
+    Extensions: mcs
   SlacPgpCardG4Pgp3_10Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_10Gbps/images
-    Extensions:
-      - mcs
-  SlacPgpCardG4PrbsTester:
-    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4PrbsTester/images
-    Extensions:
-      - mcs      
+    Extensions: mcs
+  SlacPgpCardG4Pgp4_6Gbps:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_6Gbps/images
+    Extensions: mcs
+  SlacPgpCardG4Pgp4_10Gbps:
+    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_10Gbps/images
+    Extensions: mcs
 ################################################################################  
-  XilinxAc701DmaLoopback:
-    ImageDir: targets/XilinxAc701/XilinxAc701DmaLoopback/images
-    Extensions:
-      - mcs
-  XilinxAc701PrbsTester:
-    ImageDir: targets/XilinxAc701/XilinxAc701PrbsTester/images
-    Extensions:
-      - mcs
-################################################################################  
-  XilinxAlveoU50DmaLoopback:
-    ImageDir: targets/XilinxAlveoU50/XilinxAlveoU50DmaLoopback/images
-    Extensions:
-      - mcs
-################################################################################  
-  XilinxAlveoU200DmaLoopback:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200DmaLoopback/images
-    Extensions:
-      - mcs
   XilinxAlveoU200Pgp2b:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp2b/images
-    Extensions:
-      - mcs
+    Extensions: mcs
   XilinxAlveoU200Pgp3_6Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_6Gbps/images
-    Extensions:
-      - mcs
+    Extensions: mcs
   XilinxAlveoU200Pgp3_10Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_10Gbps/images
-    Extensions:
-      - mcs
-  XilinxAlveoU200PrbsTester:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200PrbsTester/images
-    Extensions:
-      - mcs
-################################################################################  
-  XilinxAlveoU250DmaLoopback:
-    ImageDir: targets/XilinxAlveoU250/XilinxAlveoU250DmaLoopback/images
-    Extensions:
-      - mcs
-  XilinxAlveoU250PrbsTester:
-    ImageDir: targets/XilinxAlveoU250/XilinxAlveoU250PrbsTester/images
-    Extensions:
-      - mcs      
-################################################################################  
-  XilinxAlveoU280DmaLoopback:
-    ImageDir: targets/XilinxAlveoU280/XilinxAlveoU280DmaLoopback/images
-    Extensions:
-      - mcs
-  XilinxAlveoU280PrbsTester:
-    ImageDir: targets/XilinxAlveoU280/XilinxAlveoU280PrbsTester/images
-    Extensions:
-      - mcs
-################################################################################  
-  XilinxKc705DmaLoopback:
-    ImageDir: targets/XilinxKc705/XilinxKc705DmaLoopback/images
-    Extensions:
-      - mcs
-  XilinxKc705PrbsTester:
-    ImageDir: targets/XilinxKc705/XilinxKc705PrbsTester/images
-    Extensions:
-      - mcs      
-################################################################################  
-  XilinxKcu105DmaLoopback:
-    ImageDir: targets/XilinxKcu105/XilinxKcu105DmaLoopback/images
-    Extensions:
-      - mcs
-  XilinxKcu105PrbsTester:
-    ImageDir: targets/XilinxKcu105/XilinxKcu105PrbsTester/images
-    Extensions:
-      - mcs      
-################################################################################ 
-  XilinxKcu116DmaLoopback:
-    ImageDir: targets/XilinxKcu116/XilinxKcu116DmaLoopback/images
-    Extensions:
-      - mcs
-  XilinxKcu116PrbsTester:
-    ImageDir: targets/XilinxKcu116/XilinxKcu116PrbsTester/images
-    Extensions:
-      - mcs      
+    Extensions: mcs
+  XilinxAlveoU200Pgp4_6Gbps:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_6Gbps/images
+    Extensions: mcs
+  XilinxAlveoU200Pgp4_10Gbps:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps/images
+    Extensions: mcs    
 ################################################################################        
-  XilinxKcu1500DmaLoopback:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500DmaLoopback/images
-    Extensions:
-      - mcs
-  XilinxKcu1500DmaLoopbackBifurcatedPcie:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500DmaLoopbackBifurcatedPcie/images
-    Extensions:
-      - mcs
   XilinxKcu1500Pgp2b:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
-    Extensions:
-      - mcs
+    Extensions: mcs
   XilinxKcu1500Pgp3_6Gbps:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_6Gbps/images
-    Extensions:
-      - mcs
+    Extensions: mcs
   XilinxKcu1500Pgp3_10Gbps:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_10Gbps/images
-    Extensions:
-      - mcs      
-  XilinxKcu1500PrbsTester:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500PrbsTester/images
-    Extensions:
-      - mcs
+    Extensions: mcs     
+  XilinxKcu1500Pgp4_6Gbps:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps/images
+    Extensions: mcs
+  XilinxKcu1500Pgp4_10Gbps:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_10Gbps/images
+    Extensions: mcs           
 ################################################################################        
 Releases:
   all:
     Primary: True
     Targets:
       #######################################
-      # - AlphaDataKu3DmaLoopback
-      # - AlphaDataKu3PrbsTester
-      #######################################
-      # - SlacPgpCardG3DmaLoopback
-      # - SlacPgpCardG3Pgp2b
-      # - SlacPgpCardG3PrbsTester
-      #######################################
-      # - SlacPgpCardG4DmaLoopback
       - SlacPgpCardG4Pgp2b
       - SlacPgpCardG4Pgp3_6Gbps
       - SlacPgpCardG4Pgp3_10Gbps
-      # - SlacPgpCardG4PrbsTester
+      - SlacPgpCardG4Pgp4_6Gbps
+      - SlacPgpCardG4Pgp4_10Gbps      
       #######################################
-      # - XilinxAc701DmaLoopback
-      # - XilinxAc701PrbsTester
-      #######################################
-      # - XilinxAlveoU50DmaLoopback
-      #######################################
-      # - XilinxAlveoU200DmaLoopback
-      # - XilinxAlveoU200Pgp2b
+      - XilinxAlveoU200Pgp2b
       - XilinxAlveoU200Pgp3_6Gbps
       - XilinxAlveoU200Pgp3_10Gbps
-      # - XilinxAlveoU200PrbsTester
+      - XilinxAlveoU200Pgp4_6Gbps
+      - XilinxAlveoU200Pgp4_10Gbps
       #######################################
-      # - XilinxAlveoU250DmaLoopback
-      # - XilinxAlveoU250PrbsTester
-      #######################################
-      # - XilinxAlveoU280DmaLoopback
-      # - XilinxAlveoU280PrbsTester
-      #######################################
-      # - XilinxKc705DmaLoopback
-      # - XilinxKc705PrbsTester
-      #######################################
-      # - XilinxKcu105DmaLoopback
-      # - XilinxKcu105PrbsTester
-      #######################################
-      # - XilinxKcu116DmaLoopback
-      # - XilinxKcu116PrbsTester
-      #######################################
-      # - XilinxKcu1500DmaLoopback
-      # - XilinxKcu1500DmaLoopbackBifurcatedPcie
       - XilinxKcu1500Pgp2b
       - XilinxKcu1500Pgp3_6Gbps
       - XilinxKcu1500Pgp3_10Gbps
-      # - XilinxKcu1500PrbsTester
+      - XilinxKcu1500Pgp4_6Gbps
+      - XilinxKcu1500Pgp4_10Gbps      
       #######################################
     Types:
-      # - Rogue
       - FW_only

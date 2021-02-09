@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : SlacPgpCardG4Pgp2b.vhd
+-- File       : XilinxAlveoU200Pgp4_10Gbps.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description:
@@ -29,51 +29,57 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity SlacPgpCardG4Pgp2b is
+entity XilinxAlveoU200Pgp4_10Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
+      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
       BUILD_INFO_G         : BuildInfoType);
    port (
       ---------------------
       --  Application Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfpRefClkP : in  sl;
-      qsfpRefClkN : in  sl;
-      qsfp0RxP    : in  slv(3 downto 0);
-      qsfp0RxN    : in  slv(3 downto 0);
-      qsfp0TxP    : out slv(3 downto 0);
-      qsfp0TxN    : out slv(3 downto 0);
-      qsfp1RxP    : in  slv(3 downto 0);
-      qsfp1RxN    : in  slv(3 downto 0);
-      qsfp1TxP    : out slv(3 downto 0);
-      qsfp1TxN    : out slv(3 downto 0);
+      qsfp0RefClkP  : in  slv(1 downto 0);
+      qsfp0RefClkN  : in  slv(1 downto 0);
+      qsfp0RxP      : in  slv(3 downto 0);
+      qsfp0RxN      : in  slv(3 downto 0);
+      qsfp0TxP      : out slv(3 downto 0);
+      qsfp0TxN      : out slv(3 downto 0);
+      -- QSFP[1] Ports
+      qsfp1RefClkP  : in  slv(1 downto 0);
+      qsfp1RefClkN  : in  slv(1 downto 0);
+      qsfp1RxP      : in  slv(3 downto 0);
+      qsfp1RxN      : in  slv(3 downto 0);
+      qsfp1TxP      : out slv(3 downto 0);
+      qsfp1TxN      : out slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      emcClk      : in  sl;
-      -- Boot Memory Ports
-      flashCsL    : out sl;
-      flashMosi   : out sl;
-      flashMiso   : in  sl;
-      flashHoldL  : out sl;
-      flashWp     : out sl;
+      userClkP      : in  sl;
+      userClkN      : in  sl;
+      -- QSFP[1:0] Ports
+      qsfpFs        : out Slv2Array(1 downto 0);
+      qsfpRefClkRst : out slv(1 downto 0);
+      qsfpRstL      : out slv(1 downto 0);
+      qsfpLpMode    : out slv(1 downto 0);
+      qsfpModSelL   : out slv(1 downto 0);
+      qsfpModPrsL   : in  slv(1 downto 0);
       -- PCIe Ports
-      pciRstL     : in  sl;
-      pciRefClkP  : in  sl;
-      pciRefClkN  : in  sl;
-      pciRxP      : in  slv(7 downto 0);
-      pciRxN      : in  slv(7 downto 0);
-      pciTxP      : out slv(7 downto 0);
-      pciTxN      : out slv(7 downto 0));
-end SlacPgpCardG4Pgp2b;
+      pciRstL       : in  sl;
+      pciRefClkP    : in  sl;
+      pciRefClkN    : in  sl;
+      pciRxP        : in  slv(15 downto 0);
+      pciRxN        : in  slv(15 downto 0);
+      pciTxP        : out slv(15 downto 0);
+      pciTxN        : out slv(15 downto 0));
+end XilinxAlveoU200Pgp4_10Gbps;
 
-architecture top_level of SlacPgpCardG4Pgp2b is
+architecture top_level of XilinxAlveoU200Pgp4_10Gbps is
 
+   signal userClk156      : sl;
    signal axilClk         : sl;
    signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
@@ -101,19 +107,19 @@ begin
          NUM_CLOCKS_G      => 1,
          -- MMCM attributes
          BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 4.0,      -- 250 MHz
-         CLKFBOUT_MULT_G   => 5,        -- 1.25GHz = 5 x 250 MHz
+         CLKIN_PERIOD_G    => 6.4,      -- 156.25 MHz
+         CLKFBOUT_MULT_G   => 8,        -- 1.25GHz = 8 x 156.25 MHz
          CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
       port map(
          -- Clock Input
-         clkIn     => dmaClk,
+         clkIn     => userClk156,
          rstIn     => dmaRst,
          -- Clock Outputs
          clkOut(0) => axilClk,
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   U_Core : entity axi_pcie_core.SlacPgpCardG4Core
+   U_Core : entity axi_pcie_core.XilinxAlveoU200Core
       generic map (
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
@@ -125,6 +131,7 @@ begin
          ------------------------
          --  Top Level Interfaces
          ------------------------
+         userClk156      => userClk156,
          -- DMA Interfaces
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
@@ -144,13 +151,15 @@ begin
          --  Core Ports
          --------------
          -- System Ports
-         emcClk          => emcClk,
-         -- Boot Memory Ports
-         flashCsL        => flashCsL,
-         flashMosi       => flashMosi,
-         flashMiso       => flashMiso,
-         flashHoldL      => flashHoldL,
-         flashWp         => flashWp,
+         userClkP        => userClkP,
+         userClkN        => userClkN,
+         -- QSFP[1:0] Ports
+         qsfpFs          => qsfpFs,
+         qsfpRefClkRst   => qsfpRefClkRst,
+         qsfpRstL        => qsfpRstL,
+         qsfpLpMode      => qsfpLpMode,
+         qsfpModSelL     => qsfpModSelL,
+         qsfpModPrsL     => qsfpModPrsL,
          -- PCIe Ports
          pciRstL         => pciRstL,
          pciRefClkP      => pciRefClkP,
@@ -163,6 +172,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
+         RATE_G            => "10.3125Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------
@@ -186,13 +196,16 @@ begin
          ------------------
          --  Hardware Ports
          ------------------
-         -- QSFP[1:0] Ports
-         qsfpRefClkP     => qsfpRefClkP,
-         qsfpRefClkN     => qsfpRefClkN,
+         -- QSFP[0] Ports
+         qsfp0RefClkP    => qsfp0RefClkP,
+         qsfp0RefClkN    => qsfp0RefClkN,
          qsfp0RxP        => qsfp0RxP,
          qsfp0RxN        => qsfp0RxN,
          qsfp0TxP        => qsfp0TxP,
          qsfp0TxN        => qsfp0TxN,
+         -- QSFP[1] Ports
+         qsfp1RefClkP    => qsfp1RefClkP,
+         qsfp1RefClkN    => qsfp1RefClkN,
          qsfp1RxP        => qsfp1RxP,
          qsfp1RxN        => qsfp1RxN,
          qsfp1TxP        => qsfp1TxP,

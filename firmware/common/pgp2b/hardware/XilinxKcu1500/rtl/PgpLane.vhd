@@ -203,7 +203,7 @@ begin
          COMMON_TX_CLK_G    => false,
          COMMON_RX_CLK_G    => false,
          WRITE_EN_G         => true,
-         AXI_CLK_FREQ_G     => (DMA_CLK_FREQ_C/2),
+         AXI_CLK_FREQ_G     => 156.25E+6,
          STATUS_CNT_WIDTH_G => 16,
          ERROR_CNT_WIDTH_G  => 16)
       port map (

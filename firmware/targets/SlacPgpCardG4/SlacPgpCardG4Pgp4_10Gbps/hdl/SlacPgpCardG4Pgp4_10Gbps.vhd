@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : SlacPgpCardG4Pgp2b.vhd
+-- File       : SlacPgpCardG4Pgp4_10Gbps.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description:
@@ -29,7 +29,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity SlacPgpCardG4Pgp2b is
+entity SlacPgpCardG4Pgp4_10Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -40,7 +40,7 @@ entity SlacPgpCardG4Pgp2b is
       ---------------------
       --  Application Ports
       ---------------------
-      -- QSFP[0] Ports
+      -- QSFP[1:0] Ports
       qsfpRefClkP : in  sl;
       qsfpRefClkN : in  sl;
       qsfp0RxP    : in  slv(3 downto 0);
@@ -70,9 +70,9 @@ entity SlacPgpCardG4Pgp2b is
       pciRxN      : in  slv(7 downto 0);
       pciTxP      : out slv(7 downto 0);
       pciTxN      : out slv(7 downto 0));
-end SlacPgpCardG4Pgp2b;
+end SlacPgpCardG4Pgp4_10Gbps;
 
-architecture top_level of SlacPgpCardG4Pgp2b is
+architecture top_level of SlacPgpCardG4Pgp4_10Gbps is
 
    signal axilClk         : sl;
    signal axilRst         : sl;
@@ -163,6 +163,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
+         RATE_G            => "10.3125Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------

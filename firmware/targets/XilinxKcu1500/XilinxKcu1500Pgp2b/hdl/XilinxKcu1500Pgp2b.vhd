@@ -106,22 +106,27 @@ architecture top_level of XilinxKcu1500Pgp2b is
 
 begin
 
-   U_axilClk : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 2)
-      port map (
-         I   => dmaClk,
-         CE  => '1',
-         CLR => '0',
-         O   => axilClk);
-
-   U_axilRst : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => axilClk,
-         asyncRst => dmaRst,
-         syncRst  => axilRst);
+   U_axilClk : entity surf.ClockManagerUltraScale
+      generic map(
+         TPD_G             => TPD_G,
+         TYPE_G            => "PLL",
+         INPUT_BUFG_G      => true,
+         FB_BUFG_G         => true,
+         RST_IN_POLARITY_G => '1',
+         NUM_CLOCKS_G      => 1,
+         -- MMCM attributes
+         BANDWIDTH_G       => "OPTIMIZED",
+         CLKIN_PERIOD_G    => 4.0,      -- 250 MHz
+         CLKFBOUT_MULT_G   => 5,        -- 1.25GHz = 5 x 250 MHz
+         CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
+      port map(
+         -- Clock Input
+         clkIn     => dmaClk,
+         rstIn     => dmaRst,
+         -- Clock Outputs
+         clkOut(0) => axilClk,
+         -- Reset Outputs
+         rstOut(0) => axilRst);
 
    U_Core : entity axi_pcie_core.XilinxKcu1500Core
       generic map (
