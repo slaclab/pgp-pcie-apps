@@ -19,51 +19,66 @@ Targets:
 ################################################################################  
   SlacPgpCardG4Pgp2b:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   SlacPgpCardG4Pgp3_6Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_6Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   SlacPgpCardG4Pgp3_10Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_10Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   SlacPgpCardG4Pgp4_6Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_6Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   SlacPgpCardG4Pgp4_10Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_10Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
 ################################################################################  
   XilinxAlveoU200Pgp2b:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp2b/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   XilinxAlveoU200Pgp3_6Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_6Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   XilinxAlveoU200Pgp3_10Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_10Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   XilinxAlveoU200Pgp4_6Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_6Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   XilinxAlveoU200Pgp4_10Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps/images
-    Extensions: mcs    
+    Extensions:
+      - mcs
 ################################################################################        
   XilinxKcu1500Pgp2b:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   XilinxKcu1500Pgp3_6Gbps:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_6Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   XilinxKcu1500Pgp3_10Gbps:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_10Gbps/images
-    Extensions: mcs     
+    Extensions:
+      - mcs
   XilinxKcu1500Pgp4_6Gbps:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps/images
-    Extensions: mcs
+    Extensions:
+      - mcs
   XilinxKcu1500Pgp4_10Gbps:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_10Gbps/images
-    Extensions: mcs           
+    Extensions:
+      - mcs
 ################################################################################        
 Releases:
   all:
