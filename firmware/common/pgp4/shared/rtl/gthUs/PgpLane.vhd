@@ -65,6 +65,12 @@ end PgpLane;
 
 architecture mapping of PgpLane is
 
+   constant AXIS_CLK_FREQ_C : real :=
+      ite(RATE_G = "10.3125Gbps", 10.3125E+9/66.0,
+          ite(RATE_G = "6.25Gbps", 6.25E+9/66.0,
+              ite(RATE_G = "3.125Gbps", 3.125E+9/66.0,
+                  156.25E+6)));
+
    constant NUM_AXI_MASTERS_C : natural := 5;
 
    constant GT_INDEX_C     : natural := 0;
@@ -215,7 +221,7 @@ begin
       generic map(
          TPD_G            => TPD_G,
          COMMON_CLK_G     => false,
-         AXIS_CLK_FREQ_G  => 156.25E+6,
+         AXIS_CLK_FREQ_G  => AXIS_CLK_FREQ_C,
          AXIS_NUM_SLOTS_G => NUM_VC_G,
          AXIS_CONFIG_G    => PGP4_AXIS_CONFIG_C)
       port map(
@@ -239,7 +245,7 @@ begin
       generic map(
          TPD_G            => TPD_G,
          COMMON_CLK_G     => false,
-         AXIS_CLK_FREQ_G  => 156.25E+6,
+         AXIS_CLK_FREQ_G  => AXIS_CLK_FREQ_C,
          AXIS_NUM_SLOTS_G => NUM_VC_G,
          AXIS_CONFIG_G    => PGP4_AXIS_CONFIG_C)
       port map(
