@@ -58,11 +58,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--version3",
-    type     = argBool,
+    "--version",
+    type     = int,
     required = False,
-    default  = True,
-    help     = "true = PGPv3, false = PGP2b",
+    default  = 4,
+    help     = "PGP Protocol Version",
 )
 
 parser.add_argument(
@@ -135,7 +135,16 @@ class MyRoot(pr.Root):
 
         # Add PGP Core
         for lane in range(args.numLane):
-            if (args.version3):
+            if (args.version == 4):
+                self.add(pgp.Pgp4AxiL(
+                    name    = f'Lane[{lane}]',
+                    offset  = (0x00800000 + lane*0x00010000),
+                    memBase = self.memMap,
+                    numVc   = args.numVc,
+                    writeEn = True,
+                    expand  = True,
+                ))
+            elif (args.version == 3):
                 self.add(pgp.Pgp3AxiL(
                     name    = f'Lane[{lane}]',
                     offset  = (0x00800000 + lane*0x00010000),
