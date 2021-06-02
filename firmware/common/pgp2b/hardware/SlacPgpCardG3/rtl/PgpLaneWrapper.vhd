@@ -167,18 +167,18 @@ begin
             -- DMA Interfaces (dmaClk domain)
             dmaClk           => dmaClk,
             dmaRst           => dmaRst,
+            dmaBuffGrpPause  => dmaBuffGrpPause,
             dmaObMaster      => dmaObMasters(i+WEST_C),
             dmaObSlave       => dmaObSlaves(i+WEST_C),
             dmaIbMaster      => dmaIbMasters(i+WEST_C),
-
-            dmaIbSlave      => dmaIbSlaves(i+WEST_C),
+            dmaIbSlave       => dmaIbSlaves(i+WEST_C),
             -- AXI-Lite Interface (axilClk domain)
-            axilClk         => axilClk,
-            axilRst         => axilRst,
-            axilReadMaster  => axilReadMasters(i+WEST_C),
-            axilReadSlave   => axilReadSlaves(i+WEST_C),
-            axilWriteMaster => axilWriteMasters(i+WEST_C),
-            axilWriteSlave  => axilWriteSlaves(i+WEST_C));
+            axilClk          => axilClk,
+            axilRst          => axilRst,
+            axilReadMaster   => axilReadMasters(i+WEST_C),
+            axilReadSlave    => axilReadSlaves(i+WEST_C),
+            axilWriteMaster  => axilWriteMasters(i+WEST_C),
+            axilWriteSlave   => axilWriteSlaves(i+WEST_C));
 
       U_East : entity work.PgpLane
          generic map (
