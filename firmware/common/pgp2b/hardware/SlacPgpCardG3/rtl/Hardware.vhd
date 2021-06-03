@@ -43,17 +43,17 @@ entity Hardware is
       dmaClk          : in  sl;
       dmaRst          : in  sl;
       dmaBuffGrpPause : in  slv(7 downto 0);
-      dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      dmaObMasters    : in  AxiStreamMasterArray(3 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(3 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(3 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(3 downto 0);
       -- PGP GT Serial Ports
       pgpRefClkP      : in  sl;
       pgpRefClkN      : in  sl;
-      pgpRxP          : in  slv(7 downto 0);
-      pgpRxN          : in  slv(7 downto 0);
-      pgpTxP          : out slv(7 downto 0);
-      pgpTxN          : out slv(7 downto 0));
+      pgpRxP          : in  slv(3 downto 0);
+      pgpRxN          : in  slv(3 downto 0);
+      pgpTxP          : out slv(3 downto 0);
+      pgpTxN          : out slv(3 downto 0));
 end Hardware;
 
 architecture mapping of Hardware is

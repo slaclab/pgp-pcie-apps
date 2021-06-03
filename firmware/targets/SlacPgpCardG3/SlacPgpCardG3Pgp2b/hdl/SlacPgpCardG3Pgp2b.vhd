@@ -85,10 +85,10 @@ architecture top_level of SlacPgpCardG3Pgp2b is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(3 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(3 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(3 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(3 downto 0);
 
 begin
 
@@ -101,7 +101,7 @@ begin
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
-         DMA_SIZE_G           => 8)
+         DMA_SIZE_G           => 4)  -- Not enough resources for 8 lanes, so implementing only 4 lanes instead
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -146,7 +146,7 @@ begin
    ledGreenL <= (others => '1');
    evrMuxSel <= (others => '0');
 
-   U_Evr : entity surf.Gtpe2ChannelDummy
+   U_UnusedEvr : entity surf.Gtpe2ChannelDummy
       generic map (
          TPD_G   => TPD_G,
          WIDTH_G => 1)
@@ -156,6 +156,17 @@ begin
          gtRxN(0) => evrRxN,
          gtTxP(0) => evrTxP,
          gtTxN(0) => evrTxN);
+
+   U_UnusedPgp : entity surf.Gtpe2ChannelDummy
+      generic map (
+         TPD_G   => TPD_G,
+         WIDTH_G => 4)
+      port map (
+         refClk => axilClk,
+         gtRxP  => pgpRxP(7 downto 4),
+         gtRxN  => pgpRxN(7 downto 4),
+         gtTxP  => pgpTxP(7 downto 4),
+         gtTxN  => pgpTxN(7 downto 4));
 
    U_Hardware : entity work.Hardware
       generic map (
@@ -183,10 +194,10 @@ begin
          -- PGP GT Serial Ports
          pgpRefClkP      => pgpRefClkP,
          pgpRefClkN      => pgpRefClkN,
-         pgpRxP          => pgpRxP,
-         pgpRxN          => pgpRxN,
-         pgpTxP          => pgpTxP,
-         pgpTxN          => pgpTxN);
+         pgpRxP          => pgpRxP(3 downto 0),
+         pgpRxN          => pgpRxN(3 downto 0),
+         pgpTxP          => pgpTxP(3 downto 0),
+         pgpTxN          => pgpTxN(3 downto 0));
 
 end top_level;
 

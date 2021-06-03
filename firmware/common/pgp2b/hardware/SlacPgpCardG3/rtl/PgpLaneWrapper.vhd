@@ -38,18 +38,18 @@ entity PgpLaneWrapper is
       -- PGP GT Serial Ports
       pgpRefClkP      : in  sl;
       pgpRefClkN      : in  sl;
-      pgpRxP          : in  slv(7 downto 0);
-      pgpRxN          : in  slv(7 downto 0);
-      pgpTxP          : out slv(7 downto 0);
-      pgpTxN          : out slv(7 downto 0);
+      pgpRxP          : in  slv(3 downto 0);
+      pgpRxN          : in  slv(3 downto 0);
+      pgpTxP          : out slv(3 downto 0);
+      pgpTxN          : out slv(3 downto 0);
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
       dmaBuffGrpPause : in  slv(7 downto 0);
-      dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      dmaObMasters    : in  AxiStreamMasterArray(3 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(3 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(3 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(3 downto 0);
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -61,10 +61,7 @@ end PgpLaneWrapper;
 
 architecture mapping of PgpLaneWrapper is
 
-   constant WEST_C : natural := 0;
-   constant EAST_C : natural := 4;
-
-   constant NUM_AXI_MASTERS_C : natural := 8;
+   constant NUM_AXI_MASTERS_C : natural := 4;
 
    constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 20, 16);
 
@@ -74,11 +71,11 @@ architecture mapping of PgpLaneWrapper is
    signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
 
    signal pgpRefClk      : sl;
-   signal qPllRefClk     : Slv2Array(1 downto 0);
-   signal qPllClk        : Slv2Array(1 downto 0);
-   signal qPllLock       : Slv2Array(1 downto 0);
-   signal qPllRefClkLost : Slv2Array(1 downto 0);
-   signal gtQPllReset    : Slv2Array(7 downto 0);
+   signal qPllRefClk     : slv(1 downto 0);
+   signal qPllClk        : slv(1 downto 0);
+   signal qPllLock       : slv(1 downto 0);
+   signal qPllRefClkLost : slv(1 downto 0);
+   signal gtQPllReset    : Slv2Array(3 downto 0);
 
 begin
 
@@ -114,29 +111,16 @@ begin
          ODIV2 => open,
          O     => pgpRefClk);
 
-   U_QPLL_WEST : entity work.PgpQpll
+   U_QPLL : entity work.PgpQpll
       generic map (
          TPD_G => TPD_G)
       port map (
          pgpRefClk      => pgpRefClk,
-         qPllRefClk     => qPllRefClk(0),
-         qPllClk        => qPllClk(0),
-         qPllLock       => qPllLock(0),
-         qPllRefClkLost => qPllRefClkLost(0),
-         gtQPllReset    => gtQPllReset(3 downto 0),
-         sysClk         => axilClk,
-         sysRst         => axilRst);
-
-   U_QPLL_EAST : entity work.PgpQpll
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         pgpRefClk      => pgpRefClk,
-         qPllRefClk     => qPllRefClk(1),
-         qPllClk        => qPllClk(1),
-         qPllLock       => qPllLock(1),
-         qPllRefClkLost => qPllRefClkLost(1),
-         gtQPllReset    => gtQPllReset(7 downto 4),
+         qPllRefClk     => qPllRefClk,
+         qPllClk        => qPllClk,
+         qPllLock       => qPllLock,
+         qPllRefClkLost => qPllRefClkLost,
+         gtQPllReset    => gtQPllReset,
          sysClk         => axilClk,
          sysRst         => axilRst);
 
@@ -149,70 +133,36 @@ begin
       U_West : entity work.PgpLane
          generic map (
             TPD_G             => TPD_G,
-            LANE_G            => (i+WEST_C),
+            LANE_G            => i,
             DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i+WEST_C).baseAddr)
+            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
          port map (
             -- QPLL Clocking
-            gtQPllOutRefClk  => qPllRefClk(0),
-            gtQPllOutClk     => qPllClk(0),
-            gtQPllLock       => qPllLock(0),
-            gtQPllRefClkLost => qPllRefClkLost(0),
-            gtQPllReset      => gtQPllReset(i+WEST_C),
+            gtQPllOutRefClk  => qPllRefClk,
+            gtQPllOutClk     => qPllClk,
+            gtQPllLock       => qPllLock,
+            gtQPllRefClkLost => qPllRefClkLost,
+            gtQPllReset      => gtQPllReset(i),
             -- PGP Serial Ports
-            pgpRxP           => pgpRxP(i+WEST_C),
-            pgpRxN           => pgpRxN(i+WEST_C),
-            pgpTxP           => pgpTxP(i+WEST_C),
-            pgpTxN           => pgpTxN(i+WEST_C),
+            pgpRxP           => pgpRxP(i),
+            pgpRxN           => pgpRxN(i),
+            pgpTxP           => pgpTxP(i),
+            pgpTxN           => pgpTxN(i),
             -- DMA Interfaces (dmaClk domain)
             dmaClk           => dmaClk,
             dmaRst           => dmaRst,
             dmaBuffGrpPause  => dmaBuffGrpPause,
-            dmaObMaster      => dmaObMasters(i+WEST_C),
-            dmaObSlave       => dmaObSlaves(i+WEST_C),
-            dmaIbMaster      => dmaIbMasters(i+WEST_C),
-            dmaIbSlave       => dmaIbSlaves(i+WEST_C),
+            dmaObMaster      => dmaObMasters(i),
+            dmaObSlave       => dmaObSlaves(i),
+            dmaIbMaster      => dmaIbMasters(i),
+            dmaIbSlave       => dmaIbSlaves(i),
             -- AXI-Lite Interface (axilClk domain)
             axilClk          => axilClk,
             axilRst          => axilRst,
-            axilReadMaster   => axilReadMasters(i+WEST_C),
-            axilReadSlave    => axilReadSlaves(i+WEST_C),
-            axilWriteMaster  => axilWriteMasters(i+WEST_C),
-            axilWriteSlave   => axilWriteSlaves(i+WEST_C));
-
-      U_East : entity work.PgpLane
-         generic map (
-            TPD_G             => TPD_G,
-            LANE_G            => (i+EAST_C),
-            DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i+EAST_C).baseAddr)
-         port map (
-            -- QPLL Clocking
-            gtQPllOutRefClk  => qPllRefClk(1),
-            gtQPllOutClk     => qPllClk(1),
-            gtQPllLock       => qPllLock(1),
-            gtQPllRefClkLost => qPllRefClkLost(1),
-            gtQPllReset      => gtQPllReset(i+EAST_C),
-            -- PGP Serial Ports
-            pgpRxP           => pgpRxP(i+EAST_C),
-            pgpRxN           => pgpRxN(i+EAST_C),
-            pgpTxP           => pgpTxP(i+EAST_C),
-            pgpTxN           => pgpTxN(i+EAST_C),
-            -- DMA Interfaces (dmaClk domain)
-            dmaClk           => dmaClk,
-            dmaRst           => dmaRst,
-            dmaBuffGrpPause  => dmaBuffGrpPause,
-            dmaObMaster      => dmaObMasters(i+EAST_C),
-            dmaObSlave       => dmaObSlaves(i+EAST_C),
-            dmaIbMaster      => dmaIbMasters(i+EAST_C),
-            dmaIbSlave       => dmaIbSlaves(i+EAST_C),
-            -- AXI-Lite Interface (axilClk domain)
-            axilClk          => axilClk,
-            axilRst          => axilRst,
-            axilReadMaster   => axilReadMasters(i+EAST_C),
-            axilReadSlave    => axilReadSlaves(i+EAST_C),
-            axilWriteMaster  => axilWriteMasters(i+EAST_C),
-            axilWriteSlave   => axilWriteSlaves(i+EAST_C));
+            axilReadMaster   => axilReadMasters(i),
+            axilReadSlave    => axilReadSlaves(i),
+            axilWriteMaster  => axilWriteMasters(i),
+            axilWriteSlave   => axilWriteSlaves(i));
 
    end generate GEN_VEC;
 
