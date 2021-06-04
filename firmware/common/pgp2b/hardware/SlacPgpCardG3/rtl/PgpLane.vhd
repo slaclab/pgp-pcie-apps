@@ -214,7 +214,7 @@ begin
          COMMON_TX_CLK_G    => false,
          COMMON_RX_CLK_G    => false,
          WRITE_EN_G         => true,
-         AXI_CLK_FREQ_G     => 156.25E+6,
+         AXI_CLK_FREQ_G     => 125.0E+6,
          STATUS_CNT_WIDTH_G => 16,
          ERROR_CNT_WIDTH_G  => 16)
       port map (
