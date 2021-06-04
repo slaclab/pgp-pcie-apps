@@ -8,12 +8,24 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
+##################################
 # Setup environment
-source /afs/slac.stanford.edu/g/reseng/rogue/anaconda/rogue_pre-release.sh
+##################################
+source /afs/slac.stanford.edu/g/reseng/vol26/anaconda/miniconda3/etc/profile.d/conda.sh
 
+##################################
+# Activate Rogue conda Environment
+##################################
+conda activate rogue_v5.7.0
+#conda activate rogue_pre-release
+
+##################################
 # Python Package directories
+##################################
 export SURF_DIR=${PWD}/../firmware/submodules/surf/python
 export PCIE_DIR=${PWD}/../firmware/submodules/axi-pcie-core/python
 
+##################################
 # Setup python path
+##################################
 export PYTHONPATH=${SURF_DIR}:${PCIE_DIR}:${PYTHONPATH}
