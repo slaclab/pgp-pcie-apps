@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : SlacPgpCardG3Pgp2b.vhd
+-- File       : SlacPgpCardG3Pgp4_6Gbps.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description:
@@ -29,7 +29,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity SlacPgpCardG3Pgp2b is
+entity SlacPgpCardG3Pgp4_6Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -71,9 +71,9 @@ entity SlacPgpCardG3Pgp2b is
       pciRxN     : in    slv(3 downto 0);
       pciTxP     : out   slv(3 downto 0);
       pciTxN     : out   slv(3 downto 0));
-end SlacPgpCardG3Pgp2b;
+end SlacPgpCardG3Pgp4_6Gbps;
 
-architecture top_level of SlacPgpCardG3Pgp2b is
+architecture top_level of SlacPgpCardG3Pgp4_6Gbps is
 
    signal axilClk         : sl;
    signal axilRst         : sl;

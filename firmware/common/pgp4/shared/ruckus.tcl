@@ -7,9 +7,9 @@ loadSource -dir "$::DIR_PATH/rtl"
 # Get the family type
 set family [getFpgaFamily]
 
-if { ${family} eq {artix7} } {
-   loadSource -dir "$::DIR_PATH/rtl/gtp7"
-}
+# if { ${family} eq {artix7} } {
+   # loadSource -dir "$::DIR_PATH/rtl/gtp7"
+# }
 
 if { ${family} eq {kintex7} } {
    loadSource -dir "$::DIR_PATH/rtl/gtx7"

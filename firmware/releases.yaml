@@ -75,7 +75,7 @@ Releases:
       #######################################
       - SlacPgpCardG4Pgp2b
       - SlacPgpCardG4Pgp4_6Gbps
-      - SlacPgpCardG4Pgp4_10Gbps      
+      - SlacPgpCardG4Pgp4_10Gbps
       #######################################
       - XilinxAlveoU200Pgp2b
       - XilinxAlveoU200Pgp4_6Gbps
@@ -83,7 +83,7 @@ Releases:
       #######################################
       - XilinxKcu1500Pgp2b
       - XilinxKcu1500Pgp4_6Gbps
-      - XilinxKcu1500Pgp4_10Gbps      
+      - XilinxKcu1500Pgp4_10Gbps
       #######################################
     Types:
       - FW_only
