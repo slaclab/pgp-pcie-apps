@@ -16,17 +16,18 @@ RogueScripts:
   - ../software/scripts/PrbsTesting.py
 
 Targets:
-################################################################################  
+################################################################################
+  SlacPgpCardG3Pgp2b:
+    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3Pgp2b/images
+    Extensions:
+      - mcs
+  SlacPgpCardG3Pgp4_6Gbps:
+    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3Pgp4_6Gbps/images
+    Extensions:
+      - mcs
+################################################################################
   SlacPgpCardG4Pgp2b:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b/images
-    Extensions:
-      - mcs
-  SlacPgpCardG4Pgp3_6Gbps:
-    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_6Gbps/images
-    Extensions:
-      - mcs
-  SlacPgpCardG4Pgp3_10Gbps:
-    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp3_10Gbps/images
     Extensions:
       - mcs
   SlacPgpCardG4Pgp4_6Gbps:
@@ -37,17 +38,9 @@ Targets:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_10Gbps/images
     Extensions:
       - mcs
-################################################################################  
+################################################################################
   XilinxAlveoU200Pgp2b:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp2b/images
-    Extensions:
-      - mcs
-  XilinxAlveoU200Pgp3_6Gbps:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_6Gbps/images
-    Extensions:
-      - mcs
-  XilinxAlveoU200Pgp3_10Gbps:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp3_10Gbps/images
     Extensions:
       - mcs
   XilinxAlveoU200Pgp4_6Gbps:
@@ -58,17 +51,9 @@ Targets:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps/images
     Extensions:
       - mcs
-################################################################################        
+################################################################################
   XilinxKcu1500Pgp2b:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
-    Extensions:
-      - mcs
-  XilinxKcu1500Pgp3_6Gbps:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_6Gbps/images
-    Extensions:
-      - mcs
-  XilinxKcu1500Pgp3_10Gbps:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp3_10Gbps/images
     Extensions:
       - mcs
   XilinxKcu1500Pgp4_6Gbps:
@@ -79,27 +64,24 @@ Targets:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_10Gbps/images
     Extensions:
       - mcs
-################################################################################        
+################################################################################
 Releases:
   all:
     Primary: True
     Targets:
       #######################################
+      - SlacPgpCardG3Pgp2b
+      - SlacPgpCardG3Pgp4_6Gbps
+      #######################################
       - SlacPgpCardG4Pgp2b
-      - SlacPgpCardG4Pgp3_6Gbps
-      - SlacPgpCardG4Pgp3_10Gbps
       - SlacPgpCardG4Pgp4_6Gbps
       - SlacPgpCardG4Pgp4_10Gbps      
       #######################################
       - XilinxAlveoU200Pgp2b
-      - XilinxAlveoU200Pgp3_6Gbps
-      - XilinxAlveoU200Pgp3_10Gbps
       - XilinxAlveoU200Pgp4_6Gbps
       - XilinxAlveoU200Pgp4_10Gbps
       #######################################
       - XilinxKcu1500Pgp2b
-      - XilinxKcu1500Pgp3_6Gbps
-      - XilinxKcu1500Pgp3_10Gbps
       - XilinxKcu1500Pgp4_6Gbps
       - XilinxKcu1500Pgp4_10Gbps      
       #######################################
