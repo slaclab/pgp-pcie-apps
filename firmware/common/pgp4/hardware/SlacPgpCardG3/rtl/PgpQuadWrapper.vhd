@@ -47,10 +47,10 @@ entity PgpQuadWrapper is
       dmaClk          : in  sl;
       dmaRst          : in  sl;
       dmaBuffGrpPause : in  slv(7 downto 0);
-      dmaObMasters    : in  AxiStreamMasterArray(3 downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(3 downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(3 downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(3 downto 0);
+      dmaObMasters    : in  AxiStreamMasterArray(NUM_PGP_LANES_G-1 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(NUM_PGP_LANES_G-1 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(NUM_PGP_LANES_G-1 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(NUM_PGP_LANES_G-1 downto 0);
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -62,14 +62,12 @@ end PgpQuadWrapper;
 
 architecture mapping of PgpQuadWrapper is
 
-   constant NUM_AXIL_MASTERS_C : natural := 4;
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_PGP_LANES_G-1 downto 0) := genAxiLiteConfig(NUM_PGP_LANES_G, AXI_BASE_ADDR_G, 20, 16);
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXIL_MASTERS_C, AXI_BASE_ADDR_G, 20, 16);
-
-   signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
-   signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_PGP_LANES_G-1 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_PGP_LANES_G-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
+   signal axilReadMasters  : AxiLiteReadMasterArray(NUM_PGP_LANES_G-1 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_PGP_LANES_G-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
 
    signal qPllOutClk     : Slv2Array(3 downto 0) := (others => "00");
    signal qPllOutRefClk  : Slv2Array(3 downto 0) := (others => "00");
@@ -97,7 +95,7 @@ begin
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => NUM_AXIL_MASTERS_C,
+         NUM_MASTER_SLOTS_G => NUM_PGP_LANES_G,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
       port map (
          axiClk              => axilClk,
@@ -265,9 +263,9 @@ begin
    GEN_DUMMY : if (NUM_PGP_LANES_G < 4) generate
       U_TermGtp : entity surf.Gtpe2ChannelDummy
          generic map (
-            TPD_G        => TPD_G,
-            EXT_QPLL_G   => true,
-            WIDTH_G      => 4-NUM_PGP_LANES_G)
+            TPD_G      => TPD_G,
+            EXT_QPLL_G => true,
+            WIDTH_G    => 4-NUM_PGP_LANES_G)
          port map (
             refClk           => axilClk,
             qPllOutClkExt    => qPllOutClk(NUM_PGP_LANES_G-1),

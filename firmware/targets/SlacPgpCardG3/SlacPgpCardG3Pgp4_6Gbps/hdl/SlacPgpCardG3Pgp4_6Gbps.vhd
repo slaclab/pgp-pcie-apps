@@ -75,6 +75,8 @@ end SlacPgpCardG3Pgp4_6Gbps;
 
 architecture top_level of SlacPgpCardG3Pgp4_6Gbps is
 
+   constant DMA_SIZE_C : positive range 1 to 4 := 3;-- Not enough resources for 8 lanes
+
    signal axilClk         : sl;
    signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
@@ -85,10 +87,10 @@ architecture top_level of SlacPgpCardG3Pgp4_6Gbps is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(3 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(3 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(3 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(3 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
 
 begin
 
@@ -101,7 +103,7 @@ begin
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
-         DMA_SIZE_G           => 4)  -- Not enough resources for 8 lanes, so implementing only 4 lanes instead
+         DMA_SIZE_G           => DMA_SIZE_C)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -171,6 +173,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
+         DMA_SIZE_G        => DMA_SIZE_C,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
          ------------------------

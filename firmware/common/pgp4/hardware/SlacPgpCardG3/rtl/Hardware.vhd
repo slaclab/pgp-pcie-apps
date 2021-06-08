@@ -29,6 +29,7 @@ use unisim.vcomponents.all;
 entity Hardware is
    generic (
       TPD_G             : time             := 1 ns;
+      DMA_SIZE_G        : positive         := 1;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
@@ -46,10 +47,10 @@ entity Hardware is
       dmaClk          : in  sl;
       dmaRst          : in  sl;
       dmaBuffGrpPause : in  slv(7 downto 0);
-      dmaObMasters    : in  AxiStreamMasterArray(3 downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(3 downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(3 downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(3 downto 0);
+      dmaObMasters    : in  AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
       -- PGP GT Serial Ports
       pgpRefClkP      : in  sl;
       pgpRefClkN      : in  sl;
@@ -60,15 +61,6 @@ entity Hardware is
 end Hardware;
 
 architecture mapping of Hardware is
-
-   constant NUM_AXIL_MASTERS_C : natural := 2;
-
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXIL_MASTERS_C, AXI_BASE_ADDR_G, 20, 18);
-
-   signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
-   signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
 
    signal pgpRefClk : sl;
 
@@ -85,35 +77,14 @@ begin
          ODIV2 => open,
          O     => pgpRefClk);
 
-   ---------------------
-   -- AXI-Lite Crossbar
-   ---------------------
-   U_XBAR : entity surf.AxiLiteCrossbar
-      generic map (
-         TPD_G              => TPD_G,
-         NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => NUM_AXIL_MASTERS_C,
-         MASTERS_CONFIG_G   => AXI_CONFIG_C)
-      port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
-         sAxiWriteMasters(0) => axilWriteMaster,
-         sAxiWriteSlaves(0)  => axilWriteSlave,
-         sAxiReadMasters(0)  => axilReadMaster,
-         sAxiReadSlaves(0)   => axilReadSlave,
-         mAxiWriteMasters    => axilWriteMasters,
-         mAxiWriteSlaves     => axilWriteSlaves,
-         mAxiReadMasters     => axilReadMasters,
-         mAxiReadSlaves      => axilReadSlaves);
-
    --------------
    -- PGP Modules
    --------------
-   U_PgpQuadA : entity work.PgpQuadWrapper
+   U_PgpQuad : entity work.PgpQuadWrapper
       generic map (
          TPD_G             => TPD_G,
          LANE_OFFSET_G     => 0,
-         NUM_PGP_LANES_G   => 4,
+         NUM_PGP_LANES_G   => DMA_SIZE_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          AXI_BASE_ADDR_G   => AXI_BASE_ADDR_G)
       port map (
@@ -134,9 +105,9 @@ begin
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(0),
-         axilReadSlave   => axilReadSlaves(0),
-         axilWriteMaster => axilWriteMasters(0),
-         axilWriteSlave  => axilWriteSlaves(0));
+         axilReadMaster  => axilReadMaster,
+         axilReadSlave   => axilReadSlave,
+         axilWriteMaster => axilWriteMaster,
+         axilWriteSlave  => axilWriteSlave);
 
 end mapping;
