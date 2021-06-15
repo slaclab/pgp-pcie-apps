@@ -51,6 +51,10 @@ Targets:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps/images
     Extensions:
       - mcs
+  XilinxAlveoU200Htsp_100Gbps:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Htsp_100Gbps/images
+    Extensions:
+      - mcs
 ################################################################################
   XilinxKcu1500Pgp2b:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
@@ -80,6 +84,7 @@ Releases:
       - XilinxAlveoU200Pgp2b
       - XilinxAlveoU200Pgp4_6Gbps
       - XilinxAlveoU200Pgp4_10Gbps
+      - XilinxAlveoU200Htsp_100Gbps
       #######################################
       - XilinxKcu1500Pgp2b
       - XilinxKcu1500Pgp4_6Gbps
