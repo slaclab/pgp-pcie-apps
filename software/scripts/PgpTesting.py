@@ -190,7 +190,7 @@ class MyRoot(pr.Root):
                         name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
                         width        = args.prbsWidth,
                         checkPayload = True,
-                        expand       = True,
+                        expand       = False,
                     )
                     self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                     self.add(self.prbsRx[lane][vc])

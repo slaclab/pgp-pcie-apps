@@ -23,6 +23,7 @@ import pyrogue.utilities.prbs
 import axipcie             as pcie
 import surf.axi            as axi
 import surf.protocols.htsp as htsp
+import surf.protocols.ssi  as ssi
 
 #################################################################
 
@@ -58,26 +59,18 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--swRx",
+    "--perf",
     type     = argBool,
     required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--swTx",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
+    default  = False,
+    help     = "Sets whether we are in performance testing config",
 )
 
 parser.add_argument(
     "--prbsWidth",
     type     = int,
     required = False,
-    default  = 256,
+    default  = 512,
     help     = "# of DMA Lanes",
 )
 
@@ -111,8 +104,9 @@ class MyRoot(pr.Root):
 
         # Create PCIE memory mapped interface
         self.memMap = rogue.hardware.axi.AxiMemMap(args.dev)
+        self.perf = args.perf
 
-        if (args.swRx or args.swTx):
+        if (self.perf is False):
             self.dmaStream   = [[None for x in range(args.numVc)] for y in range(args.numLane)]
             self.prbsRx      = [[None for x in range(args.numVc)] for y in range(args.numLane)]
             self.prbsTx      = [[None for x in range(args.numVc)] for y in range(args.numLane)]
@@ -122,14 +116,29 @@ class MyRoot(pr.Root):
             offset     = 0x00000000,
             memBase     = self.memMap,
             numDmaLanes = args.numLane,
-            expand      = True,
+            expand      = False,
         ))
 
-        # Add PGP Core
+        if (self.perf is True):
+        
+            self.add(ssi.SsiPrbsTx(
+                offset  = (0x0040_0000 + 1*0x1_0000),
+                memBase = self.memMap,
+                expand  = True,
+            )) 
+
+            self.add(ssi.SsiPrbsRx(
+                offset      = (0x0040_0000 + 2*0x1_0000),
+                memBase     = self.memMap,
+                rxClkPeriod = 4.0e-9,
+                expand      = True,
+            )) 
+
+        # Add devices
         for lane in range(args.numLane):
             self.add(htsp.HtspAxiL(
                 name    = f'Lane[{lane}]',
-                offset  = (0x00800000 + lane*0x00010000),
+                offset  = (0x00800000 + lane*0x1_0000),
                 memBase = self.memMap,
                 numVc   = args.numVc,
                 writeEn = True,
@@ -137,7 +146,7 @@ class MyRoot(pr.Root):
             ))
 
             self.add(axi.AxiStreamMonAxiL(
-                name        = (f'PgpTxAxisMon[{lane}]'),
+                name        = (f'TxAxisMon[{lane}]'),
                 offset      = (0x00800000 + lane*0x00010000 + 0x1000),
                 numberLanes = args.numVc,
                 memBase     = self.memMap,
@@ -145,20 +154,19 @@ class MyRoot(pr.Root):
             ))
 
             self.add(axi.AxiStreamMonAxiL(
-                name        = (f'PgpRxAxisMon[{lane}]'),
+                name        = (f'RxAxisMon[{lane}]'),
                 offset      = (0x00800000 + lane*0x00010000 + 0x2000),
                 numberLanes = args.numVc,
                 memBase     = self.memMap,
                 expand      = False,
             ))
 
-            # Loop through the virtual channels
-            for vc in range(args.numVc):
+            if (self.perf is False):
+            
+                # Loop through the virtual channels
+                for vc in range(args.numVc):
 
-                if (args.swRx or args.swTx):
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
-
-                if (args.swRx):
 
                     # Connect the SW PRBS Receiver module
                     self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
@@ -169,8 +177,6 @@ class MyRoot(pr.Root):
                     )
                     self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                     self.add(self.prbsRx[lane][vc])
-
-                if (args.swTx):
 
                     # Connect the SW PRBS Transmitter module
                     self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
@@ -183,15 +189,17 @@ class MyRoot(pr.Root):
 
         @self.command()
         def EnableAllSwTx():
-            swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
-            for tx in swTxDevices:
-                tx.txEnable.set(True)
+            if (self.perf is False):
+                swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
+                for tx in swTxDevices:
+                    tx.txEnable.set(True)
 
         @self.command()
         def DisableAllSwTx():
-            swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
-            for tx in swTxDevices:
-                tx.txEnable.set(False)
+            if (self.perf is False):
+                swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
+                for tx in swTxDevices:
+                    tx.txEnable.set(False)
 
 #################################################################
 
