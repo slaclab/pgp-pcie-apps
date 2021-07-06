@@ -77,6 +77,9 @@ entity XilinxKcu1500PrbsTester is
       emcClk       : in    sl;
       userClkP     : in    sl;
       userClkN     : in    sl;
+      i2cRstL      : out   sl;
+      i2cScl       : inout sl;
+      i2cSda       : inout sl;
       -- QSFP[0] Ports
       qsfp0RstL    : out   sl;
       qsfp0LpMode  : out   sl;
@@ -214,6 +217,9 @@ begin
          emcClk          => emcClk,
          userClkP        => userClkP,
          userClkN        => userClkN,
+         i2cRstL         => i2cRstL,
+         i2cScl          => i2cScl,
+         i2cSda          => i2cSda,
          -- QSFP[0] Ports
          qsfp0RstL       => qsfp0RstL,
          qsfp0LpMode     => qsfp0LpMode,
