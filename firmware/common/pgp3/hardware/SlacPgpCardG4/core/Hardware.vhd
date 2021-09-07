@@ -116,7 +116,8 @@ begin
 
       U_QPLL : entity surf.Pgp3GthUsQpll
          generic map (
-            TPD_G => TPD_G)
+            TPD_G  => TPD_G,
+            RATE_G => RATE_G)
          port map (
             -- Stable Clock and Reset
             stableClk  => axilClk,
