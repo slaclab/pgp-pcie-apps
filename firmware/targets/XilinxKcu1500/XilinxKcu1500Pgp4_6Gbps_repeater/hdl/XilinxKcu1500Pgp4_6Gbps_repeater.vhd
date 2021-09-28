@@ -22,6 +22,7 @@ use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
 use surf.SsiPkg.all;
+use surf.Pgp4Pkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -100,13 +101,19 @@ architecture top_level of XilinxKcu1500Pgp4_6Gbps_repeater is
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
-   signal dmaClk          : sl;
-   signal dmaRst          : sl;
-   signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal dmaClk       : sl;
+   signal dmaRst       : sl;
+   signal dmaObMasters : AxiStreamMasterArray(7 downto 0);
+   signal dmaObSlaves  : AxiStreamSlaveArray(7 downto 0);
+   signal dmaIbMasters : AxiStreamMasterArray(7 downto 0);
+   signal dmaIbSlaves  : AxiStreamSlaveArray(7 downto 0);
+
+   signal pgpClkOut : slv(7 downto 0);
+   signal pgpRstOut : slv(7 downto 0);
+   signal pgpRxIn   : Pgp4RxInArray(7 downto 0)  := (others => PGP4_RX_IN_INIT_C);
+   signal pgpRxOut  : Pgp4RxOutArray(7 downto 0) := (others => PGP4_RX_OUT_INIT_C);
+   signal pgpTxIn   : Pgp4TxInArray(7 downto 0)  := (others => PGP4_TX_IN_INIT_C);
+   signal pgpTxOut  : Pgp4TxOutArray(7 downto 0) := (others => PGP4_TX_OUT_INIT_C);
 
 begin
 
@@ -144,56 +151,55 @@ begin
          ------------------------
          --  Top Level Interfaces
          ------------------------
-         userClk156      => userClk156,
+         userClk156     => userClk156,
          -- DMA Interfaces
-         dmaClk          => dmaClk,
-         dmaRst          => dmaRst,
-         dmaBuffGrpPause => dmaBuffGrpPause,
-         dmaObMasters    => open,
-         dmaObSlaves     => (others => AXI_STREAM_SLAVE_FORCE_C),
-         dmaIbMasters    => (others => AXI_STREAM_MASTER_INIT_C),
-         dmaIbSlaves     => open,
+         dmaClk         => dmaClk,
+         dmaRst         => dmaRst,
+         dmaObMasters   => open,
+         dmaObSlaves    => (others => AXI_STREAM_SLAVE_FORCE_C),
+         dmaIbMasters   => (others => AXI_STREAM_MASTER_INIT_C),
+         dmaIbSlaves    => open,
          -- AXI-Lite Interface
-         appClk          => axilClk,
-         appRst          => axilRst,
-         appReadMaster   => axilReadMaster,
-         appReadSlave    => axilReadSlave,
-         appWriteMaster  => axilWriteMaster,
-         appWriteSlave   => axilWriteSlave,
+         appClk         => axilClk,
+         appRst         => axilRst,
+         appReadMaster  => axilReadMaster,
+         appReadSlave   => axilReadSlave,
+         appWriteMaster => axilWriteMaster,
+         appWriteSlave  => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
          -- System Ports
-         emcClk          => emcClk,
-         userClkP        => userClkP,
-         userClkN        => userClkN,
-         i2cRstL         => i2cRstL,
-         i2cScl          => i2cScl,
-         i2cSda          => i2cSda,
+         emcClk         => emcClk,
+         userClkP       => userClkP,
+         userClkN       => userClkN,
+         i2cRstL        => i2cRstL,
+         i2cScl         => i2cScl,
+         i2cSda         => i2cSda,
          -- QSFP[0] Ports
-         qsfp0RstL       => qsfp0RstL,
-         qsfp0LpMode     => qsfp0LpMode,
-         qsfp0ModSelL    => qsfp0ModSelL,
-         qsfp0ModPrsL    => qsfp0ModPrsL,
+         qsfp0RstL      => qsfp0RstL,
+         qsfp0LpMode    => qsfp0LpMode,
+         qsfp0ModSelL   => qsfp0ModSelL,
+         qsfp0ModPrsL   => qsfp0ModPrsL,
          -- QSFP[1] Ports
-         qsfp1RstL       => qsfp1RstL,
-         qsfp1LpMode     => qsfp1LpMode,
-         qsfp1ModSelL    => qsfp1ModSelL,
-         qsfp1ModPrsL    => qsfp1ModPrsL,
+         qsfp1RstL      => qsfp1RstL,
+         qsfp1LpMode    => qsfp1LpMode,
+         qsfp1ModSelL   => qsfp1ModSelL,
+         qsfp1ModPrsL   => qsfp1ModPrsL,
          -- Boot Memory Ports
-         flashCsL        => flashCsL,
-         flashMosi       => flashMosi,
-         flashMiso       => flashMiso,
-         flashHoldL      => flashHoldL,
-         flashWp         => flashWp,
+         flashCsL       => flashCsL,
+         flashMosi      => flashMosi,
+         flashMiso      => flashMiso,
+         flashHoldL     => flashHoldL,
+         flashWp        => flashWp,
          -- PCIe Ports
-         pciRstL         => pciRstL,
-         pciRefClkP      => pciRefClkP,
-         pciRefClkN      => pciRefClkN,
-         pciRxP          => pciRxP,
-         pciRxN          => pciRxN,
-         pciTxP          => pciTxP,
-         pciTxN          => pciTxN);
+         pciRstL        => pciRstL,
+         pciRefClkP     => pciRefClkP,
+         pciRefClkN     => pciRefClkN,
+         pciRxP         => pciRxP,
+         pciRxN         => pciRxN,
+         pciTxP         => pciTxP,
+         pciTxN         => pciTxN);
 
    U_Hardware : entity work.Hardware
       generic map (
@@ -219,6 +225,13 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
+         -- Non-VC Interface (pgpClkOut domain)
+         pgpClkOut       => pgpClkOut,
+         pgpRstOut       => pgpRstOut,
+         pgpRxIn         => pgpRxIn,
+         pgpRxOut        => pgpRxOut,
+         pgpTxIn         => pgpTxIn,
+         pgpTxOut        => pgpTxOut,
          ------------------
          --  Hardware Ports
          ------------------
@@ -240,10 +253,30 @@ begin
    ------------------------------
    -- Loopback QSFP[0]-to-QSFP[1]
    ------------------------------
-   dmaObMasters(3 downto 0) <= dmaIbMasters(7 downto 4);
-   dmaObMasters(7 downto 4) <= dmaIbMasters(3 downto 0);
+   GEN_LANE : for i in 3 downto 0 generate
 
-   dmaIbSlaves(3 downto 0) <= dmaObSlaves(7 downto 4);
-   dmaIbSlaves(7 downto 4) <= dmaObSlaves(3 downto 0);
+      dmaObMasters(i+0) <= dmaIbMasters(i+4);
+      dmaIbSlaves(i+4)  <= dmaObSlaves(i+0);
+
+      dmaObMasters(i+4) <= dmaIbMasters(i+0);
+      dmaIbSlaves(i+0)  <= dmaObSlaves(i+4);
+
+      U_opCodeEn_0 : entity surf.SynchronizerOneShot
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            clk     => pgpClkOut(i+0),
+            dataIn  => pgpRxOut(i+4).opCodeEn,
+            dataOut => pgpTxIn(i+0).opCodeEn);
+
+      U_opCodeEn_4 : entity surf.SynchronizerOneShot
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            clk     => pgpClkOut(i+4),
+            dataIn  => pgpRxOut(i+0).opCodeEn,
+            dataOut => pgpTxIn(i+4).opCodeEn);
+
+   end generate GEN_LANE;
 
 end top_level;
