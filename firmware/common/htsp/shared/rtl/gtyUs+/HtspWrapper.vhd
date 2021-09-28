@@ -92,6 +92,12 @@ architecture mapping of HtspWrapper is
    signal htspReset : sl;
    signal dmaReset  : sl;
 
+   attribute dont_touch                  : string;
+   attribute dont_touch of htspTxMasters : signal is "TRUE";
+   attribute dont_touch of htspTxSlaves  : signal is "TRUE";
+   attribute dont_touch of htspRxMasters : signal is "TRUE";
+   attribute dont_touch of htspRxCtrl    : signal is "TRUE";
+
 begin
 
    U_axilRst : entity surf.RstPipeline
