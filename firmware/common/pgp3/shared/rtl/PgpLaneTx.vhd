@@ -25,9 +25,12 @@ use surf.Pgp3Pkg.all;
 
 entity PgpLaneTx is
    generic (
-      TPD_G             : time   := 1 ns;
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      NUM_VC_G          : positive);
+      TPD_G               : time     := 1 ns;
+      DMA_AXIS_CONFIG_G   : AxiStreamConfigType;
+      MEMORY_TYPE_G       : string   := "block";
+      FIFO_ADDR_WIDTH_G   : positive := 5;
+      FIFO_PAUSE_THRESH_G : positive := 20;
+      NUM_VC_G            : positive);
    port (
       -- DMA Interface (dmaClk domain)
       dmaClk       : in  sl;
@@ -94,10 +97,10 @@ begin
          SLAVE_READY_EN_G    => false,
          VALID_THOLD_G       => 1,
          -- FIFO configurations
-         MEMORY_TYPE_G       => "block",
+         MEMORY_TYPE_G       => MEMORY_TYPE_G,
          GEN_SYNC_FIFO_G     => false,
-         FIFO_ADDR_WIDTH_G   => 5,
-         FIFO_PAUSE_THRESH_G => 20,
+         FIFO_ADDR_WIDTH_G   => FIFO_ADDR_WIDTH_G,
+         FIFO_PAUSE_THRESH_G => FIFO_PAUSE_THRESH_G,
          -- AXI Stream Port Configurations
          SLAVE_AXI_CONFIG_G  => DMA_AXIS_CONFIG_G,
          MASTER_AXI_CONFIG_G => PGP3_AXIS_CONFIG_C)

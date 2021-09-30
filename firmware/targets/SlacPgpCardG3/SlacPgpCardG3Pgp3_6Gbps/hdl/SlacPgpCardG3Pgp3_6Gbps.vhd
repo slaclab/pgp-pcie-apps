@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : SlacPgpCardG3Pgp4_6Gbps.vhd
+-- File       : SlacPgpCardG3Pgp3_6Gbps.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description: Pgp4 at 6Gbps FW image.  Only support 3 of the 8 PGP lanes.
@@ -29,7 +29,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity SlacPgpCardG3Pgp4_6Gbps is
+entity SlacPgpCardG3Pgp3_6Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -71,9 +71,9 @@ entity SlacPgpCardG3Pgp4_6Gbps is
       pciRxN     : in    slv(3 downto 0);
       pciTxP     : out   slv(3 downto 0);
       pciTxN     : out   slv(3 downto 0));
-end SlacPgpCardG3Pgp4_6Gbps;
+end SlacPgpCardG3Pgp3_6Gbps;
 
-architecture top_level of SlacPgpCardG3Pgp4_6Gbps is
+architecture top_level of SlacPgpCardG3Pgp3_6Gbps is
 
    constant DMA_SIZE_C : positive range 1 to 4 := 3;-- Not enough resources for 8 lanes
 
