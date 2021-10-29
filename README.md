@@ -104,4 +104,30 @@ Note: For more information about the firmware build system:
 
 https://confluence.slac.stanford.edu/x/n4-jCg
 
+<!--- ######################################################## -->
+
+# How to install the Rogue With Anaconda
+
+> https://slaclab.github.io/rogue/installing/anaconda.html
+
+<!--- ######################################################## -->
+# How to reprogram the PCIe firmware via Rogue software
+
+1) Setup the rogue environment (assumes that you are on SLAC AFS network)
+```
+$ cd pgp-pcie-apps/software
+$ source setup_env_slac.sh
+```
+
+2) Run the PCIe firmware update script:
+```
+$ python scripts/updatePcieFpga.py --path <PATH_TO_IMAGE_DIR>
+```
+where <PATH_TO_IMAGE_DIR> is path to image directory (example: ../firmware/targets/XilinxKcu1500/XilinxKcu1500DmaLoopback/images/)
+
+3) Reboot the computer
+```
+sudo reboot
+```
+
 <!--- ########################################################################################### -->
