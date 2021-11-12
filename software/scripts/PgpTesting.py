@@ -9,6 +9,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
+import setupLibPaths
 import sys
 import rogue
 import argparse

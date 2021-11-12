@@ -18,14 +18,3 @@ source /afs/slac.stanford.edu/g/reseng/vol26/anaconda/miniconda3/etc/profile.d/c
 ##################################
 conda activate rogue_v5.10.0
 #conda activate rogue_pre-release
-
-##################################
-# Python Package directories
-##################################
-export SURF_DIR=${PWD}/../firmware/submodules/surf/python
-export PCIE_DIR=${PWD}/../firmware/submodules/axi-pcie-core/python
-
-##################################
-# Setup python path
-##################################
-export PYTHONPATH=${SURF_DIR}:${PCIE_DIR}:${PYTHONPATH}
