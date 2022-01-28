@@ -121,19 +121,19 @@ class MyRoot(pr.Root):
         ))
 
         if (self.perf is True):
-        
+
             self.add(ssi.SsiPrbsTx(
                 offset  = (0x0040_0000 + 1*0x1_0000),
                 memBase = self.memMap,
                 expand  = True,
-            )) 
+            ))
 
             self.add(ssi.SsiPrbsRx(
                 offset      = (0x0040_0000 + 2*0x1_0000),
                 memBase     = self.memMap,
                 rxClkPeriod = 4.0e-9,
                 expand      = True,
-            )) 
+            ))
 
         # Add devices
         for lane in range(args.numLane):
@@ -163,7 +163,7 @@ class MyRoot(pr.Root):
             ))
 
             if (self.perf is False):
-            
+
                 # Loop through the virtual channels
                 for vc in range(args.numVc):
 
