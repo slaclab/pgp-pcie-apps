@@ -51,13 +51,14 @@ entity XilinxAlveoU280DmaLoopback is
       qsfp1RxN     : in  slv(3 downto 0);
       qsfp1TxP     : out slv(3 downto 0);
       qsfp1TxN     : out slv(3 downto 0);
+      -- HBM Ports
+      hbmCatTrip  : out sl := '0';  -- HBM Catastrophic Over temperature Output signal to Satellite Controller: active HIGH indicator to Satellite controller to indicate the HBM has exceeds its maximum allowable temperature
       --------------
       --  Core Ports
       --------------
       -- System Ports
       userClkP     : in  sl;
       userClkN     : in  sl;
-      pinD32       : out sl;  -- https://www.xilinx.com/support/answers/72926.html
       -- QSFP[1:0] Ports
       qsfpRstL     : out slv(1 downto 0);
       qsfpLpMode   : out slv(1 downto 0);
@@ -150,7 +151,6 @@ begin
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,
-         pinD32         => pinD32,
          -- QSFP[1:0] Ports
          qsfpRstL       => qsfpRstL,
          qsfpLpMode     => qsfpLpMode,

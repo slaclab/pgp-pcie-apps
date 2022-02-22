@@ -1,5 +1,4 @@
 -------------------------------------------------------------------------------
--- File       : XilinxAlveoU50DmaLoopback.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description: Simple DMA loopback Example
@@ -29,7 +28,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxAlveoU50DmaLoopback is
+entity XilinxAlveoU55cDmaLoopback is
    generic (
       TPD_G        : time := 1 ns;
       BUILD_INFO_G : BuildInfoType);
@@ -37,32 +36,39 @@ entity XilinxAlveoU50DmaLoopback is
       ---------------------
       --  Application Ports
       ---------------------
-      -- QSFP Ports
-      qsfpRefClkP : in  slv(1 downto 0);
-      qsfpRefClkN : in  slv(1 downto 0);
-      qsfpRxP     : in  slv(3 downto 0);
-      qsfpRxN     : in  slv(3 downto 0);
-      qsfpTxP     : out slv(3 downto 0);
-      qsfpTxN     : out slv(3 downto 0);
+      -- QSFP[0] Ports
+      qsfp0RefClkP : in  sl;
+      qsfp0RefClkN : in  sl;
+      qsfp0RxP     : in  slv(3 downto 0);
+      qsfp0RxN     : in  slv(3 downto 0);
+      qsfp0TxP     : out slv(3 downto 0);
+      qsfp0TxN     : out slv(3 downto 0);
+      -- QSFP[1] Ports
+      qsfp1RefClkP : in  sl;
+      qsfp1RefClkN : in  sl;
+      qsfp1RxP     : in  slv(3 downto 0);
+      qsfp1RxN     : in  slv(3 downto 0);
+      qsfp1TxP     : out slv(3 downto 0);
+      qsfp1TxN     : out slv(3 downto 0);
       -- HBM Ports
-      hbmCatTrip  : out sl := '0';  -- HBM Catastrophic Over temperature Output signal to Satellite Controller: active HIGH indicator to Satellite controller to indicate the HBM has exceeds its maximum allowable temperature
+      hbmCatTrip   : out sl := '0';  -- HBM Catastrophic Over temperature Output signal to Satellite Controller: active HIGH indicator to Satellite controller to indicate the HBM has exceeds its maximum allowable temperature      
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      userClkP    : in  sl;
-      userClkN    : in  sl;
+      userClkP     : in  sl;
+      userClkN     : in  sl;
       -- PCIe Ports
-      pciRstL     : in  sl;
-      pciRefClkP  : in  slv(1 downto 0);
-      pciRefClkN  : in  slv(1 downto 0);
-      pciRxP      : in  slv(15 downto 0);
-      pciRxN      : in  slv(15 downto 0);
-      pciTxP      : out slv(15 downto 0);
-      pciTxN      : out slv(15 downto 0));
-end XilinxAlveoU50DmaLoopback;
+      pciRstL      : in  sl;
+      pciRefClkP   : in  slv(1 downto 0);
+      pciRefClkN   : in  slv(1 downto 0);
+      pciRxP       : in  slv(15 downto 0);
+      pciRxN       : in  slv(15 downto 0);
+      pciTxP       : out slv(15 downto 0);
+      pciTxN       : out slv(15 downto 0));
+end XilinxAlveoU55cDmaLoopback;
 
-architecture top_level of XilinxAlveoU50DmaLoopback is
+architecture top_level of XilinxAlveoU55cDmaLoopback is
 
    constant DMA_SIZE_C : positive := 1;
 
@@ -108,7 +114,7 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   U_Core : entity axi_pcie_core.XilinxAlveoU50Core
+   U_Core : entity axi_pcie_core.XilinxAlveoU55cCore
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
@@ -163,12 +169,20 @@ begin
          ---------------------
          --  Application Ports
          ---------------------
-         -- QSFP Ports
-         qsfpRefClkP     => qsfpRefClkP,
-         qsfpRefClkN     => qsfpRefClkN,
-         qsfpRxP         => qsfpRxP,
-         qsfpRxN         => qsfpRxN,
-         qsfpTxP         => qsfpTxP,
-         qsfpTxN         => qsfpTxN);
+         -- QSFP[0] Ports
+         qsfp0RefClkP    => qsfp0RefClkP,
+         qsfp0RefClkN    => qsfp0RefClkN,
+         qsfp0RxP        => qsfp0RxP,
+         qsfp0RxN        => qsfp0RxN,
+         qsfp0TxP        => qsfp0TxP,
+         qsfp0TxN        => qsfp0TxN,
+         -- QSFP[1] Ports
+         qsfp1RefClkP    => qsfp1RefClkP,
+         qsfp1RefClkN    => qsfp1RefClkN,
+         qsfp1RxP        => qsfp1RxP,
+         qsfp1RxN        => qsfp1RxN,
+         qsfp1TxP        => qsfp1TxP,
+         qsfp1TxN        => qsfp1TxN);
+
 
 end top_level;

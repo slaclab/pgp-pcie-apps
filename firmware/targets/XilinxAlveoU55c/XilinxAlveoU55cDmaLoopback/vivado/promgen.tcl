@@ -8,6 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-# Set the board part
-set_property board_part xilinx.com:au50:part0:1.0 [current_project]
-# set_property board_part xilinx.com:au50dd:part0:1.0 [current_project]
+set format     "mcs"
+set inteface   "SPIx4"
+set size       "1024"
+set loadbit    "up 0x01002000 ${inputFile}"

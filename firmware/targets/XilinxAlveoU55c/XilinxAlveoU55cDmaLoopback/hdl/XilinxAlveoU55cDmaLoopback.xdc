@@ -8,5 +8,3 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-# Set the board part
-set_property board_part xilinx.com:au280:part0:1.0 [current_project]
