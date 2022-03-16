@@ -78,8 +78,8 @@ architecture top_level of XilinxAlveoU200Htsp_PerfTester is
    -- constant TX_MAX_PAYLOAD_SIZE_C : positive := 4096;
    constant TX_MAX_PAYLOAD_SIZE_C : positive := 8192;
 
-   constant AXIL_CLK_FREQ_C : real := 156.25E+6;  -- units of Hz     
-   
+   constant AXIL_CLK_FREQ_C : real := 156.25E+6;  -- units of Hz
+
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
          baseAddr     => x"0010_0000",
@@ -100,7 +100,7 @@ architecture top_level of XilinxAlveoU200Htsp_PerfTester is
       4               => (
          baseAddr     => x"0080_0000",
          addrBits     => 23,
-         connectivity => x"FFFF"));   
+         connectivity => x"FFFF"));
 
    signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0);
    signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);

@@ -28,7 +28,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxAlveoU55cDmaLoopback is
+entity XilinxVariumC1100DmaLoopback is
    generic (
       TPD_G        : time := 1 ns;
       BUILD_INFO_G : BuildInfoType);
@@ -75,9 +75,9 @@ entity XilinxAlveoU55cDmaLoopback is
       pciRxN       : in    slv(15 downto 0);
       pciTxP       : out   slv(15 downto 0);
       pciTxN       : out   slv(15 downto 0));
-end XilinxAlveoU55cDmaLoopback;
+end XilinxVariumC1100DmaLoopback;
 
-architecture top_level of XilinxAlveoU55cDmaLoopback is
+architecture top_level of XilinxVariumC1100DmaLoopback is
 
    constant DMA_SIZE_C : positive := 1;
 
@@ -124,7 +124,7 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   U_Core : entity axi_pcie_core.XilinxAlveoU55cCore
+   U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,

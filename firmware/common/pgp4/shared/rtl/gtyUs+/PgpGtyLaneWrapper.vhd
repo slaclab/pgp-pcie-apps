@@ -32,12 +32,14 @@ use unisim.vcomponents.all;
 entity PgpGtyLaneWrapper is
    generic (
       TPD_G             : time             := 1 ns;
+      USE_GTREFCLK_G    : boolean          := false;  --  FALSE: qsfp[1:0]RefClkP/N,  TRUE: gtRefClk
       REFCLK_WIDTH_G    : positive         := 2;
       NUM_VC_G          : positive         := 4;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps"
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
+      gtRefClk        : in  sl := '0';
       -- QSFP[0] Ports
       qsfp0RefClkP    : in  slv(REFCLK_WIDTH_G-1 downto 0);
       qsfp0RefClkN    : in  slv(REFCLK_WIDTH_G-1 downto 0);
@@ -71,6 +73,8 @@ end PgpGtyLaneWrapper;
 
 architecture mapping of PgpGtyLaneWrapper is
 
+   constant QPLL_REFCLK_SEL_C : slv(2 downto 0) := ite(USE_GTREFCLK_G, "111", "001");
+
    constant NUM_AXI_MASTERS_C : natural := 8;
 
    constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 20, 16);
@@ -97,44 +101,48 @@ architecture mapping of PgpGtyLaneWrapper is
 
 begin
 
-   ------------------------
-   -- Common PGP Clocking
-   ------------------------
-   GEN_REFCLK :
-   for i in REFCLK_WIDTH_G-1 downto 0 generate
+   GEN_GT_BUF : if (USE_GTREFCLK_G = false) generate
+      GEN_REFCLK :
+      for i in REFCLK_WIDTH_G-1 downto 0 generate
 
-      U_QsfpRef0 : IBUFDS_GTE4
-         generic map (
-            REFCLK_EN_TX_PATH  => '0',
-            REFCLK_HROW_CK_SEL => "00",  -- 2'b00: ODIV2 = O
-            REFCLK_ICNTL_RX    => "00")
-         port map (
-            I     => qsfp0RefClkP(i),
-            IB    => qsfp0RefClkN(i),
-            CEB   => '0',
-            ODIV2 => open,
-            O     => refClk((2*i)+0));
+         U_QsfpRef0 : IBUFDS_GTE4
+            generic map (
+               REFCLK_EN_TX_PATH  => '0',
+               REFCLK_HROW_CK_SEL => "00",  -- 2'b00: ODIV2 = O
+               REFCLK_ICNTL_RX    => "00")
+            port map (
+               I     => qsfp0RefClkP(i),
+               IB    => qsfp0RefClkN(i),
+               CEB   => '0',
+               ODIV2 => open,
+               O     => refClk((2*i)+0));
 
-      U_QsfpRef1 : IBUFDS_GTE4
-         generic map (
-            REFCLK_EN_TX_PATH  => '0',
-            REFCLK_HROW_CK_SEL => "00",  -- 2'b00: ODIV2 = O
-            REFCLK_ICNTL_RX    => "00")
-         port map (
-            I     => qsfp1RefClkP(i),
-            IB    => qsfp1RefClkN(i),
-            CEB   => '0',
-            ODIV2 => open,
-            O     => refClk((2*i)+1));
-   end generate GEN_REFCLK;
+         U_QsfpRef1 : IBUFDS_GTE4
+            generic map (
+               REFCLK_EN_TX_PATH  => '0',
+               REFCLK_HROW_CK_SEL => "00",  -- 2'b00: ODIV2 = O
+               REFCLK_ICNTL_RX    => "00")
+            port map (
+               I     => qsfp1RefClkP(i),
+               IB    => qsfp1RefClkN(i),
+               CEB   => '0',
+               ODIV2 => open,
+               O     => refClk((2*i)+1));
+      end generate GEN_REFCLK;
+   end generate;
+
+   BYP_GT_BUF : if (USE_GTREFCLK_G = true) generate
+      refClk <= (others => gtRefClk);
+   end generate;
 
    GEN_PLLCLK :
    for i in 1 downto 0 generate
 
       U_QPLL : entity surf.Pgp3GtyUsQpll
          generic map (
-            TPD_G  => TPD_G,
-            RATE_G => RATE_G)
+            TPD_G             => TPD_G,
+            QPLL_REFCLK_SEL_G => QPLL_REFCLK_SEL_C,
+            RATE_G            => RATE_G)
          port map (
             -- Stable Clock and Reset
             stableClk  => axilClk,

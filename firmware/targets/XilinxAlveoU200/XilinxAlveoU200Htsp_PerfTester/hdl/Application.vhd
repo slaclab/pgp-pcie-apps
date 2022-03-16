@@ -138,7 +138,7 @@ begin
       generic map (
          TPD_G                      => TPD_G,
          AXI_DEFAULT_PKT_LEN_G      => toSlv((2*512*1024/64)-1, 32),  -- 500Kpixels @ 2B per pixel
-         AXI_DEFAULT_TRIG_DLY_G     => toSlv(24999, 32),  -- 250MHz DMA clock / 10kHz trig rate - 1 
+         AXI_DEFAULT_TRIG_DLY_G     => toSlv(24999, 32),  -- 250MHz DMA clock / 10kHz trig rate - 1
          PRBS_SEED_SIZE_G           => 512,
          MASTER_AXI_STREAM_CONFIG_G => HTSP_AXIS_CONFIG_C)
       port map (

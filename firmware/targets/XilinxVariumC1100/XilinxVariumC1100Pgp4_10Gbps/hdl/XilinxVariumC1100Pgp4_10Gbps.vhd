@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
--- Description: Simple DMA loopback Example
+-- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
 -- It is subject to the license terms in the LICENSE.txt file found in the
@@ -28,10 +28,13 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxAlveoU55cDmaLoopback is
+entity XilinxVariumC1100Pgp4_10Gbps is
    generic (
-      TPD_G        : time := 1 ns;
-      BUILD_INFO_G : BuildInfoType);
+      TPD_G                : time                        := 1 ns;
+      ROGUE_SIM_EN_G       : boolean                     := false;
+      ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
+      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
+      BUILD_INFO_G         : BuildInfoType);
    port (
       ---------------------
       --  Application Ports
@@ -56,10 +59,10 @@ entity XilinxAlveoU55cDmaLoopback is
       --  Core Ports
       --------------
       -- System Ports
-      userClkP     : in    sl;
-      userClkN     : in    sl;
-      hbmRefClkP   : in    sl;
-      hbmRefClkN   : in    sl;
+      userClkP        : in    sl;
+      userClkN        : in    sl;
+      hbmRefClkP      : in    sl;
+      hbmRefClkN      : in    sl;
       -- SI5394 Ports
       si5394Scl    : inout sl;
       si5394Sda    : inout sl;
@@ -75,21 +78,9 @@ entity XilinxAlveoU55cDmaLoopback is
       pciRxN       : in    slv(15 downto 0);
       pciTxP       : out   slv(15 downto 0);
       pciTxN       : out   slv(15 downto 0));
-end XilinxAlveoU55cDmaLoopback;
+end XilinxVariumC1100Pgp4_10Gbps;
 
-architecture top_level of XilinxAlveoU55cDmaLoopback is
-
-   constant DMA_SIZE_C : positive := 1;
-
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);   -- 8  Byte (64-bit)  tData interface
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
-
-   signal dmaClk     : sl;
-   signal dmaRst     : sl;
-   signal dmaMasters : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaSlaves  : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+architecture top_level of XilinxVariumC1100Pgp4_10Gbps is
 
    signal userClk         : sl;
    signal axilClk         : sl;
@@ -98,6 +89,14 @@ architecture top_level of XilinxAlveoU55cDmaLoopback is
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
+
+   signal dmaClk          : sl;
+   signal dmaRst          : sl;
+   signal dmaBuffGrpPause : slv(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
 
 begin
 
@@ -124,12 +123,14 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   U_Core : entity axi_pcie_core.XilinxAlveoU55cCore
+   U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
-         TPD_G             => TPD_G,
-         BUILD_INFO_G      => BUILD_INFO_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G        => DMA_SIZE_C)
+         TPD_G                => TPD_G,
+         ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
+         ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
+         BUILD_INFO_G         => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_G,
+         DMA_SIZE_G           => 8)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -138,10 +139,10 @@ begin
          -- DMA Interfaces
          dmaClk         => dmaClk,
          dmaRst         => dmaRst,
-         dmaObMasters   => dmaMasters,
-         dmaObSlaves    => dmaSlaves,
-         dmaIbMasters   => dmaMasters,
-         dmaIbSlaves    => dmaSlaves,
+         dmaObMasters   => dmaObMasters,
+         dmaObSlaves    => dmaObSlaves,
+         dmaIbMasters   => dmaIbMasters,
+         dmaIbSlaves    => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
          appClk         => axilClk,
          appRst         => axilRst,
@@ -173,21 +174,33 @@ begin
          pciTxP         => pciTxP,
          pciTxN         => pciTxN);
 
-   U_UnusedQsfp : entity axi_pcie_core.TerminateQsfp
+   U_Hardware : entity work.Hardware
       generic map (
-         TPD_G           => TPD_G,
-         AXIL_CLK_FREQ_G => 156.25E+6)
+         TPD_G             => TPD_G,
+         RATE_G            => "10.3125Gbps",
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
-         -- AXI-Lite Interface
+         ------------------------
+         --  Top Level Interfaces
+         ------------------------
+         -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
          axilReadMaster  => axilReadMaster,
          axilReadSlave   => axilReadSlave,
          axilWriteMaster => axilWriteMaster,
          axilWriteSlave  => axilWriteSlave,
-         ---------------------
-         --  Application Ports
-         ---------------------
+         -- DMA Interface (dmaClk domain)
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
+         ------------------
+         --  Hardware Ports
+         ------------------
          -- QSFP[0] Ports
          qsfp0RefClkP    => qsfp0RefClkP,
          qsfp0RefClkN    => qsfp0RefClkN,

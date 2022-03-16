@@ -79,7 +79,7 @@ architecture top_level of XilinxAlveoU200Htsp_100Gbps is
    -- constant TX_MAX_PAYLOAD_SIZE_C : positive := 4096;
    constant TX_MAX_PAYLOAD_SIZE_C : positive := 8192;
 
-   constant AXIL_CLK_FREQ_C : real := 156.25E+6;  -- units of Hz     
+   constant AXIL_CLK_FREQ_C : real := 156.25E+6;  -- units of Hz
 
    signal userClk156      : sl;
    signal axilClk         : sl;
