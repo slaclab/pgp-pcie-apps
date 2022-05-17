@@ -26,6 +26,9 @@ import axipcie            as pcie
 import surf.axi           as axi
 import surf.protocols.ssi as ssi
 
+
+rogue.Logging.setFilter('pyrogue.prbs.rx',rogue.Logging.Debug)
+
 #################################################################
 
 # Set the argument parser
@@ -184,41 +187,44 @@ class MyRoot(pr.Root):
                         expand  = False,
                     ))
 
-        # Loop through the DMA channels
-        for lane in range(args.numLane):
+        # Don't open dma channel if neither rx or tx sw blocks are added
+        if args.swRx or args.swTx:
 
-            # Loop through the virtual channels
-            for vc in range(args.numVc):
+            # Loop through the DMA channels
+            for lane in range(args.numLane):
 
-                # Set the DMA loopback channel
-                self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
-                # self.dmaStream[lane][vc].setDriverDebug(0)
+                # Loop through the virtual channels
+                for vc in range(args.numVc):
 
-                if (args.loopback):
-                    # Loopback the PRBS data
-                    self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
+                    # Set the DMA loopback channel
+                    self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+                    # self.dmaStream[lane][vc].setDriverDebug(0)
 
-                else:
-                    if (args.swRx):
-                        # Connect the SW PRBS Receiver module
-                        self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
-                            name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
-                            width        = args.prbsWidth,
-                            checkPayload = False,
-                            expand       = True,
-                        )
-                        self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
-                        self.add(self.prbsRx[lane][vc])
+                    if (args.loopback):
+                        # Loopback the PRBS data
+                        self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
 
-                    if (args.swTx):
-                        # Connect the SW PRBS Transmitter module
-                        self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
-                            name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
-                            width   = args.prbsWidth,
-                            expand  = False,
-                        )
-                        self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
-                        self.add(self.prbTx[lane][vc])
+                    else:
+                        if (args.swRx):
+                            # Connect the SW PRBS Receiver module
+                            self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
+                                name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
+                                width        = args.prbsWidth,
+                                checkPayload = False,
+                                expand       = True,
+                            )
+                            self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
+                            self.add(self.prbsRx[lane][vc])
+
+                        if (args.swTx):
+                            # Connect the SW PRBS Transmitter module
+                            self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
+                                name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
+                                width   = args.prbsWidth,
+                                expand  = False,
+                            )
+                            self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
+                            self.add(self.prbTx[lane][vc])
 
         @self.command()
         def EnableAllFwTx():
