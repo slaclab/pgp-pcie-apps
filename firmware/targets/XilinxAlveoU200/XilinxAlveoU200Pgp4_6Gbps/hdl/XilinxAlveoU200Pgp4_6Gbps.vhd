@@ -94,6 +94,8 @@ architecture top_level of XilinxAlveoU200Pgp4_6Gbps is
    signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
    signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
    signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal ibMasters       : AxiStreamMasterArray(7 downto 0);
+   signal ibSlaves        : AxiStreamSlaveArray(7 downto 0);
 
 begin
 
@@ -169,6 +171,35 @@ begin
          pciTxP          => pciTxP,
          pciTxN          => pciTxN);
 
+   GEN_VEC : for i in 7 downto 0 generate
+      U_IbFifo : entity surf.AxiStreamFifoV2
+         generic map (
+            -- General Configurations
+            TPD_G               => TPD_G,
+            SLAVE_READY_EN_G    => true,
+            VALID_THOLD_G       => 1,
+            -- FIFO configurations
+            SYNTH_MODE_G        => "xpm",
+            MEMORY_TYPE_G       => "ultra",
+            GEN_SYNC_FIFO_G     => true,
+            FIFO_ADDR_WIDTH_G   => 12, -- 3URAM at 4k deep and 16 Byte width
+            CASCADE_SIZE_G      => 32, -- 32 x 16B x 4096 = 2MB buffer per DMA lane
+            -- AXI Stream Port Configurations
+            SLAVE_AXI_CONFIG_G  => DMA_AXIS_CONFIG_G,
+            MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_G)
+         port map (
+            -- Slave Port
+            sAxisClk    => dmaClk,
+            sAxisRst    => dmaRst,
+            sAxisMaster => ibMasters(i),
+            sAxisSlave  => ibSlaves(i),
+            -- Master Port
+            mAxisClk    => dmaClk,
+            mAxisRst    => dmaRst,
+            mAxisMaster => dmaIbMasters(i),
+            mAxisSlave  => dmaIbSlaves(i));
+   end generate GEN_VEC;
+
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
@@ -191,8 +222,8 @@ begin
          dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
-         dmaIbMasters    => dmaIbMasters,
-         dmaIbSlaves     => dmaIbSlaves,
+         dmaIbMasters    => ibMasters,
+         dmaIbSlaves     => ibSlaves,
          ------------------
          --  Hardware Ports
          ------------------
