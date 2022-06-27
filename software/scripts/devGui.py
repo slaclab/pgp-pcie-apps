@@ -172,7 +172,7 @@ class MyRoot(pr.Root):
                 memBase     = self.memMap,
                 expand      = False,
             ))
-            
+
 #################################################################
 
 with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:

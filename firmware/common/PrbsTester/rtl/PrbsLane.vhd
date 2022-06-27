@@ -35,6 +35,10 @@ entity PrbsLane is
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0)        := (others => '0'));
    port (
+      -- External Trigger Interface (axilClk domain)
+      trig            : in  sl;
+      packetLength    : in  slv(31 downto 0);
+      busy            : out sl;
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
@@ -71,7 +75,17 @@ architecture mapping of PrbsLane is
    signal dmaObMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal dmaObSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
 
+   signal busyVec : slv(NUM_VC_G-1 downto 0);
+
 begin
+
+   -- Help with timing
+   process(axilClk)
+   begin
+      if rising_edge(axilClk) then
+         busy <= uOr(busyVec) after TPD_G;
+      end if;
+   end process;
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -117,6 +131,9 @@ begin
             -- Trigger Signal (locClk domain)
             locClk          => axilClk,
             locRst          => axilRst,
+            trig            => trig,
+            packetLength    => packetLength,
+            busy            => busyVec(i),
             -- Optional: Axi-Lite Register Interface (locClk domain)
             axilReadMaster  => axilReadMasters(2*i+0),
             axilReadSlave   => axilReadSlaves(2*i+0),
@@ -143,7 +160,6 @@ begin
 
    end generate GEN_VC;
 
-
    BYP_MUX : if (NUM_VC_G = 1) generate
 
       dmaObMasters(0) <= dmaObMaster;
@@ -153,7 +169,6 @@ begin
       dmaIbSlaves(0) <= dmaIbSlave;
 
    end generate;
-
 
    GEN_MUX : if (NUM_VC_G /= 1) generate
 

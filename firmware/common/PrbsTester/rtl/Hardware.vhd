@@ -58,18 +58,24 @@ end Hardware;
 
 architecture mapping of Hardware is
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(DMA_SIZE_G-1 downto 0) := genAxiLiteConfig(DMA_SIZE_G, AXI_BASE_ADDR_G, 20, 16);
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(8 downto 0) := genAxiLiteConfig(9, AXI_BASE_ADDR_G, 20, 16);
 
-   signal axilWriteMasters : AxiLiteWriteMasterArray(DMA_SIZE_G-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G-1 downto 0);
-   signal axilReadMasters  : AxiLiteReadMasterArray(DMA_SIZE_G-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(8 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(8 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
+   signal axilReadMasters  : AxiLiteReadMasterArray(8 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(8 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
    signal axilRseet : slv(DMA_SIZE_G-1 downto 0);
    signal pause     : slv(7 downto 0);
 
+   signal trig         : sl;
+   signal packetLength : slv(31 downto 0);
+   signal busyVec      : slv(DMA_SIZE_G-1 downto 0);
+   signal busy         : sl;
+
 begin
+
    ---------------------
    -- AXI-Lite Crossbar
    ---------------------
@@ -77,7 +83,7 @@ begin
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => DMA_SIZE_G,
+         NUM_MASTER_SLOTS_G => 9,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
       port map (
          axiClk              => axilClk,
@@ -104,6 +110,10 @@ begin
             PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
             AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
          port map(
+            -- External Trigger Interface (axilClk domain)
+            trig            => trig,
+            packetLength    => packetLength,
+            busy            => busyVec(i),
             -- DMA Interface
             dmaClk          => dmaClk,
             dmaRst          => dmaReset(i),
@@ -145,5 +155,27 @@ begin
          pause <= dmaBuffGrpPause after TPD_G;
       end if;
    end process;
+   process(axilClk)
+   begin
+      if rising_edge(axilClk) then
+         busy <= uOr(busyVec) after TPD_G;
+      end if;
+   end process;
+
+   U_SyncTrigger : entity work.SyncTrigger
+      generic map(
+         TPD_G => TPD_G)
+      port map(
+         -- External Trigger Interface (axilClk domain)
+         trig            => trig,
+         packetLength    => packetLength,
+         busy            => busy,
+         -- AXI-Lite Interface
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => axilReadMasters(8),
+         axilReadSlave   => axilReadSlaves(8),
+         axilWriteMaster => axilWriteMasters(8),
+         axilWriteSlave  => axilWriteSlaves(8));
 
 end mapping;
