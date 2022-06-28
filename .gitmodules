@@ -7,6 +7,3 @@
 [submodule "firmware/submodules/axi-pcie-core"]
 	path = firmware/submodules/axi-pcie-core
 	url = git@github.com:slaclab/axi-pcie-core
-[submodule "firmware/submodules/daq-stream-cache"]
-	path = firmware/submodules/daq-stream-cache
-	url = git@github.com:slaclab/daq-stream-cache
