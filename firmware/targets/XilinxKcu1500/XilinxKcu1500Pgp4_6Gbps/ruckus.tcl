@@ -11,4 +11,5 @@ loadRuckusTcl $::env(PROJ_DIR)/../../../common/pgp4/hardware/XilinxKcu1500
 loadSource      -dir "$::DIR_PATH/hdl"
 loadConstraints -dir "$::DIR_PATH/hdl"
 
-set_property top {Pgp4Tb} [get_filesets sim_1]
+# Update impl_1 strategy
+set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]
