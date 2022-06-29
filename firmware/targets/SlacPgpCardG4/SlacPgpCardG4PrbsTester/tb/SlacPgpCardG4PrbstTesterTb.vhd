@@ -38,12 +38,12 @@ architecture sim of SlacPgpCardG4PrbsTesterTb is
 
    -- component generics
    constant TPD_G                : time                        := 1 ns;
-   constant DMA_SIZE_G           : positive                    := 8;
-   constant NUM_VC_G             : positive                    := 8;
+   constant DMA_LANES_G          : positive                    := 8;
+   constant NUM_VC_G             : positive                    := 1;
    constant ROGUE_SIM_EN_G       : boolean                     := true;
    constant ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-   constant DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);
-   constant PRBS_SEED_SIZE_G     : natural range 32 to 256     := 32;
+   constant DMA_BYTE_WIDTH_G     : natural                     := 32;
+   constant PRBS_SEED_SIZE_G     : natural range 32 to 256     := 256;
    constant BUILD_INFO_G         : BuildInfoType               := BUILD_INFO_C;
 
    -- component ports
@@ -77,11 +77,11 @@ begin
    U_SlacPgpCardG4PrbsTester : entity work.SlacPgpCardG4PrbsTester
       generic map (
          TPD_G                => TPD_G,
-         DMA_SIZE_G           => DMA_SIZE_G,
+         DMA_LANES_G          => DMA_LANES_G,
          NUM_VC_G             => NUM_VC_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
-         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_G,
+         DMA_BYTE_WIDTH_G     => DMA_BYTE_WIDTH_G,
          PRBS_SEED_SIZE_G     => PRBS_SEED_SIZE_G,
          BUILD_INFO_G         => BUILD_INFO_G)
       port map (
