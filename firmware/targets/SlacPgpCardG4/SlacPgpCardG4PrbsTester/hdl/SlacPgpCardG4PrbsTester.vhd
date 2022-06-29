@@ -148,6 +148,7 @@ begin
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
+         ROGUE_SIM_CH_COUNT_G => NUM_VC_G,
          BUILD_INFO_G         => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_G,
          DMA_SIZE_G           => DMA_SIZE_G)
