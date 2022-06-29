@@ -32,8 +32,8 @@ use unisim.vcomponents.all;
 entity SlacPgpCardG4PrbsTester is
    generic (
       TPD_G      : time     := 1 ns;
-      DMA_SIZE_G : positive := 1;
-      NUM_VC_G   : positive := 1;
+      DMA_SIZE_G : positive := 8;
+      NUM_VC_G   : positive := 8;
 
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
@@ -42,7 +42,7 @@ entity SlacPgpCardG4PrbsTester is
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
       -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  --- 32 Byte (256-bit) tData interface
 
-      PRBS_SEED_SIZE_G : natural range 32 to 256 := 256;
+      PRBS_SEED_SIZE_G : natural range 32 to 256 := 32;
 
       BUILD_INFO_G : BuildInfoType);
    port (
