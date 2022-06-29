@@ -1,5 +1,4 @@
 -------------------------------------------------------------------------------
--- File       : XilinxAlveoU200Pgp4_15Gbps.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description:
@@ -25,6 +24,7 @@ use surf.SsiPkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
+use axi_pcie_core.MigPkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -41,43 +41,70 @@ entity XilinxAlveoU200Pgp4_15Gbps is
       --  Application Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP  : in  slv(1 downto 0);
-      qsfp0RefClkN  : in  slv(1 downto 0);
-      qsfp0RxP      : in  slv(3 downto 0);
-      qsfp0RxN      : in  slv(3 downto 0);
-      qsfp0TxP      : out slv(3 downto 0);
-      qsfp0TxN      : out slv(3 downto 0);
+      qsfp0RefClkP  : in    slv(1 downto 0);
+      qsfp0RefClkN  : in    slv(1 downto 0);
+      qsfp0RxP      : in    slv(3 downto 0);
+      qsfp0RxN      : in    slv(3 downto 0);
+      qsfp0TxP      : out   slv(3 downto 0);
+      qsfp0TxN      : out   slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP  : in  slv(1 downto 0);
-      qsfp1RefClkN  : in  slv(1 downto 0);
-      qsfp1RxP      : in  slv(3 downto 0);
-      qsfp1RxN      : in  slv(3 downto 0);
-      qsfp1TxP      : out slv(3 downto 0);
-      qsfp1TxN      : out slv(3 downto 0);
+      qsfp1RefClkP  : in    slv(1 downto 0);
+      qsfp1RefClkN  : in    slv(1 downto 0);
+      qsfp1RxP      : in    slv(3 downto 0);
+      qsfp1RxN      : in    slv(3 downto 0);
+      qsfp1TxP      : out   slv(3 downto 0);
+      qsfp1TxN      : out   slv(3 downto 0);
+      -- DDR Ports
+      ddrClkP       : in    slv(3 downto 0);
+      ddrClkN       : in    slv(3 downto 0);
+      ddrOut        : out   DdrOutArray(3 downto 0);
+      ddrInOut      : inout DdrInOutArray(3 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      userClkP      : in  sl;
-      userClkN      : in  sl;
+      userClkP      : in    sl;
+      userClkN      : in    sl;
       -- QSFP[1:0] Ports
-      qsfpFs        : out Slv2Array(1 downto 0);
-      qsfpRefClkRst : out slv(1 downto 0);
-      qsfpRstL      : out slv(1 downto 0);
-      qsfpLpMode    : out slv(1 downto 0);
-      qsfpModSelL   : out slv(1 downto 0);
-      qsfpModPrsL   : in  slv(1 downto 0);
+      qsfpFs        : out   Slv2Array(1 downto 0);
+      qsfpRefClkRst : out   slv(1 downto 0);
+      qsfpRstL      : out   slv(1 downto 0);
+      qsfpLpMode    : out   slv(1 downto 0);
+      qsfpModSelL   : out   slv(1 downto 0);
+      qsfpModPrsL   : in    slv(1 downto 0);
       -- PCIe Ports
-      pciRstL       : in  sl;
-      pciRefClkP    : in  sl;
-      pciRefClkN    : in  sl;
-      pciRxP        : in  slv(15 downto 0);
-      pciRxN        : in  slv(15 downto 0);
-      pciTxP        : out slv(15 downto 0);
-      pciTxN        : out slv(15 downto 0));
+      pciRstL       : in    sl;
+      pciRefClkP    : in    sl;
+      pciRefClkN    : in    sl;
+      pciRxP        : in    slv(15 downto 0);
+      pciRxN        : in    slv(15 downto 0);
+      pciTxP        : out   slv(15 downto 0);
+      pciTxN        : out   slv(15 downto 0));
 end XilinxAlveoU200Pgp4_15Gbps;
 
 architecture top_level of XilinxAlveoU200Pgp4_15Gbps is
+
+   constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
+      0               => (
+         baseAddr     => x"0010_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      1               => (
+         baseAddr     => x"0020_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      2               => (
+         baseAddr     => x"0030_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      3               => (
+         baseAddr     => x"0040_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      4               => (
+         baseAddr     => x"0080_0000",
+         addrBits     => 23,
+         connectivity => x"FFFF"));
 
    signal userClk156      : sl;
    signal axilClk         : sl;
@@ -87,6 +114,11 @@ architecture top_level of XilinxAlveoU200Pgp4_15Gbps is
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
+   signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
+
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
@@ -94,6 +126,16 @@ architecture top_level of XilinxAlveoU200Pgp4_15Gbps is
    signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
    signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
    signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal buffIbMasters   : AxiStreamMasterArray(7 downto 0);
+   signal buffIbSlaves    : AxiStreamSlaveArray(7 downto 0);
+
+   signal ddrClk          : slv(3 downto 0);
+   signal ddrRst          : slv(3 downto 0);
+   signal ddrReady        : slv(3 downto 0);
+   signal ddrWriteMasters : AxiWriteMasterArray(3 downto 0);
+   signal ddrWriteSlaves  : AxiWriteSlaveArray(3 downto 0);
+   signal ddrReadMasters  : AxiReadMasterArray(3 downto 0);
+   signal ddrReadSlaves   : AxiReadSlaveArray(3 downto 0);
 
 begin
 
@@ -169,6 +211,85 @@ begin
          pciTxP          => pciTxP,
          pciTxN          => pciTxN);
 
+   --------------------
+   -- AXI-Lite Crossbar
+   --------------------
+   U_XBAR : entity surf.AxiLiteCrossbar
+      generic map (
+         TPD_G              => TPD_G,
+         NUM_SLAVE_SLOTS_G  => 1,
+         NUM_MASTER_SLOTS_G => 5,
+         MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
+      port map (
+         axiClk              => axilClk,
+         axiClkRst           => axilRst,
+         sAxiWriteMasters(0) => axilWriteMaster,
+         sAxiWriteSlaves(0)  => axilWriteSlave,
+         sAxiReadMasters(0)  => axilReadMaster,
+         sAxiReadSlaves(0)   => axilReadSlave,
+         mAxiWriteMasters    => axilWriteMasters,
+         mAxiWriteSlaves     => axilWriteSlaves,
+         mAxiReadMasters     => axilReadMasters,
+         mAxiReadSlaves      => axilReadSlaves);
+
+   --------------------
+   -- MIG[3:0] IP Cores
+   --------------------
+   U_Mig : entity axi_pcie_core.MigAll
+      generic map (
+         TPD_G => TPD_G)
+      port map (
+         extRst          => dmaRst,
+         -- AXI MEM Interface
+         axiClk          => ddrClk,
+         axiRst          => ddrRst,
+         axiReady        => ddrReady,
+         axiWriteMasters => ddrWriteMasters,
+         axiWriteSlaves  => ddrWriteSlaves,
+         axiReadMasters  => ddrReadMasters,
+         axiReadSlaves   => ddrReadSlaves,
+         -- DDR Ports
+         ddrClkP         => ddrClkP,
+         ddrClkN         => ddrClkN,
+         ddrOut          => ddrOut,
+         ddrInOut        => ddrInOut);
+
+   ----------------------------
+   -- DMA Inbound Large Buffer
+   ----------------------------
+   U_MigDmaBuffer : entity axi_pcie_core.MigDmaBuffer
+      generic map (
+         TPD_G             => TPD_G,
+         DMA_SIZE_G        => 8,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
+      port map (
+         -- AXI-Lite Interface (axilClk domain)
+         axilClk          => axilClk,
+         axilRst          => axilRst,
+         axilReadMaster   => axilReadMasters(0),
+         axilReadSlave    => axilReadSlaves(0),
+         axilWriteMaster  => axilWriteMasters(0),
+         axilWriteSlave   => axilWriteSlaves(0),
+         -- Trigger Event streams (eventClk domain)
+         eventClk         => axilClk,
+         eventTrigMsgCtrl => open,
+         -- AXI Stream Interface (axisClk domain)
+         axisClk          => dmaClk,
+         axisRst          => dmaRst,
+         sAxisMasters     => buffIbMasters,
+         sAxisSlaves      => buffIbSlaves,
+         mAxisMasters     => dmaIbMasters,
+         mAxisSlaves      => dmaIbSlaves,
+         -- DDR AXI MEM Interface
+         ddrClk           => ddrClk,
+         ddrRst           => ddrRst,
+         ddrReady         => ddrReady,
+         ddrWriteMasters  => ddrWriteMasters,
+         ddrWriteSlaves   => ddrWriteSlaves,
+         ddrReadMasters   => ddrReadMasters,
+         ddrReadSlaves    => ddrReadSlaves);
+
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
@@ -181,18 +302,18 @@ begin
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMaster,
-         axilReadSlave   => axilReadSlave,
-         axilWriteMaster => axilWriteMaster,
-         axilWriteSlave  => axilWriteSlave,
+         axilReadMaster  => axilReadMasters(4),
+         axilReadSlave   => axilReadSlaves(4),
+         axilWriteMaster => axilWriteMasters(4),
+         axilWriteSlave  => axilWriteSlaves(4),
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
          dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
-         dmaIbMasters    => dmaIbMasters,
-         dmaIbSlaves     => dmaIbSlaves,
+         dmaIbMasters    => buffIbMasters,
+         dmaIbSlaves     => buffIbSlaves,
          ------------------
          --  Hardware Ports
          ------------------
