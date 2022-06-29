@@ -100,28 +100,28 @@ begin
    GEN_VC :
    for i in NUM_VC_G-1 downto 0 generate
 
-      U_SsiPrbsTx : entity surf.SsiPrbsTx
-         generic map (
-            TPD_G                      => TPD_G,
-            PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
-            VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
-            VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
-            MASTER_AXI_PIPE_STAGES_G   => 1,
-            MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
-         port map (
-            -- Master Port (mAxisClk)
-            mAxisClk        => dmaClk,
-            mAxisRst        => dmaRst,
-            mAxisMaster     => dmaIbMasters(i),
-            mAxisSlave      => dmaIbSlaves(i),
-            -- Trigger Signal (locClk domain)
-            locClk          => axilClk,
-            locRst          => axilRst,
-            -- Optional: Axi-Lite Register Interface (locClk domain)
-            axilReadMaster  => axilReadMasters(2*i+0),
-            axilReadSlave   => axilReadSlaves(2*i+0),
-            axilWriteMaster => axilWriteMasters(2*i+0),
-            axilWriteSlave  => axilWriteSlaves(2*i+0));
+--      U_SsiPrbsTx : entity surf.SsiPrbsTx
+--         generic map (
+--            TPD_G                      => TPD_G,
+--            PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
+--            VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
+--            VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
+--            MASTER_AXI_PIPE_STAGES_G   => 1,
+--            MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
+--         port map (
+--            -- Master Port (mAxisClk)
+--            mAxisClk        => dmaClk,
+--            mAxisRst        => dmaRst,
+--            mAxisMaster     => dmaIbMasters(i),
+--            mAxisSlave      => dmaIbSlaves(i),
+--            -- Trigger Signal (locClk domain)
+--            locClk          => axilClk,
+--            locRst          => axilRst,
+--            -- Optional: Axi-Lite Register Interface (locClk domain)
+--            axilReadMaster  => axilReadMasters(2*i+0),
+--            axilReadSlave   => axilReadSlaves(2*i+0),
+--            axilWriteMaster => axilWriteMasters(2*i+0),
+--            axilWriteSlave  => axilWriteSlaves(2*i+0));
 
       U_SsiPrbsRx : entity surf.SsiPrbsRx
          generic map (
@@ -140,6 +140,24 @@ begin
             axiReadSlave   => axilReadSlaves(2*i+1),
             axiWriteMaster => axilWriteMasters(2*i+1),
             axiWriteSlave  => axilWriteSlaves(2*i+1));
+            
+      U_SsiPrbsRateGen : entity surf.SsiPrbsRateGen
+          generic map (
+                TPD_G                      => TPD_G,
+                VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
+                VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
+                AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
+             port map (
+                -- Master Port (mAxisClk)
+                mAxisClk        => dmaClk,
+                mAxisRst        => dmaRst,
+                mAxisMaster     => dmaIbMasters(i),
+                mAxisSlave      => dmaIbSlaves(i),
+                -- Optional: Axi-Lite Register Interface (locClk domain)
+                axilReadMaster  => axilReadMasters(2*i+0),
+                axilReadSlave   => axilReadSlaves(2*i+0),
+                axilWriteMaster => axilWriteMasters(2*i+0),
+                axilWriteSlave  => axilWriteSlaves(2*i+0));
 
    end generate GEN_VC;
 
