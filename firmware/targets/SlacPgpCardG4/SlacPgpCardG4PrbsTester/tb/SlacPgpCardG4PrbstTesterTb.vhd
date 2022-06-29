@@ -20,6 +20,11 @@ use ieee.std_logic_1164.all;
 
 library surf;
 use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library ruckus;
+use ruckus.BuildInfoPkg.all;
 
 ----------------------------------------------------------------------------------------------------
 
@@ -33,13 +38,13 @@ architecture sim of SlacPgpCardG4PrbsTesterTb is
 
    -- component generics
    constant TPD_G                : time                        := 1 ns;
-   constant DMA_SIZE_G           : positive                    := 1;
-   constant NUM_VC_G             : positive                    := 1;
-   constant ROGUE_SIM_EN_G       : boolean                     := false;
+   constant DMA_SIZE_G           : positive                    := 8;
+   constant NUM_VC_G             : positive                    := 8;
+   constant ROGUE_SIM_EN_G       : boolean                     := true;
    constant ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
    constant DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);
    constant PRBS_SEED_SIZE_G     : natural range 32 to 256     := 32;
-   constant BUILD_INFO_G         : BuildInfoType;
+   constant BUILD_INFO_G         : BuildInfoType               := BUILD_INFO_C;
 
    -- component ports
    signal emcClk      : sl              := '0';              -- [in]
