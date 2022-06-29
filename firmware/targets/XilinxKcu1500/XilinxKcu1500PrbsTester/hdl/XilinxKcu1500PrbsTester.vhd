@@ -32,7 +32,7 @@ use unisim.vcomponents.all;
 
 entity XilinxKcu1500PrbsTester is
    generic (
-      TPD_G      : time     := 1 ns;
+      TPD_G        : time := 1 ns;
       BUILD_INFO_G : BuildInfoType);
    port (
       ---------------------
@@ -97,7 +97,7 @@ architecture top_level of XilinxKcu1500PrbsTester is
 
    constant DMA_SIZE_C : positive := 8;
 
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);   -- 8  Byte (64-bit)  tData interface
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  -- 8  Byte (64-bit)  tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
@@ -322,7 +322,7 @@ begin
          DMA_SIZE_G        => DMA_SIZE_C,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
-      port map (   
+      port map (
          -- AXI-Lite Interface (axilClk domain)
          axilClk          => axilClk,
          axilRst          => axilRst,
@@ -347,7 +347,7 @@ begin
          ddrWriteMasters  => ddrWriteMasters,
          ddrWriteSlaves   => ddrWriteSlaves,
          ddrReadMasters   => ddrReadMasters,
-         ddrReadSlaves    => ddrReadSlaves);   
+         ddrReadSlaves    => ddrReadSlaves);
 
    ---------------
    -- PRBS Modules

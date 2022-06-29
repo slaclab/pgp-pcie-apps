@@ -217,10 +217,10 @@ class MyRoot(pr.Root):
             expand      = True,
         ))
 
-        for i in range(4):
-            self.add(axi.AxiMemTester(
-                name    = f'AxiMemTester[{i}]',
-                offset  = 0x0010_0000+i*0x1_0000,
+        for i in range(args.numLane):
+            self.add(axi.AxiStreamDmaV2Fifo(
+                name    = f'MigDmaBuffer[{i}]',
+                offset  = 0x0010_0000+i*0x100,
                 memBase = self.memMap,
                 expand  = False,
             ))
@@ -277,7 +277,7 @@ class MyRoot(pr.Root):
                             name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
                             width        = args.prbsWidth,
                             checkPayload = False,
-                            expand       = False,
+                            expand       = True,
                         )
                         self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                         self.add(self.prbsRx[lane][vc])
@@ -303,6 +303,18 @@ class MyRoot(pr.Root):
             fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
             for tx in fwTxDevices:
                 tx.TxEn.set(False)
+
+        @self.command()
+        def EnableAllSwCheck():
+            swDev = root.find(typ=pr.utilities.prbs.PrbsRx)
+            for rx in swDev:
+                rx.checkPayload.set(True)
+
+        @self.command()
+        def DisableAllSwCheck():
+            swDev = root.find(typ=pr.utilities.prbs.PrbsRx)
+            for rx in swDev:
+                rx.checkPayload.set(False)
 
     def start(self, **kwargs):
         super().start(**kwargs)

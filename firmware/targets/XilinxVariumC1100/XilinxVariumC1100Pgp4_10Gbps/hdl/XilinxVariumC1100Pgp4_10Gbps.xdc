@@ -20,6 +20,9 @@ set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup         [current_design]
 set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes       [current_design]
 
 set_property USER_SLR_ASSIGNMENT SLR1 [get_cells {U_Hardware}]
+set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_HbmDmaBuffer}]
+
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
 
 #######
 # PGP #

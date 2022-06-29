@@ -8,7 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-# Timing Constraints 
+# Timing Constraints
 
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/PllGen.U_Pll/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_Core/REAL_PCIE.U_AxiPciePhy/U_AxiPcie/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
 
@@ -30,7 +30,7 @@ set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {U_Hardw
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {U_Hardware/U_QSFP0/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK161MHz.U_CAUI4/inst/Caui4GtyIpCore161MHz_gt_i/inst/gen_gtwizard_gtye4_top.Caui4GtyIpCore161MHz_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[35].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST/RXOUTCLK}]] -group [get_clocks -of_objects [get_pins {U_Hardware/U_QSFP0/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK161MHz.U_CAUI4/inst/Caui4GtyIpCore161MHz_gt_i/inst/gen_gtwizard_gtye4_top.Caui4GtyIpCore161MHz_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[35].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {U_Hardware/U_QSFP1/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK161MHz.U_CAUI4/inst/Caui4GtyIpCore161MHz_gt_i/inst/gen_gtwizard_gtye4_top.Caui4GtyIpCore161MHz_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[35].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST/RXOUTCLK}]] -group [get_clocks -of_objects [get_pins {U_Hardware/U_QSFP1/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK161MHz.U_CAUI4/inst/Caui4GtyIpCore161MHz_gt_i/inst/gen_gtwizard_gtye4_top.Caui4GtyIpCore161MHz_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[35].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
 
-# Placement Constraints 
+# Placement Constraints
 
 set_property USER_SLR_ASSIGNMENT SLR2 [get_cells {U_Hardware}]
 set_property USER_SLR_ASSIGNMENT SLR2 [get_cells {U_Application}]
