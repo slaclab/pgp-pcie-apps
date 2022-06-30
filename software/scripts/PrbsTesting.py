@@ -31,9 +31,6 @@ import surf.protocols.ssi as ssi
 # Set the argument parser
 parser = argparse.ArgumentParser()
 
-# Convert str to bool
-argBool = lambda s: s.lower() in ['true', 't', 'yes', '1']
-
 # Add arguments
 parser.add_argument(
     "--dev",
@@ -44,7 +41,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--numLane",
+    "--sim",
+    action = 'store_true',
+    default = False)
+
+parser.add_argument(
+    "--numLanes",
+    "-l",
     type     = int,
     required = False,
     default  = 1,
@@ -53,152 +56,48 @@ parser.add_argument(
 
 parser.add_argument(
     "--prbsWidth",
+    "-w",
     type     = int,
     required = False,
-    default  = 256,
-#    default  = 32,
+    default  = 32,
     help     = "# of DMA Lanes",
 )
 
 parser.add_argument(
     "--numVc",
+    "-c",
     type     = int,
     required = False,
     default  = 1,
-    help     = "# of VC (virtual channels)",
+    help     = "# of channels per lane",
 )
 
 parser.add_argument(
     "--loopback",
-    type     = argBool,
-    required = False,
+    action = 'store_true',
     default  = False,
-    help     = "Enable read all variables at start",
+    help     = "Loop incomming prbs streams from firmware TX back to firmware RX"
 )
 
-parser.add_argument(
-    "--fwRx",
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--fwTx",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--fwRg",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--swRx",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--swTx",
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Enable read all variables at start",
-)
 
 parser.add_argument(
     "--pollEn",
-    type     = argBool,
-    required = False,
-    default  = True,
+    action = 'store_true',
+    default  = False,
     help     = "Enable auto-polling",
 )
 
 parser.add_argument(
     "--initRead",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--syncTrig",
-    type     = argBool,
-    required = False,
+    action = 'store_true',
     default  = False,
-    help     = "Enable sync triggers",
+    help     = "Enable read all variables at start",
 )
 
 # Get the arguments
 args = parser.parse_args()
 
 #################################################################
-
-class SyncTrigger(pr.Device):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.prbsByte = args.prbsWidth>>3
-
-        self.add(pr.RemoteVariable(
-            name         = "PacketLength",
-            description  = "",
-            offset       =  0x0,
-            bitSize      =  32,
-            mode         = "RW",
-            disp         = '{}',
-            hidden       = True,
-        ))
-
-        self.add(pr.LinkVariable(
-            name         = 'PacketSize',
-            mode         = "RW",
-            units         = "Bytes",
-            disp         = '{}',
-            typeStr      = 'UInt32',
-            linkedGet    = lambda: (self.PacketLength.value()+1)*self.prbsByte,
-            linkedSet    = lambda value, write: self.PacketLength.set( int(value/self.prbsByte)-1 ),
-            dependencies = [self.PacketLength],
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "TimerSize",
-            description  = "",
-            offset       =  0x4,
-            bitSize      =  32,
-            mode         = "RW",
-            hidden       = True,
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "RunEnable",
-            description  = "",
-            offset       =  0x8,
-            bitSize      =  1,
-            mode         = "RW",
-        ))
-
-        self.add(pr.LinkVariable(
-            name         = 'Rate',
-            mode         = "RW",
-            units         = "Hz",
-            disp         = '{}',
-            typeStr      = 'UInt32',
-            linkedGet    = lambda: int(156.25E+6/float(self.TimerSize.value())),
-            linkedSet    = lambda value, write: self.TimerSize.set( int(156.25E+6/value) ),
-            dependencies = [self.TimerSize],
-        ))
 
 class MyRoot(pr.Root):
     def __init__(   self,
@@ -207,81 +106,69 @@ class MyRoot(pr.Root):
             **kwargs):
         super().__init__(name=name, description=description, **kwargs)
 
-        self._syncTrig = args.syncTrig
-
         # Create an arrays to be filled
-        self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-        self.prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-        #self.prbTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-        self.prbRg     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+        self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLanes)]
+        self.prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLanes)]
+        self.prbRg     = [[None for x in range(args.numVc)] for y in range(args.numLanes)]
 
         # Create PCIE memory mapped interface
-        self.memMap = rogue.hardware.axi.AxiMemMap(args.dev,)
+        if args.sim:
+            self.memMap = rogue.interfaces.memory.TcpClient('localhost', 8000)
+        else:
+            self.memMap = rogue.hardware.axi.AxiMemMap(args.dev,)
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
             offset      = 0x00000000,
             memBase     = self.memMap,
-            numDmaLanes = args.numLane,
+            numDmaLanes = args.numLanes,
             expand      = True,
         ))
 
-        for i in range(4):
-            self.add(axi.AxiMemTester(
-                name    = f'AxiMemTester[{i}]',
-                offset  = 0x0010_0000+i*0x1_0000,
-                memBase = self.memMap,
-                expand  = False,
-            ))
+#         for i in range(4):
+#             self.add(axi.AxiMemTester(
+#                 name    = f'AxiMemTester[{i}]',
+#                 offset  = 0x0010_0000+i*0x1_0000,
+#                 memBase = self.memMap,
+#                 expand  = True,
+#             ))
 
         # Loop through the DMA channels
-        for lane in range(args.numLane):
+        for lane in range(args.numLanes):
 
             # Loop through the virtual channels
             for vc in range(args.numVc):
 
-                # if (args.fwTx):
-                #     # Add the FW PRBS TX Module
-                #     self.add(ssi.SsiPrbsTx(
-                #         name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
-                #         memBase = self.memMap,
-                #         offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
-                #         expand  = False,
-                #     ))
 
-                if(args.fwRg):
-                    # Add the FW PRBS RateGen Module
-                    self.add(ssi.SsiPrbsRateGen(
-                        name    = ('FwPrbsRateGen[%d][%d]' % (lane,vc)),
-                        memBase = self.memMap,
-                        offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
-                        expand  = False,
-                    ))   
+                # Add the FW PRBS RateGen Module
+                self.add(ssi.SsiPrbsRateGen(
+                    name    = ('FwPrbsRateGen[%d][%d]' % (lane,vc)),
+                    memBase = self.memMap,
+                    offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
+                    expand  = False,
+                ))
 
-                if (args.fwRx):
-                    # Add the FW PRBS RX Module
-                    self.add(ssi.SsiPrbsRx(
-                        name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
-                        memBase = self.memMap,
-                        offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
-                        expand  = False,
-                    ))
 
-        if self._syncTrig:
-            self.add(SyncTrigger(
-                offset  = 0x00880000,
-                memBase = self.memMap,
-                expand  = True,
-            ))
+                # Add the FW PRBS RX Module
+                self.add(ssi.SsiPrbsRx(
+                    name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
+                    memBase = self.memMap,
+                    offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
+                    expand  = False,
+                ))
 
         # Loop through the DMA channels
-        for lane in range(args.numLane):
+        for lane in range(args.numLanes):
 
             # Loop through the virtual channels
             for vc in range(args.numVc):
 
                 # Set the DMA loopback channel
-                self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+                if args.sim:
+                    self.dmaStream[lane][vc] = rogue.interfaces.stream.TcpClient('localhost', 8002 + (512*lane) + (vc*2))
+                else:
+                    self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+
                 # self.dmaStream[lane][vc].setDriverDebug(0)
 
                 if (args.loopback):
@@ -289,66 +176,39 @@ class MyRoot(pr.Root):
                     self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
 
                 else:
-                    if (args.swRx):
-                        # Connect the SW PRBS Receiver module
-                        self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
-                            name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
-                            width        = args.prbsWidth,
-                            checkPayload = False,
-                            expand       = False,
-                        )
-                        self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
-                        self.add(self.prbsRx[lane][vc])
 
-                    # if (args.swTx):
-                    #     # Connect the SW PRBS Transmitter module
-                    #     self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
-                    #         name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
-                    #         width   = args.prbsWidth,
-                    #         expand  = False,
-                    #     )
-                    #     self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
-                    #     self.add(self.prbTx[lane][vc])
+                    # Connect the SW PRBS Receiver module
+                    self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
+                        name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
+                        width        = args.prbsWidth,
+                        checkPayload = False,
+                        expand       = False,
+                    )
+                    self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
+                    self.add(self.prbsRx[lane][vc])
 
-                    if (args.swRg):
-                        # Connect the SW PRBS Transmitter module
-                        self.prbRg[lane][vc] = pr.utilities.prbs.PrbsRg(
-                            name    = ('SwPrbsRateGen[%d][%d]'%(lane,vc)),
-                            width   = args.prbsWidth,
-                            expand  = False,
-                        )
-                        self.prbRg[lane][vc] >> self.dmaStream[lane][vc]
-                        self.add(self.prbRg[lane][vc])
 
-        # @self.command()
-        # def EnableAllFwTx():
-        #     fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
-        #     for tx in fwTxDevices:
-        #         tx.TxEn.set(True)
-
-        # @self.command()
-        # def DisableAllFwTx():
-        #     fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
-        #     for tx in fwTxDevices:
-        #         tx.TxEn.set(False)
+                    # Connect the SW PRBS Transmitter module
+                    self.prbRg[lane][vc] = pr.utilities.prbs.PrbsRg(
+                        name    = ('SwPrbsRateGen[%d][%d]'%(lane,vc)),
+                        width   = args.prbsWidth,
+                        expand  = False,
+                    )
+                    self.prbRg[lane][vc] >> self.dmaStream[lane][vc]
+                    self.add(self.prbRg[lane][vc])
 
         @self.command()
-        def EnableAllFwRateGebn():
+        def EnableAllFwRg():
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 rg.TxEn.set(True)
 
         @self.command()
-        def DisableAllFwRateGen():
+        def DisableAllFwRg():
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
-            for tx in fwRgDevices:
-                tx.TxEn.set(False)
+            for rg in fwRgDevices:
+                rg.TxEn.set(False)
 
-    def start(self, **kwargs):
-        super().start(**kwargs)
-        fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
-        for rg in fwRgDevices:
-            rg.AxiEn.set(not self._syncTrig)
 
 #################################################################
 
