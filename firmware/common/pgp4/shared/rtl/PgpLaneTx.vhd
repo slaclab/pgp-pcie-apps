@@ -101,7 +101,6 @@ begin
          GEN_SYNC_FIFO_G     => false,
          FIFO_ADDR_WIDTH_G   => FIFO_ADDR_WIDTH_G,
          FIFO_PAUSE_THRESH_G => FIFO_PAUSE_THRESH_G,
-         INT_WIDTH_SELECT_G  => "NARROW",
          -- AXI Stream Port Configurations
          SLAVE_AXI_CONFIG_G  => DMA_AXIS_CONFIG_G,
          MASTER_AXI_CONFIG_G => PGP4_AXIS_CONFIG_C)
