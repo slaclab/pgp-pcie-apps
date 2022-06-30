@@ -119,12 +119,12 @@ architecture top_level of XilinxVariumC1100Pgp4_10Gbps is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
-   signal buffIbMasters   : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal buffIbSlaves    : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal buffIbMasters   : AxiStreamMasterArray(7 downto 0);
+   signal buffIbSlaves    : AxiStreamSlaveArray(7 downto 0);
 
    signal hbmRefClk : sl;
    signal userClk   : sl;
