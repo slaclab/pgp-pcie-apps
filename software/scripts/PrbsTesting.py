@@ -210,10 +210,10 @@ class MyRoot(pr.Root):
                 rg.TxEn.set(False)
 
         @self.command()
-        def SetAllPeriods(arg):
+        def SetAllPeriods():
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
-                rg.Period.set(arg)
+                rg.Period.set(0)
 
 
 #################################################################
