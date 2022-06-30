@@ -146,14 +146,18 @@ begin
                 TPD_G                      => TPD_G,
                 VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
                 VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
-                AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
+                AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+                AXIS_CLK_FREQ_G => 250.0E+6,
+                USE_AXIL_CLK_G => true)
              port map (
                 -- Master Port (mAxisClk)
                 mAxisClk        => dmaClk,
                 mAxisRst        => dmaRst,
                 mAxisMaster     => dmaIbMasters(i),
                 mAxisSlave      => dmaIbSlaves(i),
-                -- Optional: Axi-Lite Register Interface (locClk domain)
+                -- Optional: Axi-Lite Register Interface 
+                axilClk => axilClk,
+                axilRst => axilRst,
                 axilReadMaster  => axilReadMasters(2*i+0),
                 axilReadSlave   => axilReadSlaves(2*i+0),
                 axilWriteMaster => axilWriteMasters(2*i+0),
