@@ -30,7 +30,7 @@ use axi_pcie_core.AxiPciePkg.all;
 entity PrbsLane is
    generic (
       TPD_G             : time                    := 1 ns;
-      NUM_VC_G          : positive                := 4;
+      NUM_VC_G          : positive range 1 to 8   := 4;  -- Will overflow axi-lite address space if larger
       PRBS_SEED_SIZE_G  : natural range 32 to 512 := 32;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0)        := (others => '0'));

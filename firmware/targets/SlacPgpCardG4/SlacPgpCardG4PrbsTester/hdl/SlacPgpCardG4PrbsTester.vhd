@@ -31,20 +31,16 @@ use unisim.vcomponents.all;
 
 entity SlacPgpCardG4PrbsTester is
    generic (
-      TPD_G      : time     := 1 ns;
-      DMA_SIZE_G : positive := 1;
-      NUM_VC_G   : positive := 1;
-
+      TPD_G                : time                        := 1 ns;
+      BUILD_INFO_G         : BuildInfoType;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
 
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  --- 32 Byte (256-bit) tData interface
+      DMA_LANES_G      : positive                := 8;
+      NUM_VC_G         : positive                := 4;
+      DMA_BYTE_WIDTH_G : integer range 8 to 64   := 32;
+      PRBS_SEED_SIZE_G : natural range 32 to 256 := 256);
 
-      PRBS_SEED_SIZE_G : natural range 32 to 256 := 256;
-
-      BUILD_INFO_G : BuildInfoType);
    port (
       --------------
       --  Core Ports
@@ -78,6 +74,8 @@ entity SlacPgpCardG4PrbsTester is
 end SlacPgpCardG4PrbsTester;
 
 architecture top_level of SlacPgpCardG4PrbsTester is
+
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3);
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -116,10 +114,10 @@ architecture top_level of SlacPgpCardG4PrbsTester is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_LANES_G-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_LANES_G-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_LANES_G-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_LANES_G-1 downto 0);
 
 begin
 
@@ -148,9 +146,10 @@ begin
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
+         ROGUE_SIM_CH_COUNT_G => NUM_VC_G,
          BUILD_INFO_G         => BUILD_INFO_G,
-         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_G,
-         DMA_SIZE_G           => DMA_SIZE_G)
+         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C,
+         DMA_SIZE_G           => DMA_LANES_G)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -227,10 +226,10 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
-         DMA_SIZE_G        => DMA_SIZE_G,
+         DMA_SIZE_G        => DMA_LANES_G,
          NUM_VC_G          => NUM_VC_G,
          PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          AXI_BASE_ADDR_G   => AXIL_XBAR_CONFIG_C(4).baseAddr)
       port map (
          -- AXI-Lite Interface

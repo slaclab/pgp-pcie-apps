@@ -32,8 +32,12 @@ use unisim.vcomponents.all;
 
 entity XilinxAlveoU200PrbsTester is
    generic (
-      TPD_G        : time := 1 ns;
-      BUILD_INFO_G : BuildInfoType);
+      TPD_G             : time                    := 1 ns;
+      BUILD_INFO_G      : BuildInfoType;
+      DMA_SIZE_G        : positive                := 8;
+      NUM_VC_G          : positive                := 8;
+      DMA_AXIS_CONFIG_G : AxiStreamConfigType     := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
+      PRBS_SEED_SIZE_G  : natural range 32 to 512 := 128);
    port (
       ---------------------
       --  Application Ports
@@ -71,12 +75,10 @@ architecture top_level of XilinxAlveoU200PrbsTester is
    constant START_ADDR_C : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '0');
    constant STOP_ADDR_C  : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '1');
 
-   constant DMA_SIZE_C : positive := 1;
-
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);   -- 8  Byte (64-bit)  tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -116,10 +118,10 @@ architecture top_level of XilinxAlveoU200PrbsTester is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
 
    signal ddrClk          : slv(3 downto 0);
    signal ddrRst          : slv(3 downto 0);
@@ -160,8 +162,8 @@ begin
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G        => DMA_SIZE_C)
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         DMA_SIZE_G        => DMA_SIZE_G)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -281,10 +283,10 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
-         DMA_SIZE_G        => DMA_SIZE_C,
-         NUM_VC_G          => 1,
-         PRBS_SEED_SIZE_G  => 512,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
+         DMA_SIZE_G        => DMA_SIZE_G,
+         NUM_VC_G          => NUM_VC_G,
+         PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          -- AXI-Lite Interface
          axilClk         => axilClk,
