@@ -33,7 +33,7 @@ entity XilinxVariumC1100Pgp4_6Gbps is
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 2, tIdBits => 3);  --- 32 Byte (256-bit) tData interface
+      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 2, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
       BUILD_INFO_G         : BuildInfoType);
    port (
       ---------------------
@@ -271,10 +271,10 @@ begin
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMaster,
-         axilReadSlave   => axilReadSlave,
-         axilWriteMaster => axilWriteMaster,
-         axilWriteSlave  => axilWriteSlave,
+         axilReadMaster  => axilReadMasters(4),
+         axilReadSlave   => axilReadSlaves(4),
+         axilWriteMaster => axilWriteMasters(4),
+         axilWriteSlave  => axilWriteSlaves(4),
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
