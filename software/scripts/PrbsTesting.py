@@ -189,7 +189,7 @@ class MyRoot(pr.Root):
 
 
                     # Connect the SW PRBS Transmitter module
-                    self.prbRg[lane][vc] = pr.utilities.prbs.PrbsRg(
+                    self.prbRg[lane][vc] = pr.utilities.prbs.PrbsTx(
                         name    = ('SwPrbsRateGen[%d][%d]'%(lane,vc)),
                         width   = args.prbsWidth,
                         expand  = False,
