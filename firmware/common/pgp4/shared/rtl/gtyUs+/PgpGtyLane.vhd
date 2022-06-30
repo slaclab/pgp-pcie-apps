@@ -198,6 +198,7 @@ begin
       generic map (
          TPD_G             => TPD_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         MEMORY_TYPE_G     => "ultra",
          LANE_G            => LANE_G,
          NUM_VC_G          => NUM_VC_G)
       port map (

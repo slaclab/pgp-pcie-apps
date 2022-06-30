@@ -27,6 +27,7 @@ entity PgpLaneRx is
       DMA_AXIS_CONFIG_G   : AxiStreamConfigType;
       FIFO_ADDR_WIDTH_G   : positive := 12;
       FIFO_PAUSE_THRESH_G : positive := 512;
+      MEMORY_TYPE_G       : string   := "block";
       INT_WIDTH_SELECT_G  : string   := "WIDE";
       INT_DATA_WIDTH_G    : positive := 8;
       LANE_G              : natural;
@@ -84,7 +85,8 @@ begin
             VALID_THOLD_G       => 128,  -- Hold until enough to burst into the interleaving MUX
             VALID_BURST_MODE_G  => true,
             -- FIFO configurations
-            MEMORY_TYPE_G       => "block",
+            SYNTH_MODE_G        => "xpm",
+            MEMORY_TYPE_G       => MEMORY_TYPE_G,
             GEN_SYNC_FIFO_G     => true,
             FIFO_ADDR_WIDTH_G   => FIFO_ADDR_WIDTH_G,
             FIFO_FIXED_THRESH_G => true,
