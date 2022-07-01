@@ -37,7 +37,7 @@ entity SlacPgpCardG4PrbsTester is
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
 
       DMA_LANES_G      : positive                := 8;
-      NUM_VC_G         : positive                := 4;
+      NUM_VC_G         : positive                := 2;
       DMA_BYTE_WIDTH_G : integer range 8 to 64   := 32;
       PRBS_SEED_SIZE_G : natural range 32 to 256 := 256);
 
