@@ -204,6 +204,12 @@ class MyRoot(pr.Root):
                 rg.Period.set(arg)
 
         @self.command()
+        def SetAllPacketLengths(arg):
+            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            for rg in fwRgDevices:
+                rg.PacketLength.set(arg)
+
+        @self.command()
         def EnableAllFwRg():
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
