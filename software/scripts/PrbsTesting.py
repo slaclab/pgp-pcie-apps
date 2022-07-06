@@ -216,6 +216,13 @@ class MyRoot(pr.Root):
                 rg.TxEn.set(val)
 
         @self.command()
+        def EnableN(arg):
+            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            for rg in fwRgDevices:
+                rg.TxEn.set(arg>0)
+                arg -= 1
+
+        @self.command()
         def EnableAllFwRg():
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
