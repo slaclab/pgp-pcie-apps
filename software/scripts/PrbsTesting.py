@@ -201,7 +201,19 @@ class MyRoot(pr.Root):
         def SetAllPeriods(arg):
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
+                val = rg.TxEn.get()
+                rg.TxEn.set(False)
                 rg.Period.set(arg)
+                rg.TxEn.set(val)
+
+        @self.command()
+        def SetAllPacketLengths(arg):
+            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            for rg in fwRgDevices:
+                val = rg.TxEn.get()
+                rg.TxEn.set(False)
+                rg.PacketLength.set(arg)
+                rg.TxEn.set(val)
 
         @self.command()
         def EnableAllFwRg():
