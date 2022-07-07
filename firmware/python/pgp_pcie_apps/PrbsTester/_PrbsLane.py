@@ -17,7 +17,7 @@ import surf.protocols.ssi as ssi
 #################################################################
 
 class PrbsLane(pr.Device):
-    def __init__(self, numvc, **kwargs):
+    def __init__(self, numvc, memMapB, **kwargs):
         super().__init__(**kwargs)
 
         # Loop through the virtual channels
@@ -26,7 +26,7 @@ class PrbsLane(pr.Device):
             # Add the FW PRBS RateGen Module
             self.add(ssi.SsiPrbsRateGen(
                 name    = ('FwPrbsRateGen[%d]' % (vc)),
-                memBase = kwargs.memBase,
+                memBase = memMapB,
                 offset  = kwargs.offset+(0x1000*(2*vc+1)),
                 expand  = False,
             ))
@@ -34,7 +34,7 @@ class PrbsLane(pr.Device):
             # Add the FW PRBS RX Module
             self.add(ssi.SsiPrbsRx(
                 name    = ('FwPrbsRx[%d]' % (vc)),
-                memBase = kwargs.memBase,
+                memBase = memMapB,
                 offset  = kwargs.offset + (0x1000*(2*vc+2)),
                 expand  = False,
             ))

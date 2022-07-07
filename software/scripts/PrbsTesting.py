@@ -139,6 +139,7 @@ class MyRoot(pr.Root):
 
             self.add(test.PrbsLane(
                 numvc = args.numVc,
+                memMapB = self.memMap,
                 name    =('FwPrbsLane[]' % [lane]),
                 memBase = self.memMap,
                 offset =  0x00800000 + (0x10000*lane),
