@@ -25,6 +25,7 @@ import pyrogue.interfaces.simulation
 import axipcie            as pcie
 import surf.axi           as axi
 import surf.protocols.ssi as ssi
+import pgp_pcie_apps.PrbsTester as test
 
 #################################################################
 
@@ -136,26 +137,35 @@ class MyRoot(pr.Root):
         # Loop through the DMA channels
         for lane in range(args.numLanes):
 
-            # Loop through the virtual channels
-            for vc in range(args.numVc):
+            self.add(test.PrbsLane(
+                numvc = args.numVc,
+                name    =('FwPrbsLane[]' % [lane]),
+                memBase = self.memMap,
+                offset =  0x00800000 + (0x10000*lane),
+                expand = False,
+            ))
 
 
-                # Add the FW PRBS RateGen Module
-                self.add(ssi.SsiPrbsRateGen(
-                    name    = ('FwPrbsRateGen[%d][%d]' % (lane,vc)),
-                    memBase = self.memMap,
-                    offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
-                    expand  = False,
-                ))
+            # # Loop through the virtual channels
+            # for vc in range(args.numVc):
 
 
-                # Add the FW PRBS RX Module
-                self.add(ssi.SsiPrbsRx(
-                    name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
-                    memBase = self.memMap,
-                    offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
-                    expand  = False,
-                ))
+            #     # Add the FW PRBS RateGen Module
+            #     self.add(ssi.SsiPrbsRateGen(
+            #         name    = ('FwPrbsRateGen[%d][%d]' % (lane,vc)),
+            #         memBase = self.memMap,
+            #         offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
+            #         expand  = False,
+            #     ))
+
+
+            #     # Add the FW PRBS RX Module
+            #     self.add(ssi.SsiPrbsRx(
+            #         name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
+            #         memBase = self.memMap,
+            #         offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
+            #         expand  = False,
+            #     ))
 
         # Loop through the DMA channels
         for lane in range(args.numLanes):
