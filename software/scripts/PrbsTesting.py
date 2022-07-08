@@ -29,6 +29,9 @@ import pgp_pcie_apps.PrbsTester as test
 
 #################################################################
 
+rogue.Logging.setFilter('pyrogue.Block', rogue.Logging.Debug)
+
+
 # Set the argument parser
 parser = argparse.ArgumentParser()
 
@@ -102,10 +105,10 @@ args = parser.parse_args()
 
 class MyRoot(pr.Root):
     def __init__(   self,
-            name        = "pciServer",
-            description = "DMA Loopback Testing",
+#                    sim,
+#                    numLanes,
             **kwargs):
-        super().__init__(name=name, description=description, **kwargs)
+        super().__init__(**kwargs)
 
         # Create an arrays to be filled
         self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLanes)]
@@ -278,12 +281,13 @@ class MyRoot(pr.Root):
 
 #################################################################
 
-with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
+with MyRoot() as root:
 
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
     for rx in swRxDevices:
         rx.checkPayload.set(False)
 
     pyrogue.pydm.runPyDM(root=root)
+
 
 #################################################################
