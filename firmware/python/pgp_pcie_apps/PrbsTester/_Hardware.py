@@ -19,13 +19,13 @@ import pgp_pcie_apps.PrbsTester as test
 #################################################################
 
 class Hardware(pr.Device):
-    def __init__(self, numLanes, numvc, **kwargs):
+    def __init__(self, numLanes, VCs, **kwargs):
         super().__init__(**kwargs)
 
         # Generate lanes
         for lane in range(numLanes):
             self.add(test.PrbsLane(
-            VCs = numvc,
+            numvc = VCs,
             name    =(f"Lane[{lane}]"),
             offset =  (0x10000*lane),
             expand = False,

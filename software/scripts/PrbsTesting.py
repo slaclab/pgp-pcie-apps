@@ -129,7 +129,7 @@ class MyRoot(pr.Root):
         # Add PRBS hardware
         self.add(test.Hardware(
             numLanes = args.numLanes,
-            numvc = args.numVc,
+            VCs = args.numVc,
             name    =("Hardware"),
             memBase = self.memMap,
             offset =  0x00800000,
