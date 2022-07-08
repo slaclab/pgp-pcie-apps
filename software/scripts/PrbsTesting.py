@@ -217,12 +217,21 @@ class MyRoot(pr.Root):
                     self.add(self.prbRg[lane][vc])
 
         @self.command()
-        def SetAllPeriods(arg):
+        def SetAllRawPeriods(arg):
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
-                rg.Period.set(arg)
+                rg.RawPeriod.set(arg)
+                rg.TxEn.set(val)
+
+        @self.command()
+        def SetAllRates(arg):
+            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            for rg in fwRgDevices:
+                val = rg.TxEn.get()
+                rg.TxEn.set(False)
+                rg.TxRate.set(arg)
                 rg.TxEn.set(val)
 
         @self.command()
@@ -253,6 +262,18 @@ class MyRoot(pr.Root):
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 rg.TxEn.set(False)
+
+        @self.command()
+        def ResetRGBandwidthMin():
+            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            for rg in fwRgDevices:
+                rg.BandwidthMin.set(rg.Bandwidth.get())
+
+        @self.command()
+        def ResetRGFrameRateMin():
+            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            for rg in fwRgDevices:
+                rg.FrameRateMin.set(rg.FrameRate.get())
 
 
 #################################################################
