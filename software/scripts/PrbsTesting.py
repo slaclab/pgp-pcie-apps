@@ -126,6 +126,15 @@ class MyRoot(pr.Root):
             expand      = True,
         ))
 
+        # Add PRBS hardware
+        self.add(test.Hardware(
+            numLanes = args.numLanes,
+            VCs = args.numVc,
+            name    =("Hardware"),
+            memBase = self.memMap,
+            offset =  0x00800000,
+            expand = False,
+        ))
 #         for i in range(4):
 #             self.add(axi.AxiMemTester(
 #                 name    = f'AxiMemTester[{i}]',
@@ -134,16 +143,16 @@ class MyRoot(pr.Root):
 #                 expand  = True,
 #             ))
 
-        # Loop through the DMA channels
-        for lane in range(args.numLanes):
+        # # Loop through the DMA channels
+        # for lane in range(args.numLanes):
 
-            self.add(test.PrbsLane(
-                numvc = args.numVc,
-                name    =('FwPrbsLane[%d]' % (lane)),
-                memBase = self.memMap,
-                offset =  0x00800000 + (0x10000*lane),
-                expand = False,
-            ))
+        #     self.add(test.PrbsLane(
+        #         numvc = args.numVc,
+        #         name    =(f"FwPrbsLane[{lane}]"),
+        #         memBase = self.memMap,
+        #         offset =  0x00800000 + (0x10000*lane),
+        #         expand = False,
+        #     ))
 
 
             # # Loop through the virtual channels
