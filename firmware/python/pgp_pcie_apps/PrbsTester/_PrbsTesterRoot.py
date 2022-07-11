@@ -115,7 +115,7 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def SetAllRawPeriods(arg):
-            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
@@ -124,7 +124,7 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def SetAllRates(arg):
-            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
@@ -133,7 +133,7 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def SetAllPacketLengths(arg):
-            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
@@ -142,20 +142,20 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def EnableN(arg):
-            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 rg.TxEn.set(arg>0)
                 arg -= 1
 
         @self.command()
         def EnableAllFwRg():
-            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 rg.TxEn.set(True)
         
 
         @self.command()
         def DisableAllFwRg():
-            fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 rg.TxEn.set(False)

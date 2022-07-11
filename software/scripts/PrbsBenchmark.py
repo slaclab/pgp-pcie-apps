@@ -7,11 +7,14 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import time
 
 import setupLibPaths
 import sys
 import argparse
+
 import pgp_pcie_apps.PrbsTester as test
+import surf.protocols.ssi as ssi
 
 import rogue
 import rogue.hardware.axi
@@ -100,9 +103,22 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
 
-    swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
-    for rx in swRxDevices:
-        rx.checkPayload.set(False)
+    # swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
+    # for rx in swRxDevices:
+    #     rx.checkPayload.set(False)
+
+    fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+    root.EnableN(1)
+    for i in 9:
+        root.SetAllPacketLengths(2**i)
+
+        time.sleep(2.0)
+        
+        print(fwRgDevices[0].Bandwidth.get())
+
+
+
+
 
     pyrogue.pydm.runPyDM(root=root)
 
