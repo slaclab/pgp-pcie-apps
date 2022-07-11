@@ -36,52 +36,52 @@ rogue.Logging.setFilter('pyrogue.Block', rogue.Logging.Debug)
 parser = argparse.ArgumentParser()
 
 # Add arguments
-# parser.add_argument(
-#     "--dev",
-#     type     = str,
-#     required = False,
-#     default  = '/dev/datadev_0',
-#     help     = "path to device",
-# )
+parser.add_argument(
+    "--dev",
+    type     = str,
+    required = False,
+    default  = '/dev/datadev_0',
+    help     = "path to device",
+)
 
-# parser.add_argument(
-#     "--sim",
-#     action = 'store_true',
-#     default = False)
+parser.add_argument(
+    "--sim",
+    action = 'store_true',
+    default = False)
 
-# parser.add_argument(
-#     "--numLanes",
-#     "-l",
-#     type     = int,
-#     required = False,
-#     default  = 1,
-#     help     = "# of DMA Lanes",
-# )
+parser.add_argument(
+    "--numLanes",
+    "-l",
+    type     = int,
+    required = False,
+    default  = 1,
+    help     = "# of DMA Lanes",
+)
 
-# parser.add_argument(
-#     "--prbsWidth",
-#     "-w",
-#     type     = int,
-#     required = False,
-#     default  = 32,
-#     help     = "# of DMA Lanes",
-# )
+parser.add_argument(
+    "--prbsWidth",
+    "-w",
+    type     = int,
+    required = False,
+    default  = 32,
+    help     = "# of DMA Lanes",
+)
 
-# parser.add_argument(
-#     "--numVc",
-#     "-c",
-#     type     = int,
-#     required = False,
-#     default  = 1,
-#     help     = "# of channels per lane",
-# )
+parser.add_argument(
+    "--numVc",
+    "-c",
+    type     = int,
+    required = False,
+    default  = 1,
+    help     = "# of channels per lane",
+)
 
-# parser.add_argument(
-#     "--loopback",
-#     action = 'store_true',
-#     default  = False,
-#     help     = "Loop incomming prbs streams from firmware TX back to firmware RX"
-# )
+parser.add_argument(
+    "--loopback",
+    action = 'store_true',
+    default  = False,
+    help     = "Loop incomming prbs streams from firmware TX back to firmware RX"
+)
 
 
 parser.add_argument(
@@ -104,13 +104,13 @@ args = parser.parse_args()
 #################################################################
 
 class MyRoot(pr.Root):
-    def __init__(   self,
-                    dev,
-                    sim,
-                    numLanes,
-                    prbsWidth,
-                    numVc,
-                    loopback,
+    def __init__(   self = args.self,
+                    dev = args.dev,
+                    sim = args.sim,
+                    numLanes = args.numLanes,
+                    prbsWidth = args.prbsWidth,
+                    numVc = args.numVC,
+                    loopback = args.loopback,
             **kwargs):
         super().__init__(**kwargs)
 
