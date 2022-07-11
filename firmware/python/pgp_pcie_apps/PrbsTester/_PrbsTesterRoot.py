@@ -164,6 +164,6 @@ class PrbsRoot(pr.Root):
         def outputData():
             fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
 
-            for rg in range(fwRgDevices):
+            for rg in range(len(fwRgDevices)):
                 if(fwRgDevices[rg].TxEn):
                     print(f"Rategen[{rg}] BW:{fwRgDevices[rg].Bandwidth.get()}   FR:{fwRgDevices[rg].FrameRate.get()}")
