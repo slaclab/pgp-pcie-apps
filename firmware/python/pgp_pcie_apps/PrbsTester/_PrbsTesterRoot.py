@@ -31,27 +31,6 @@ import pgp_pcie_apps.PrbsTester as test
 
 rogue.Logging.setFilter('pyrogue.Block', rogue.Logging.Debug)
 
-
-# Set the argument parser
-parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    "--pollEn",
-    action = 'store_true',
-    default  = False,
-    help     = "Enable auto-polling",
-)
-
-parser.add_argument(
-    "--initRead",
-    action = 'store_true',
-    default  = False,
-    help     = "Enable read all variables at start",
-)
-
-# Get the arguments
-args = parser.parse_args()
-
 #################################################################
 
 class PrbsRoot(pr.Root):
@@ -180,17 +159,3 @@ class PrbsRoot(pr.Root):
             fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 rg.TxEn.set(False)
-
-#################################################################
-
-with PrbsRoot() as root:
-
-    swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
-    for rx in swRxDevices:
-        rx.checkPayload.set(False)
-
-    pyrogue.pydm.runPyDM(root=root)
-
-
-#################################################################
-

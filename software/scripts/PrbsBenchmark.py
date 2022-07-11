@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 ##############################################################################
 ## This file is part of 'PGP PCIe APP DEV'.
 ## It is subject to the license terms in the LICENSE.txt file found in the
@@ -12,6 +11,7 @@
 import setupLibPaths
 import sys
 import argparse
+import pgp_pcie_apps.PrbsTester as test
 
 import rogue
 import rogue.hardware.axi
@@ -21,16 +21,6 @@ import pyrogue as pr
 import pyrogue.pydm
 import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
-
-import axipcie            as pcie
-import surf.axi           as axi
-import surf.protocols.ssi as ssi
-import pgp_pcie_apps.PrbsTester as test
-
-#################################################################
-
-rogue.Logging.setFilter('pyrogue.Block', rogue.Logging.Debug)
-
 
 # Set the argument parser
 parser = argparse.ArgumentParser()
