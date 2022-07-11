@@ -160,6 +160,7 @@ class PrbsRoot(pr.Root):
             for rg in fwRgDevices:
                 rg.TxEn.set(False)
 
+        @self.command()
         def outputData():
             fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
 
