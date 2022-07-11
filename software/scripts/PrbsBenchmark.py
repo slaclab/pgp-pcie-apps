@@ -109,7 +109,7 @@ with test.PrbsRoot(
 
     fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
     root.EnableN(1)
-    for i in 9:
+    for i in range(9):
         root.SetAllPacketLengths(2**i)
 
         time.sleep(2.0)
