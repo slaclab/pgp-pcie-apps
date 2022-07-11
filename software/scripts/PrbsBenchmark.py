@@ -90,6 +90,24 @@ parser.add_argument(
     help     = "Enable read all variables at start",
 )
 
+parser.add_argument(
+    "--maxLanes",
+    "-maxL",
+    type     = int,
+    required = False,
+    default  = 0,
+    help     = "Max # of Active DMA Lanes for Collection",
+)
+
+parser.add_argument(
+    "--maxSize",
+    "-maxS",
+    type     = int,
+    required = False,
+    default  = 0,
+    help     = "Max Pcket Length for Collection",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -103,18 +121,43 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
 
-    # swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
-    # for rx in swRxDevices:
-    #     rx.checkPayload.set(False)
+    swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
+    for rx in swRxDevices:
+        rx.checkPayload.set(False)
 
-    fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
-    root.EnableN(1)
-    for i in range(9):
-        root.SetAllPacketLengths(2**i)
+    #fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
 
-        time.sleep(2.0)
-        
-        print(fwRgDevices[0].Bandwidth.get())
+    for enableLanes in range(1, args.maxLanes):
+
+        print(f"lanes enabled: {enableLanes}")
+
+        # enable channels
+        root.EnableN(enableLanes)
+
+        for currRate in range(1, 20):
+
+            print(f"current rate: {currRate*5000}")
+
+            # adjust rate
+            root.SetAllRates(currRate*5000)
+
+            for currLength in range(args.maxSize):
+
+                print(f"packet length: {2**currLength}")
+
+                # adjust lengths
+                root.SetAllPacketLengths(2**currLength)
+
+                # let data settle
+                time.sleep(2.0)
+
+                #reset data
+                #time.sleep(1.0)
+
+                # read data
+                #print(fwRgDevices[0].Bandwidth.get())
+                root.outputData()
+                print("////////////////////////////////////////////////////////")
 
 
 
@@ -124,3 +167,5 @@ with test.PrbsRoot(
 
 
 #################################################################
+
+
