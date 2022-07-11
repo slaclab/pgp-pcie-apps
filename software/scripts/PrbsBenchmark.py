@@ -92,7 +92,6 @@ parser.add_argument(
 
 parser.add_argument(
     "--maxLanes",
-    "-maxL",
     type     = int,
     required = False,
     default  = 0,
@@ -101,7 +100,6 @@ parser.add_argument(
 
 parser.add_argument(
     "--maxSize",
-    "-maxS",
     type     = int,
     required = False,
     default  = 0,
@@ -127,7 +125,7 @@ with test.PrbsRoot(
 
     #fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
 
-    for enableLanes in range(1, args.maxLanes):
+    for enableLanes in range(1, 8):
 
         print(f"lanes enabled: {enableLanes}")
 
@@ -141,7 +139,7 @@ with test.PrbsRoot(
             # adjust rate
             root.SetAllRates(currRate*5000)
 
-            for currLength in range(args.maxSize):
+            for currLength in range(20):
 
                 print(f"packet length: {2**currLength}")
 
