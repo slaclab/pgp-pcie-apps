@@ -36,52 +36,52 @@ rogue.Logging.setFilter('pyrogue.Block', rogue.Logging.Debug)
 parser = argparse.ArgumentParser()
 
 # Add arguments
-parser.add_argument(
-    "--dev",
-    type     = str,
-    required = False,
-    default  = '/dev/datadev_0',
-    help     = "path to device",
-)
+# parser.add_argument(
+#     "--dev",
+#     type     = str,
+#     required = False,
+#     default  = '/dev/datadev_0',
+#     help     = "path to device",
+# )
 
-parser.add_argument(
-    "--sim",
-    action = 'store_true',
-    default = False)
+# parser.add_argument(
+#     "--sim",
+#     action = 'store_true',
+#     default = False)
 
-parser.add_argument(
-    "--numLanes",
-    "-l",
-    type     = int,
-    required = False,
-    default  = 1,
-    help     = "# of DMA Lanes",
-)
+# parser.add_argument(
+#     "--numLanes",
+#     "-l",
+#     type     = int,
+#     required = False,
+#     default  = 1,
+#     help     = "# of DMA Lanes",
+# )
 
-parser.add_argument(
-    "--prbsWidth",
-    "-w",
-    type     = int,
-    required = False,
-    default  = 32,
-    help     = "# of DMA Lanes",
-)
+# parser.add_argument(
+#     "--prbsWidth",
+#     "-w",
+#     type     = int,
+#     required = False,
+#     default  = 32,
+#     help     = "# of DMA Lanes",
+# )
 
-parser.add_argument(
-    "--numVc",
-    "-c",
-    type     = int,
-    required = False,
-    default  = 1,
-    help     = "# of channels per lane",
-)
+# parser.add_argument(
+#     "--numVc",
+#     "-c",
+#     type     = int,
+#     required = False,
+#     default  = 1,
+#     help     = "# of channels per lane",
+# )
 
-parser.add_argument(
-    "--loopback",
-    action = 'store_true',
-    default  = False,
-    help     = "Loop incomming prbs streams from firmware TX back to firmware RX"
-)
+# parser.add_argument(
+#     "--loopback",
+#     action = 'store_true',
+#     default  = False,
+#     help     = "Loop incomming prbs streams from firmware TX back to firmware RX"
+# )
 
 
 parser.add_argument(
@@ -105,34 +105,38 @@ args = parser.parse_args()
 
 class MyRoot(pr.Root):
     def __init__(   self,
-#                    sim,
-#                    numLanes,
+                    dev,
+                    sim,
+                    numLanes,
+                    prbsWidth,
+                    numVc,
+                    loopback,
             **kwargs):
         super().__init__(**kwargs)
 
         # Create an arrays to be filled
-        self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLanes)]
-        self.prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLanes)]
-        self.prbRg     = [[None for x in range(args.numVc)] for y in range(args.numLanes)]
+        self.dmaStream = [[None for x in range(numVc)] for y in range(numLanes)]
+        self.prbsRx    = [[None for x in range(numVc)] for y in range(numLanes)]
+        self.prbRg     = [[None for x in range(numVc)] for y in range(numLanes)]
 
         # Create PCIE memory mapped interface
-        if args.sim:
+        if sim:
             self.memMap = rogue.interfaces.memory.TcpClient('localhost', 8000)
         else:
-            self.memMap = rogue.hardware.axi.AxiMemMap(args.dev,)
+            self.memMap = rogue.hardware.axi.AxiMemMap(dev,)
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
             offset      = 0x00000000,
             memBase     = self.memMap,
-            numDmaLanes = args.numLanes,
+            numDmaLanes = numLanes,
             expand      = True,
         ))
 
         # Add PRBS hardware
         self.add(test.Hardware(
-            numLanes = args.numLanes,
-            VCs = args.numVc,
+            numLanes = numLanes,
+            VCs = numVc,
             name    =("Hardware"),
             memBase = self.memMap,
             offset =  0x00800000,
@@ -180,20 +184,20 @@ class MyRoot(pr.Root):
             #     ))
 
         # Loop through the DMA channels
-        for lane in range(args.numLanes):
+        for lane in range(numLanes):
 
             # Loop through the virtual channels
-            for vc in range(args.numVc):
+            for vc in range(numVc):
 
                 # Set the DMA loopback channel
-                if args.sim:
+                if sim:
                     self.dmaStream[lane][vc] = rogue.interfaces.stream.TcpClient('localhost', 8002 + (512*lane) + (vc*2))
                 else:
-                    self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+                    self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(dev,(0x100*lane)+vc,1)
 
                 # self.dmaStream[lane][vc].setDriverDebug(0)
 
-                if (args.loopback):
+                if (loopback):
                     # Loopback the PRBS data
                     self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
 
@@ -202,7 +206,7 @@ class MyRoot(pr.Root):
                     # Connect the SW PRBS Receiver module
                     self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
                         name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
-                        width        = args.prbsWidth,
+                        width        = prbsWidth,
                         checkPayload = False,
                         expand       = False,
                     )
@@ -213,7 +217,7 @@ class MyRoot(pr.Root):
                     # Connect the SW PRBS Transmitter module
                     self.prbRg[lane][vc] = pr.utilities.prbs.PrbsTx(
                         name    = ('SwPrbsRateGen[%d][%d]'%(lane,vc)),
-                        width   = args.prbsWidth,
+                        width   = prbsWidth,
                         expand  = False,
                     )
                     self.prbRg[lane][vc] >> self.dmaStream[lane][vc]
