@@ -28,7 +28,7 @@ import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
 
 
-def readData(root, dbCon, iter):
+def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
     hwData = readHardwareData(root)
 
     for rows in hwData:
@@ -37,8 +37,8 @@ def readData(root, dbCon, iter):
     with dbCon:
 
         for data in hwData:
-            dbCon.execute("INSERT INTO raw_data (iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                            (iter, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]))
+            dbCon.execute("INSERT INTO raw_data (iteration_num, set_num_lanes, set_num_vc, set_rate, set_packet_length, lane, channel, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                            (iter, enableLanes, vcPerLane, currRate, currLength, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
 
 
 
@@ -55,6 +55,9 @@ def readHardwareData(root):
                 if root.Hardware.Lane[ln].FwPrbsRateGen[rg].TxEn.get():
 
                     # read data
+                    hwData[vcCount].append(ln)
+                    hwData[vcCount].append(rg)
+
                     hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRate.get())
                     hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRateMax.get())
                     hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRateMin.get())
@@ -166,7 +169,7 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
     
-    dbCon = sqlite3.connect("test2")
+    dbCon = sqlite3.connect("test3")
 
 #iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth
 
@@ -174,6 +177,12 @@ with test.PrbsRoot(
     CREATE TABLE IF NOT EXISTS raw_data (
                 id INTEGER PRIMARY KEY,
                 iteration_num INTEGER,
+                set_num_lanes INTEGER,
+                set_num_vc INTEGER,
+                set_rate INTEGER,
+                set_packet_length INTEGER,
+                lane INTEGER,
+                channel INTEGER,
                 tx_frame_rate FLOAT,
                 tx_frame_rate_max FLOAT,
                 tx_frame_rate_min FLOAT,
@@ -182,7 +191,7 @@ with test.PrbsRoot(
                 tx_bandwidth_min FLOAT,
                 rx_frame_rate FLOAT,
                 rx_bandwidth FLOAT,
-                timestamp TIMESTAMP NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')));
+                );
     """
     dbCon.executescript(stmt)
     
@@ -226,7 +235,7 @@ with test.PrbsRoot(
 
                 # read data
                 #print(fwRgDevices[0].Bandwidth.get())
-                readData(root, dbCon, iter)
+                readData(root, dbCon, iter, enableLanes, 1, currRate, currLength)
                 iter += 1
                 print("////////////////////////////////////////////////////////")
 
