@@ -166,14 +166,13 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
     
-    dbCon = sqlite3.connect("test")
+    dbCon = sqlite3.connect("test1")
 
 #iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth
 
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
-                id INTERGER PRIMARY KEY,
-                iteration_num INTEGER,
+                iteration_num INTEGER PRIMARY KEY,
                 tx_frame_rate FLOAT,
                 tx_frame_rate_max FLOAT,
                 tx_frame_rate_min FLOAT,
