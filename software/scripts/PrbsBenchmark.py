@@ -190,7 +190,7 @@ with test.PrbsRoot(
                 tx_bandwidth_max FLOAT,
                 tx_bandwidth_min FLOAT,
                 rx_frame_rate FLOAT,
-                rx_bandwidth FLOAT,
+                rx_bandwidth FLOAT
                 );
     """
     dbCon.executescript(stmt)
