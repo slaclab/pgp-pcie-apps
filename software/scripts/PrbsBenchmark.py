@@ -172,7 +172,7 @@ with test.PrbsRoot(
 
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
-                iteration_num INTEGER PRIMARY KEY,
+                iteration_num INTEGER,
                 tx_frame_rate FLOAT,
                 tx_frame_rate_max FLOAT,
                 tx_frame_rate_min FLOAT,
