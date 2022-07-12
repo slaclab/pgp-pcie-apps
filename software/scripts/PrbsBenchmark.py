@@ -28,27 +28,21 @@ import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
 
 
-def readData(root, args):
-    hwData = readHardwareData(root, args)
-    print(hwData)
+def readData(root, dbCon, iter):
+    hwData = readHardwareData(root)
 
-    # dbCon = sqlite3.connect("test")
+    for rows in hwData:
+        print(rows)
 
-    # stmt = """
-    # CREATE TABLE IF NOT EXISTS raw_data (
-    #             id INTEGER PRIMARY KEY,
-    #             session_id INTEGER,
-    #             db_channel INTEGER NOT NULL,
-    #             frame_channel INTEGER,
-    #             frame_error INTEGER,
-    #             frame_flags INTEGER,
-    #             frame_payload BLOB,
-    #             timestamp TIMESTAMP NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')));
-    # """
-    # dbCon.executescript(stmt)
+    with dbCon:
+
+        for data in hwData:
+            dbCon.execute("INSERT INTO raw_data (iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                            (iter, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]))
 
 
-def readHardwareData(root, args):
+
+def readHardwareData(root):
     hwData = [[]]
     vcCount = 0
 
@@ -171,12 +165,29 @@ with test.PrbsRoot(
     prbsWidth = args.prbsWidth, 
     numVc = args.numVc, 
     loopback = args.loopback) as root:
+    
+    dbCon = sqlite3.connect("test")
 
+    stmt = """
+    CREATE TABLE IF NOT EXISTS raw_data (
+                id INTEGER PRIMARY KEY,
+                session_id INTEGER,
+                db_channel INTEGER NOT NULL,
+                frame_channel INTEGER,
+                frame_error INTEGER,
+                frame_flags INTEGER,
+                frame_payload BLOB,
+                timestamp TIMESTAMP NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')));
+    """
+    dbCon.executescript(stmt)
+    
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
     for rx in swRxDevices:
         rx.checkPayload.set(False)
 
     #fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
+
+    iter = 0
 
     for enableLanes in range(1, 8):
 
@@ -209,7 +220,8 @@ with test.PrbsRoot(
 
                 # read data
                 #print(fwRgDevices[0].Bandwidth.get())
-                readData(root, args)
+                readData(root, dbCon, iter)
+                iter += 1
                 print("////////////////////////////////////////////////////////")
 
 
