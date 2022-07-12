@@ -57,7 +57,7 @@ def readHardwareData(root, args):
         if root.Hardware.Lane[ln].enable.get():
 
             # iterate through active channels
-            for rg in range(args.numVC):
+            for rg in range(args.numVc):
                 if root.Hardware.Lane[ln].FwPrbsRateGen[rg].TxEn.get():
 
                     # read data
