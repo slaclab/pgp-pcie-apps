@@ -216,12 +216,12 @@ with test.PrbsRoot(
                 root.SetAllPacketLengths(2**currLength)
 
                 # let data settle
-                time.sleep(1.2)
+                time.sleep(2.0)
 
                 #reset data
                 root.PurgeData()
 
-                time.sleep(1.7)
+                time.sleep(2.0)
 
                 # read data
                 #print(fwRgDevices[0].Bandwidth.get())
