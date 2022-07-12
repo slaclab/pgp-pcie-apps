@@ -194,27 +194,28 @@ with test.PrbsRoot(
 
     iter = 0
 
-    for enableLanes in range(1, 8):
+    
 
-        print(f"lanes enabled: {enableLanes}")
+    for currRate in range(1, 20):
 
-        # enable channels
-        root.EnableN(enableLanes)
+        print(f"current rate: {currRate*5000}")
 
-        for currRate in range(1, 20):
+        # adjust rate
+        root.SetAllRates(currRate*5000)
 
-            print(f"current rate: {currRate*5000}")
+        for currLength in range(1,20):
 
-            # adjust rate
-            root.SetAllRates(currRate*5000)
+            print(f"packet length: {2**currLength}")
 
-            for currLength in range(1,20):
+            # adjust lengths
+            root.SetAllPacketLengths(2**currLength)
 
-                print(f"packet length: {2**currLength}")
+            for enableLanes in range(1, 8):
 
-                # adjust lengths
-                root.SetAllPacketLengths(2**currLength)
+                print(f"lanes enabled: {enableLanes}")
 
+                # enable channels
+                root.EnableN(enableLanes)
                 # let data settle
                 time.sleep(2.0)
 
