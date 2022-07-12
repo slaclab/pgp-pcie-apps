@@ -172,4 +172,4 @@ class PrbsRoot(pr.Root):
         def PurgeData():
             fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
-                rg.TxEn.StatReset()
+                rg.StatReset()
