@@ -64,7 +64,7 @@ def readHardwareData(root):
                     hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMin.get())
 
                     hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate.get())
-                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxBw.get()/8.0)
+                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxBw.get()*8e-6)
 
                     # extend list and increment counter
                     hwData.append([])
@@ -208,7 +208,7 @@ with test.PrbsRoot(
             # adjust rate
             root.SetAllRates(currRate*5000)
 
-            for currLength in range(20):
+            for currLength in range(1,20):
 
                 print(f"packet length: {2**currLength}")
 
