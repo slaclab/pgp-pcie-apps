@@ -166,7 +166,7 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
     
-    dbCon = sqlite3.connect("test1")
+    dbCon = sqlite3.connect("test2")
 
 #iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth
 
@@ -216,12 +216,12 @@ with test.PrbsRoot(
                 root.SetAllPacketLengths(2**currLength)
 
                 # let data settle
-                time.sleep(2.0)
+                time.sleep(1.0)
 
                 #reset data
                 root.PurgeData()
 
-                time.sleep(1.0)
+                time.sleep(2.0)
 
                 # read data
                 #print(fwRgDevices[0].Bandwidth.get())
