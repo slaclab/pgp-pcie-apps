@@ -8,6 +8,8 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import time
+from array import *
+import sqlite3
 
 import setupLibPaths
 import sys
@@ -24,6 +26,57 @@ import pyrogue as pr
 import pyrogue.pydm
 import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
+
+
+def readData(root):
+    hwData = readHardwareData(root)
+    print(hwData)
+
+    # dbCon = sqlite3.connect("test")
+
+    # stmt = """
+    # CREATE TABLE IF NOT EXISTS raw_data (
+    #             id INTEGER PRIMARY KEY,
+    #             session_id INTEGER,
+    #             db_channel INTEGER NOT NULL,
+    #             frame_channel INTEGER,
+    #             frame_error INTEGER,
+    #             frame_flags INTEGER,
+    #             frame_payload BLOB,
+    #             timestamp TIMESTAMP NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')));
+    # """
+    # dbCon.executescript(stmt)
+
+
+def readHardwareData(root):
+    hwData = [[]]
+    vcCount = 0
+
+    # iterate through active lanes
+    for ln in range(args.numLanes):
+        if root.Hardware.Lane[ln].enable.get():
+
+            # iterate through active channels
+            for rg in range(args.numVC):
+                if root.Hardware.Lane[ln].FwPrbsRateGen[rg].TxEn.get():
+
+                    # read data
+                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRate.get())
+                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRateMax.get())
+                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRateMin.get())
+
+                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].Bandwidth.get())
+                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMax.get())
+                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMin.get())
+
+                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate)
+                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate)
+
+                    # extend list and increment counter
+                    hwData.append([])
+                    vcCount += 1
+
+    return hwData[0:len(hwData)-1]
 
 # Set the argument parser
 parser = argparse.ArgumentParser()
@@ -150,15 +203,14 @@ with test.PrbsRoot(
                 time.sleep(2.0)
 
                 #reset data
-                #time.sleep(1.0)
+                root.PurgeData()
+
+                time.sleep(1.0)
 
                 # read data
                 #print(fwRgDevices[0].Bandwidth.get())
-                root.outputData()
+                readData(root)
                 print("////////////////////////////////////////////////////////")
-
-
-
 
 
     pyrogue.pydm.runPyDM(root=root)
@@ -167,3 +219,5 @@ with test.PrbsRoot(
 #################################################################
 
 
+#collect data
+#write data
