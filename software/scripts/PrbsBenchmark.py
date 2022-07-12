@@ -38,7 +38,7 @@ def readData(root, dbCon, iter):
 
         for data in hwData:
             dbCon.execute("INSERT INTO raw_data (iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                            (iter, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]/8.0))
+                                            (iter, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]))
 
 
 
@@ -64,7 +64,7 @@ def readHardwareData(root):
                     hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMin.get())
 
                     hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate.get())
-                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxBw.get())
+                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxBw.get()/8.0)
 
                     # extend list and increment counter
                     hwData.append([])
