@@ -216,7 +216,7 @@ with test.PrbsRoot(
                 root.SetAllPacketLengths(2**currLength)
 
                 # let data settle
-                time.sleep(1.0)
+                time.sleep(2.0)
 
                 #reset data
                 root.PurgeData()
