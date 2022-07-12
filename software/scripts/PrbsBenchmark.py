@@ -38,7 +38,7 @@ def readData(root, dbCon, iter):
 
         for data in hwData:
             dbCon.execute("INSERT INTO raw_data (iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                            (iter, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]))
+                                            (iter, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]/8.0))
 
 
 
@@ -216,12 +216,12 @@ with test.PrbsRoot(
                 root.SetAllPacketLengths(2**currLength)
 
                 # let data settle
-                time.sleep(2.0)
+                time.sleep(1.2)
 
                 #reset data
                 root.PurgeData()
 
-                time.sleep(2.0)
+                time.sleep(1.7)
 
                 # read data
                 #print(fwRgDevices[0].Bandwidth.get())
