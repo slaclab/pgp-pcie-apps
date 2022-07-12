@@ -28,8 +28,8 @@ import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
 
 
-def readData(root):
-    hwData = readHardwareData(root)
+def readData(root, args):
+    hwData = readHardwareData(root, args)
     print(hwData)
 
     # dbCon = sqlite3.connect("test")
@@ -48,7 +48,7 @@ def readData(root):
     # dbCon.executescript(stmt)
 
 
-def readHardwareData(root):
+def readHardwareData(root, args):
     hwData = [[]]
     vcCount = 0
 
@@ -209,7 +209,7 @@ with test.PrbsRoot(
 
                 # read data
                 #print(fwRgDevices[0].Bandwidth.get())
-                readData(root)
+                readData(root, args)
                 print("////////////////////////////////////////////////////////")
 
 
