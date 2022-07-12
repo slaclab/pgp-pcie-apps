@@ -69,8 +69,8 @@ def readHardwareData(root, args):
                     hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMax.get())
                     hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMin.get())
 
-                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate)
-                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate)
+                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate.get())
+                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate.get())
 
                     # extend list and increment counter
                     hwData.append([])
