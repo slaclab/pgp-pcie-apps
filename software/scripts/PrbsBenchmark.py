@@ -168,15 +168,19 @@ with test.PrbsRoot(
     
     dbCon = sqlite3.connect("test")
 
+#iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth
+
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
-                id INTEGER PRIMARY KEY,
-                session_id INTEGER,
-                db_channel INTEGER NOT NULL,
-                frame_channel INTEGER,
-                frame_error INTEGER,
-                frame_flags INTEGER,
-                frame_payload BLOB,
+                iteration_num INTEGER PRIMARY KEY,
+                tx_frame_rate FLOAT,
+                tx_frame_rate_max FLOAT,
+                tx_frame_rate_min FLOAT,
+                tx_bandwidth FLOAT,
+                tx_bandwidth_max FLOAT,
+                tx_bandwidth_min FLOAT,
+                rx_frame_rate FLOAT,
+                rx_bandwidth FLOAT,
                 timestamp TIMESTAMP NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')));
     """
     dbCon.executescript(stmt)
