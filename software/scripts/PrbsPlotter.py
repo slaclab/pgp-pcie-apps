@@ -10,17 +10,23 @@ from pathlib import Path
 fig = plt.figure() 
 ax = plt.axes(projection='3d')
 
-zdata = 15 * np.random.random(100)
-xdata = np.sin(zdata) + 0.1 * np.random.randn(100)
-ydata = np.cos(zdata) + 0.1 * np.random.randn(100)
-ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens');
+zdata = []
+xdata = []
+ydata = []
 
-
-db_con = sqlite3.connect("~/pgp-pcie-apps/software/scripts/test3")
+db_con = sqlite3.connect("test3")
 cur = db_con.cursor()
-statement = '''SELECT * FROM raw_data'''
+statement = '''SELECT set_rate, set_packet_length, tx_bandwidth FROM raw_data'''
 
 cur.execute(statement)
 rows = cur.fetchall()
-print(rows[0:5])
+
+for rw in rows:
+    print(rw)
+    xdata.append(rw[0]*5000)
+    ydata.append(2**rw[1])
+    zdata.append(rw[2])
+
+
+ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens');
 plt.show()

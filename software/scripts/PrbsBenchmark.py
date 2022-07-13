@@ -29,11 +29,16 @@ import pyrogue.interfaces.simulation
 
 
 def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
+    
+    # read data from devices
     hwData = readHardwareData(root)
 
+    # print data to console
     for rows in hwData:
         print(rows)
+    print("////////////////////////////////////////////////////////")
 
+    # store data with SQL
     with dbCon:
 
         for data in hwData:
@@ -171,8 +176,6 @@ with test.PrbsRoot(
     
     dbCon = sqlite3.connect("test3")
 
-#iteration_num, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth
-
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
                 id INTEGER PRIMARY KEY,
@@ -199,11 +202,7 @@ with test.PrbsRoot(
     for rx in swRxDevices:
         rx.checkPayload.set(False)
 
-    #fwRgDevices = root.find(typ=ssi.SsiPrbsRateGen)
-
     iter = 0
-
-    
 
     for currRate in range(1, 20):
 
@@ -225,26 +224,23 @@ with test.PrbsRoot(
 
                 # enable channels
                 root.EnableN(enableLanes)
+
                 # let data settle
                 time.sleep(2.0)
 
-                #reset data
+                # reset data
                 root.PurgeData()
 
+                # allow time for data to be collected
                 time.sleep(2.0)
 
-                # read data
-                #print(fwRgDevices[0].Bandwidth.get())
+                # read and save data
                 readData(root, dbCon, iter, enableLanes, 1, currRate, currLength)
+
                 iter += 1
-                print("////////////////////////////////////////////////////////")
 
 
     pyrogue.pydm.runPyDM(root=root)
 
 
 #################################################################
-
-
-#collect data
-#write data
