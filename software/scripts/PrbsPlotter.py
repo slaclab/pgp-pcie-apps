@@ -34,8 +34,8 @@ def plot2D(x, y, labels):
     plt.plot(x, y, 'o', color = 'black')
 
 zdata = []
-xdata = [[]]*8
-ydata = [[]]*8
+xdata = [[]]*19
+ydata = [[]]*19
 
 
 db_con = sqlite3.connect("test3")
@@ -48,8 +48,8 @@ rows = cur.fetchall()
 for rw in rows:
     if(True):
         print(rw)
-        xdata[rw[1]].append(rw[0])
-        ydata[rw[1]].append(rw[4])
+        xdata[rw[2]].append(rw[0])
+        ydata[rw[2]].append(rw[4])
         zdata.append(rw[2])
 
 
