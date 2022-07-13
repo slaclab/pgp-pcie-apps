@@ -16,16 +16,17 @@ ydata = []
 
 db_con = sqlite3.connect("test3")
 cur = db_con.cursor()
-statement = '''SELECT set_rate, set_packet_length, tx_bandwidth FROM raw_data'''
+statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth FROM raw_data'''
 
 cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    print(rw)
-    xdata.append(rw[0]*5000)
-    ydata.append(2**rw[1])
-    zdata.append(rw[2])
+    if(rw[0]==0):
+        print(rw)
+        xdata.append(rw[1]*5000)
+        ydata.append(2**rw[2])
+        zdata.append(rw[3])
 
 
 ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens');
