@@ -36,7 +36,8 @@ def plot2D(x, y, labels):
 zdata = []
 xdata = [[]]*20
 ydata = [[]]*20
-
+x = []
+y = []
 
 db_con = sqlite3.connect("test3")
 cur = db_con.cursor()
@@ -50,10 +51,13 @@ for rw in rows:
         print(rw)
         xdata[rw[2]].append(rw[0])
         ydata[rw[2]].append(rw[4])
+        if rw[2] == 19:
+            x.append(rw[0])
+            y.append(rw[4])
         zdata.append(rw[2])
-print(xdata)
-print(ydata)
+print(x)
+print(y)
 
-plot2D(xdata, ydata, zdata)
-
+#plot2D(xdata, ydata, zdata)
+plt.plot(x, y, 'o', color = 'black')
 plt.show()
