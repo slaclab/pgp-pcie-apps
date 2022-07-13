@@ -22,12 +22,12 @@ def plot3D(x, y, z):
 
 def plot2D(x, y, labels):
     fig = plt.figure() 
-    fig, ax = plt.subplots(4, 1)
+    fig, ax = plt.subplots(5, 1)
 
     
 
     for dist in range(4):
-        plt.subplot(4,1, dist)
+        plt.subplot(4,1, dist+1)
         plt.plot(x[15+dist], y[15+dist], 'o', color = 'black')
         plt.set_title(f'set length: {(2**(15+dist))}')
 
