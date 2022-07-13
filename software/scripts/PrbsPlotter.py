@@ -29,4 +29,9 @@ for rw in rows:
 
 
 ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens');
+
+ax.set_xlabel('Rate')
+ax.set_ylabel('Packet Length')
+ax.set_zlabel('Bandwidth')
+
 plt.show()
