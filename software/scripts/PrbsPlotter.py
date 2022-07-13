@@ -22,7 +22,7 @@ def plot3D(x, y, z):
 
 def plot2D(x, y, labels):
     fig = plt.figure() 
-    fig, ax = plt.subplots(len(x))
+    fig, ax = plt.subplots(4)
 
     for dist in range(4):
         ax[dist].plot(x[dist], y[dist], 'o', color = 'black')
