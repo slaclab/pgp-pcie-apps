@@ -47,7 +47,7 @@ cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    if(rw[1]==19):
+    if(rw[1]==19 and rw[2]==19):
         print(rw)
         xdata[rw[2]].append(rw[0])
         ydata[rw[2]].append(rw[4])
@@ -55,9 +55,9 @@ for rw in rows:
             x.append(rw[0])
             y.append(rw[4])
         zdata.append(rw[2])
-print(x)
-print(y)
+print(xdata)
+print(ydata)
 
-#plot2D(xdata, ydata, zdata)
-plt.plot(x, y, 'o', color = 'black')
+plot2D(xdata, ydata, zdata)
+#plt.plot(x, y, 'o', color = 'black')
 plt.show()
