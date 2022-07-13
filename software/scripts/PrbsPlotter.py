@@ -51,7 +51,8 @@ for rw in rows:
         xdata[rw[2]].append(rw[0])
         ydata[rw[2]].append(rw[4])
         zdata.append(rw[2])
-
+print(xdata)
+print(ydata)
 
 plot2D(xdata, ydata, zdata)
 
