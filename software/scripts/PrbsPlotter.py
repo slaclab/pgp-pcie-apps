@@ -20,12 +20,23 @@ def plot3D(x, y, z):
     ax.set_ylabel('Packet Length')
     ax.set_zlabel('Bandwidth')
 
-def plot2D(x, y):
+def plot2D(x, y, labels):
+    fig = plt.figure() 
+    fig, ax = plt.sublots(len(x))
+
+    for dist in len(x):
+        ax[dist].plot(x[dist], y[dist], 'o', color = 'black')
+        ax[dist].set_title(f'set lenght: {2**labels[dist]}')
+
+            
+        
+
     plt.plot(x, y, 'o', color = 'black')
 
 zdata = []
-xdata = []
-ydata = []
+xdata = [[]]
+ydata = [[]]
+
 
 db_con = sqlite3.connect("test3")
 cur = db_con.cursor()
@@ -37,11 +48,11 @@ rows = cur.fetchall()
 for rw in rows:
     if(True):
         print(rw)
-        xdata.append(rw[0])
-        ydata.append(rw[4])
-        zdata.append(rw[3])
+        xdata[rw[1]].append(rw[0])
+        ydata[rw[1]].append(rw[4])
+        zdata.append(rw[2])
 
 
-plot2D(xdata, ydata)
+plot2D(xdata, ydata, zdata)
 
 plt.show()
