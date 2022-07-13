@@ -7,8 +7,21 @@ import os
 
 from pathlib import Path
 
-fig = plt.figure() 
-ax = plt.axes(projection='3d')
+
+
+def plot3D(x, y, z):
+
+    fig = plt.figure() 
+    ax = plt.axes(projection='3d')
+
+    ax.scatter3D(x, y, z, c=z, cmap='Greens')
+
+    ax.set_xlabel('Rate')
+    ax.set_ylabel('Packet Length')
+    ax.set_zlabel('Bandwidth')
+
+def plot2D(x, y):
+    plt.plot(x, y, 'o', color = 'black')
 
 zdata = []
 xdata = []
@@ -16,23 +29,19 @@ ydata = []
 
 db_con = sqlite3.connect("test3")
 cur = db_con.cursor()
-statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth FROM raw_data'''
+statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate FROM raw_data'''
 
 cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    if(rw[0]==1):
+    if(True):
         print(rw)
-        xdata.append(rw[1]*5000)
-        ydata.append(2**rw[2])
+        xdata.append(rw[0])
+        ydata.append(rw[4])
         zdata.append(rw[3])
 
 
-ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens');
-
-ax.set_xlabel('Rate')
-ax.set_ylabel('Packet Length')
-ax.set_zlabel('Bandwidth')
+plot2D(xdata, ydata)
 
 plt.show()
