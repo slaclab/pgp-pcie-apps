@@ -29,7 +29,7 @@ def plot2D(x, y, labels):
     for dist in range(4):
         plt.subplot(4,1, dist+1)
         plt.plot(x[15+dist], y[15+dist], 'o', color = 'black')
-        plt.set_title(f'set length: {(2**(15+dist))}')
+        #plt.set_title(f'set length: {(2**(15+dist))}')
 
             
         
