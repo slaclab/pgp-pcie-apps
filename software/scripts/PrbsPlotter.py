@@ -24,9 +24,9 @@ def plot2D(x, y, labels):
     fig = plt.figure() 
     fig, ax = plt.subplots(len(x))
 
-    for dist in range(len(x)):
+    for dist in len(4):
         ax[dist].plot(x[dist], y[dist], 'o', color = 'black')
-        ax[dist].set_title(f'set lenght: {2**labels[dist]}')
+        ax[dist].set_title(f'set length: {(2**labels[dist])}')
 
             
         
