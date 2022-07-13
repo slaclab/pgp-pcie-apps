@@ -22,7 +22,7 @@ cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    if(rw[0]==0):
+    if(rw[0]==1):
         print(rw)
         xdata.append(rw[1]*5000)
         ydata.append(2**rw[2])
