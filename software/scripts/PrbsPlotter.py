@@ -46,7 +46,7 @@ cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    if(True):
+    if(rw[1]==19):
         print(rw)
         xdata[rw[2]].append(rw[0])
         ydata[rw[2]].append(rw[4])
