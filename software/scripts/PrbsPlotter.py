@@ -1,3 +1,4 @@
+from pickle import FALSE
 from mpl_toolkits import mplot3d
 
 import numpy as np
@@ -23,11 +24,12 @@ def plot3D(x, y, z):
     ax.set_zlabel('Bandwidth')
 
 def plot2D(x, y, args):
-    fig, ax = plt.subplots(20)
+    fig, ax = plt.subplots(5)
 
     print(len(x))
     print(len(y))
     print(len(ax))
+
 
     for dist in range(args.lowerBound, args.upperBound):
         print(dist)
