@@ -47,7 +47,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--upperBound",
-    "-h",
+    "-t",
     type     = int,
     required = False,
     default  = 1,
