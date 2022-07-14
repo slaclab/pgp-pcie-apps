@@ -35,13 +35,16 @@ def plotHzVsNumVc(db_con, args):
     # initialize arrays
     xdata = [[]*20 for i in range(20)]
     ydata = [[]*20 for i in range(20)]
+    ytotal = [[0]*20 for i in range(20)]
+    xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1]
 
     # collect data
     for rw in rows:
-        if(True):
+        if(rw[1]==19):
             print(rw)
             xdata[rw[2]].append(rw[0])
             ydata[rw[2]].append(rw[4])
+            ytotal[rw[2]][rw[0]] += rw[4]
 
     # plot data
     for dist in range(args.lowerBound, args.upperBound):
@@ -52,6 +55,7 @@ def plotHzVsNumVc(db_con, args):
         ax[dist-args.lowerBound].set_ylabel('Hz')
         ax[dist-args.lowerBound].plot(xdata[dist], ydata[dist], 'o', color = 'black')
         ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
+        ax[dist-args.lowerBound].ploy(ytotal[dist], xtotals, 'o', color = 'red')
         
 
 # Set the argument parser
