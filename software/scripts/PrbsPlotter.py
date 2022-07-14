@@ -26,13 +26,16 @@ def plot3D(x, y, z):
 def plot2D(x, y, args):
     fig, ax = plt.subplots(5)
 
-    print(len(x))
-    print(len(y))
+    
     print(len(ax))
 
 
     for dist in range(args.lowerBound, args.upperBound):
+        print(len(x[dist]))
+        print(len(y[dist]))
+        print(x[dist])
         print(y[dist])
+        print("")
         ax[dist-10].plot(x[dist], y[dist], 'o', color = 'black')
         ax[dist-10].set_title(f'set length: {(2**(dist))}')
             
@@ -78,7 +81,7 @@ cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    if(rw[1]==19 and rw[2] == 19):
+    if(rw[1]==19):
         print(rw)
         xdata[rw[2]].append(rw[0])
         ydata[rw[2]].append(random.randint(0,100))
