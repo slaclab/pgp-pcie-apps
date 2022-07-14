@@ -49,6 +49,7 @@ def plotHzVsNumVc(db_con, args):
     for sets in range(20):
         plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = sets)
         plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = sets)
+    legend = plt.legend(loc = 'upper center')
 
     # plot data
     for dist in range(args.lowerBound, args.upperBound):
