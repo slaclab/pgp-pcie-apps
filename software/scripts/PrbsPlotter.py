@@ -38,10 +38,7 @@ def plot2D(x, y, args):
         print("")
         ax[dist-10].plot(x[dist], y[dist], 'o', color = 'black')
         ax[dist-10].set_title(f'set length: {(2**(dist))}')
-            
         
-
-    plt.plot(x, y, 'o', color = 'black')
 
 # Set the argument parser
 parser = argparse.ArgumentParser()
