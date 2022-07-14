@@ -55,7 +55,7 @@ def plotHzVsNumVc(db_con, args):
         ax[dist-args.lowerBound].set_ylabel('Hz')
         ax[dist-args.lowerBound].plot(xdata[dist], ydata[dist], 'o', color = 'black')
         ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
-        ax[dist-args.lowerBound].plot(ytotal[dist], xtotals, 'o', color = 'red')
+        ax[dist-args.lowerBound].plot(xtotals, ytotal[dist], 'o', color = 'red')
         
 
 # Set the argument parser
