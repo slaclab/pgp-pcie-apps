@@ -218,7 +218,7 @@ with test.PrbsRoot(
             # adjust lengths
             root.SetAllPacketLengths(2**currLength)
 
-            for enableLanes in range(1, 8):
+            for enableLanes in range(1, 9):
 
                 print(f"lanes enabled: {enableLanes}")
 

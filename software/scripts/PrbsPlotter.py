@@ -96,7 +96,6 @@ def plotBwVsNumVc(db_con, args):
     ydata = [[]*20 for i in range(20)]
     ytotal = [[0]*7 for i in range(20)]
     bwtot = [[0]*7 for i in range(20)]
-    #yexpected = [[0]*7 for i in range(20)]
     xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1]
 
     # collect data
@@ -107,7 +106,6 @@ def plotBwVsNumVc(db_con, args):
             ydata[rw[2]].append(rw[3])
             ytotal[rw[2]][rw[0]-1] += rw[3]
             bwtot[rw[2]][rw[0]-1] += rw[3]
-           # yexpected[rw[2]][rw[0]-1] += 48e9/((2**rw[2])*rw[0])
 
     for sets in range(20):
         plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
