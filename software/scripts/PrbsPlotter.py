@@ -47,8 +47,8 @@ def plotHzVsNumVc(db_con, args):
             ytotal[rw[2]][rw[0]-1] += rw[4]
 
     for sets in range(20):
-        plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = sets)
-        plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = sets)
+        plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
+        plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
     legend = plt.legend(loc = 'best')
 
     # plot data
