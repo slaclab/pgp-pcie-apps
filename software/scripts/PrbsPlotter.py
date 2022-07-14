@@ -76,7 +76,7 @@ for rw in rows:
         xdata[rw[2]].append(rw[0])
         ydata[rw[2]].append(random.randint(0,100))
         if rw[2] == 19:
-            x.append(rw[random.randrange(0,100)])
+            x.append(random.randrange(0,100))
             y.append(rw[4])
         zdata.append(rw[2])
 print(xdata)
