@@ -55,8 +55,10 @@ def plotHzVsNumVc(db_con, args):
             plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
             plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
         else:
-            print("skipping: " + ydata[sets])
-            print("because bandwidth = " + bwtot[sets])
+            print("skipping:\n")
+            print(ydata[sets])
+            print("because bandwidth = ")
+            print(bwtot[sets])
         #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
     legend = plt.legend(loc = 'best')
 
