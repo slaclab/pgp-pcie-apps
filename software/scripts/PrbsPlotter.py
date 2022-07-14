@@ -22,7 +22,7 @@ def plot3D(x, y, z):
     ax.set_zlabel('Bandwidth')
 
 def plotHzVsNumVc(db_con, args):
-    fig, ax = plt.subplots(args.upperBound-args.lowerBound)
+    #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
 
     # prep data base for query
     cur = db_con.cursor()
@@ -46,16 +46,20 @@ def plotHzVsNumVc(db_con, args):
             ydata[rw[2]].append(rw[4])
             ytotal[rw[2]][rw[0]-1] += rw[4]
 
+    for sets in range(20):
+        plt.plot(xdata[sets], ydata[sets], 'o', color = 'black', linestyle = 'solid')
+        plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed')
+
     # plot data
     for dist in range(args.lowerBound, args.upperBound):
         print(xdata[dist])
         print(ydata[dist])
         print("")
-        ax[dist-args.lowerBound].set_xlabel('Active # of VC')
-        ax[dist-args.lowerBound].set_ylabel('Hz')
-        ax[dist-args.lowerBound].plot(xdata[dist], ydata[dist], 'o', color = 'black', linestyle = 'solid')
-        ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
-        ax[dist-args.lowerBound].plot(xtotals, ytotal[dist], 'o', color = 'red', linestyle = 'solid')
+        #ax[dist-args.lowerBound].set_xlabel('Active # of VC')
+        #ax[dist-args.lowerBound].set_ylabel('Hz')
+        #ax[dist-args.lowerBound].plot(xdata[dist], ydata[dist], 'o', color = 'black', linestyle = 'solid')
+        #ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
+        #ax[dist-args.lowerBound].plot(xtotals, ytotal[dist], 'o', color = 'red', linestyle = 'solid')
         
 
 # Set the argument parser
