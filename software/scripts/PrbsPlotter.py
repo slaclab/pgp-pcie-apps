@@ -36,7 +36,7 @@ def plotHzVsNumVc(db_con, args):
     xdata = [[]*20 for i in range(20)]
     ydata = [[]*20 for i in range(20)]
     ytotal = [[0]*7 for i in range(20)]
-    bwtot = [0]*20
+    bwtot = [[0]*7 for i in range(20)]
     #yexpected = [[0]*7 for i in range(20)]
     xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1]
 
@@ -47,13 +47,19 @@ def plotHzVsNumVc(db_con, args):
             xdata[rw[2]].append(rw[0])
             ydata[rw[2]].append(rw[4])
             ytotal[rw[2]][rw[0]-1] += rw[4]
-            bwtot[rw[2]] += rw[3]
+            bwtot[rw[2]][rw[0]-1] += rw[3]
            # yexpected[rw[2]][rw[0]-1] += 48e9/((2**rw[2])*rw[0])
 
     for sets in range(20):
-        if(bwtot[sets] < 42000):
-            plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
-            plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
+        skip = False
+        for bw in range(len(bwtot[sets])):
+            
+            if(bwtot[sets][bw] < 420000):
+                skip = True
+
+        if(not skip):
+            plt.plot(xdata[sets][bw], ydata[sets][bw], 'o', linestyle = 'solid', label = (sets+1))
+            plt.plot(xtotals, ytotal[sets][bw], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
         else:
             print("skipping:\n")
             print(ydata[sets])
