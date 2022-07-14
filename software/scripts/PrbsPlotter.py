@@ -24,7 +24,7 @@ def plot3D(x, y, z):
     ax.set_zlabel('Bandwidth')
 
 def plot2D(x, y, args):
-    fig, ax = plt.subplots(5)
+    fig, ax = plt.subplots(args.upperBound-args.lowerBound)
 
     
     print(len(ax))
@@ -36,8 +36,8 @@ def plot2D(x, y, args):
         print(x[dist])
         print(y[dist])
         print("")
-        ax[dist-10].plot(x[dist], y[dist], 'o', color = 'black')
-        ax[dist-10].set_title(f'set length: {(2**(dist))}')
+        ax[dist-args.lowerBound].plot(x[dist], y[dist], 'o', color = 'black')
+        ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
         
 
 # Set the argument parser
@@ -81,7 +81,7 @@ for rw in rows:
     if(rw[1]==19):
         print(rw)
         xdata[rw[2]].append(rw[0])
-        ydata[rw[2]].append(random.randint(0,100))
+        ydata[rw[2]].append(rw[4])
         if rw[2] == 19:
             x.append(random.randrange(0,100))
             y.append(rw[4])
