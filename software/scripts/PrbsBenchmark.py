@@ -43,16 +43,17 @@ def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
 
         for data in hwData:
             dbCon.execute("INSERT INTO raw_data (iteration_num, set_num_lanes, set_num_vc, set_rate, set_packet_length, lane, channel, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                            (iter, enableLanes, vcPerLane, currRate, currLength, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
-
-
+                                            (iter, enableLanes, vcPerLane, currRate*5000, 2**currLength, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
 
 def readHardwareData(root):
     hwData = [[]]
     vcCount = 0
+    totalBW = 0
+    totalFR = 0
 
     # iterate through active lanes
     for ln in range(args.numLanes):
+
         if root.Hardware.Lane[ln].enable.get():
 
             # iterate through active channels
@@ -74,11 +75,29 @@ def readHardwareData(root):
                     hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate.get())
                     hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxBw.get()*8e-6)
 
+                    totalBW += root.Hardware.Lane[ln].FwPrbsRateGen[rg].Bandwidth.get()
+                    totalFR += root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRate.get()
+
                     # extend list and increment counter
                     hwData.append([])
                     vcCount += 1
 
-    return hwData[0:len(hwData)-1]
+    #store agregates
+    hwData[vcCount].append(-1)
+    hwData[vcCount].append(-1)
+
+    hwData[vcCount].append(totalFR)
+    hwData[vcCount].append(totalFR)
+    hwData[vcCount].append(totalFR)
+
+    hwData[vcCount].append(totalBW)
+    hwData[vcCount].append(totalBW)
+    hwData[vcCount].append(totalBW)
+
+    hwData[vcCount].append(-1)
+    hwData[vcCount].append(-1)
+
+    return hwData
 
 # Set the argument parser
 parser = argparse.ArgumentParser()
