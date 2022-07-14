@@ -25,7 +25,7 @@ def plot3D(x, y, z):
 def plot2D(x, y, args):
     ax = plt.subplots(len(x))
 
-    for dist in range(args.l, args.h):
+    for dist in range(args.lowerBound, args.upperBound):
         ax[dist].plot(x[dist], y[dist], 'o', color = 'black')
         ax[dist].set_title(f'set length: {(2**(dist))}')
             
