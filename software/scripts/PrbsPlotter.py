@@ -23,7 +23,7 @@ def plot3D(x, y, z):
     ax.set_zlabel('Bandwidth')
 
 def plot2D(x, y, args):
-    ax = plt.subplots(len(x), 1)
+    ax = plt.subplots(20)
 
     print(len(x))
     print(len(y))
