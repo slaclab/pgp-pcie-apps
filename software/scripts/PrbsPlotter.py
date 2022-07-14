@@ -54,7 +54,7 @@ def plotHzVsNumVc(db_con, args):
         skip = False
         for bw in range(len(bwtot[sets])):
             
-            if(bwtot[sets][bw] < 420000):
+            if(bwtot[sets][bw] > 48000):
                 skip = True
 
         if(not skip):
