@@ -58,8 +58,8 @@ def plotHzVsNumVc(db_con, args):
                 skip = True
 
         if(not skip):
-            plt.plot(xdata[sets][bw], ydata[sets][bw], 'o', linestyle = 'solid', label = (sets+1))
-            plt.plot(xtotals, ytotal[sets][bw], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
+            plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
+            plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
         else:
             print("skipping:\n")
             print(ydata[sets])
