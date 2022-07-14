@@ -33,8 +33,8 @@ def plot2D(x, y, args):
 
     for dist in range(args.lowerBound, args.upperBound):
         print(dist)
-        ax[dist].plot(x[dist], y[dist], 'o', color = 'black')
-        ax[dist].set_title(f'set length: {(2**(dist))}')
+        ax[dist-10].plot(x[dist], y[dist], 'o', color = 'black')
+        ax[dist-10].set_title(f'set length: {(2**(dist))}')
             
         
 
