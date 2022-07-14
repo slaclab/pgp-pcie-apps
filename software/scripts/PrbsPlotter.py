@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3
 import os
+import argparse
+import random
 
 from pathlib import Path
 
@@ -20,21 +22,40 @@ def plot3D(x, y, z):
     ax.set_ylabel('Packet Length')
     ax.set_zlabel('Bandwidth')
 
-def plot2D(x, y, labels):
-    fig = plt.figure() 
-    fig, ax = plt.subplots(5, 1)
+def plot2D(x, y, args):
+    ax = plt.subplots(len(x))
 
-    
-
-    for dist in range(4):
-        plt.subplot(4,1, dist+1)
-        plt.plot(x[15+dist], y[15+dist], 'o', color = 'black')
-        #plt.set_title(f'set length: {(2**(15+dist))}')
-
+    for dist in range(args.l, args.h):
+        ax[dist].plot(x[dist], y[dist], 'o', color = 'black')
+        ax[dist].set_title(f'set length: {(2**(dist))}')
             
         
 
     plt.plot(x, y, 'o', color = 'black')
+
+# Set the argument parser
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--lowerBound",
+    "-l",
+    type     = int,
+    required = False,
+    default  = 0,
+    help     = "lower bound for plot range",
+)
+
+parser.add_argument(
+    "--upperBound",
+    "-h",
+    type     = int,
+    required = False,
+    default  = 1,
+    help     = "upper bound for number of plots",
+)
+
+# Get the arguments
+args = parser.parse_args()
 
 zdata = []
 xdata = [[]]*20
@@ -50,17 +71,17 @@ cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    if(rw[1]==19 and rw[2]==19):
+    if(rw[1]==19):
         print(rw)
         xdata[rw[2]].append(rw[0])
-        ydata[rw[2]].append(rw[4])
+        ydata[rw[2]].append(random.randint(0,100))
         if rw[2] == 19:
-            x.append(rw[0])
+            x.append(rw[random.randrange(0,100)])
             y.append(rw[4])
         zdata.append(rw[2])
 print(xdata)
 print(ydata)
 
-plot2D(xdata, ydata, zdata)
+plot2D(xdata, ydata, args)
 #plt.plot(x, y, 'o', color = 'black')
 plt.show()
