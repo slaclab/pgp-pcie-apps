@@ -65,8 +65,8 @@ parser.add_argument(
 args = parser.parse_args()
 
 zdata = []
-xdata = [[]]*20
-ydata = [[]]*20
+xdata = [[]*20 for i in range(20)]
+ydata = [[]*20 for i in range(20)]
 x = []
 y = []
 
@@ -78,7 +78,7 @@ cur.execute(statement)
 rows = cur.fetchall()
 
 for rw in rows:
-    if(rw[1]==19):
+    if(rw[1]==19 and rw[2] == 19):
         print(rw)
         xdata[rw[2]].append(rw[0])
         ydata[rw[2]].append(random.randint(0,100))
@@ -86,7 +86,6 @@ for rw in rows:
             x.append(random.randrange(0,100))
             y.append(rw[4])
         zdata.append(rw[2])
-print(xdata)
 print(ydata)
 
 plot2D(xdata, ydata, args)
