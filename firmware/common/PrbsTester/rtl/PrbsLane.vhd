@@ -30,7 +30,8 @@ use axi_pcie_core.AxiPciePkg.all;
 entity PrbsLane is
    generic (
       TPD_G             : time                    := 1 ns;
-      NUM_VC_G          : positive range 1 to 8   := 4;  -- Will overflow axi-lite address space if larger
+      COMMON_CLOCK_G    : boolean                 := false;
+      NUM_VC_G          : positive range 1 to 128 := 4;  -- Will overflow axi-lite address space if larger
       PRBS_SEED_SIZE_G  : natural range 32 to 512 := 32;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0)        := (others => '0'));
@@ -58,7 +59,7 @@ architecture mapping of PrbsLane is
 
    constant NUM_AXI_MASTERS_C : natural := 2*NUM_VC_G;
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 16, 12);
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 16, 8);
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
@@ -70,6 +71,8 @@ architecture mapping of PrbsLane is
 
    signal dmaObMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal dmaObSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
+
+   signal disableSel : slv(NUM_VC_G-1 downto 0);
 
 begin
 
@@ -126,6 +129,8 @@ begin
       U_SsiPrbsRx : entity surf.SsiPrbsRx
          generic map (
             TPD_G                     => TPD_G,
+            GEN_SYNC_FIFO_G           => COMMON_CLOCK_G,
+            FIFO_INT_WIDTH_SELECT_G   => "NARROW",
             PRBS_SEED_SIZE_G          => PRBS_SEED_SIZE_G,
             SLAVE_AXI_PIPE_STAGES_G   => 1,
             SLAVE_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
@@ -140,30 +145,31 @@ begin
             axiReadSlave   => axilReadSlaves(2*i+1),
             axiWriteMaster => axilWriteMasters(2*i+1),
             axiWriteSlave  => axilWriteSlaves(2*i+1));
-            
+
       U_SsiPrbsRateGen : entity surf.SsiPrbsRateGen
-          generic map (
-                TPD_G                      => TPD_G,
-                PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
-                VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
-                VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
-                AXIS_CONFIG_G              => DMA_AXIS_CONFIG_G,
-                AXIS_CLK_FREQ_G            => 250.0E+6,
-                USE_AXIL_CLK_G             => true)
-                
-             port map (
-                -- Master Port (mAxisClk)
-                mAxisClk        => dmaClk,
-                mAxisRst        => dmaRst,
-                mAxisMaster     => dmaIbMasters(i),
-                mAxisSlave      => dmaIbSlaves(i),
-                -- Optional: Axi-Lite Register Interface 
-                axilClk => axilClk,
-                axilRst => axilRst,
-                axilReadMaster  => axilReadMasters(2*i+0),
-                axilReadSlave   => axilReadSlaves(2*i+0),
-                axilWriteMaster => axilWriteMasters(2*i+0),
-                axilWriteSlave  => axilWriteSlaves(2*i+0));
+         generic map (
+            TPD_G                   => TPD_G,
+            FIFO_INT_WIDTH_SELECT_G => "NARROW",
+            PRBS_SEED_SIZE_G        => PRBS_SEED_SIZE_G,
+            PRBS_FIFO_PIPE_STAGES_G => 1,
+            VALID_THOLD_G           => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
+            VALID_BURST_MODE_G      => ite(NUM_VC_G = 1, false, true),
+            AXIS_CONFIG_G           => DMA_AXIS_CONFIG_G,
+            AXIS_CLK_FREQ_G         => 250.0E+6,
+            USE_AXIL_CLK_G          => not COMMON_CLOCK_G)
+         port map (
+            -- Master Port (mAxisClk)
+            mAxisClk        => dmaClk,
+            mAxisRst        => dmaRst,
+            mAxisMaster     => dmaIbMasters(i),
+            mAxisSlave      => dmaIbSlaves(i),
+            -- Optional: Axi-Lite Register Interface 
+            axilClk         => axilClk,
+            axilRst         => axilRst,
+            axilReadMaster  => axilReadMasters(2*i+0),
+            axilReadSlave   => axilReadSlaves(2*i+0),
+            axilWriteMaster => axilWriteMasters(2*i+0),
+            axilWriteSlave  => axilWriteSlaves(2*i+0));
 
    end generate GEN_VC;
 
@@ -177,6 +183,10 @@ begin
       dmaIbSlaves(0) <= dmaIbSlave;
 
    end generate;
+
+   DISABLE_SEL_GEN : for i in NUM_VC_G-1 downto 0 generate
+      disableSel(i) <= dmaBuffGrpPause(i mod 7);
+   end generate DISABLE_SEL_GEN;
 
 
    GEN_MUX : if (NUM_VC_G /= 1) generate
@@ -212,7 +222,7 @@ begin
             axisClk      => dmaClk,
             axisRst      => dmaRst,
             -- Slaves
-            disableSel   => dmaBuffGrpPause(NUM_VC_G-1 downto 0),
+            disableSel   => disableSel,  --dmaBuffGrpPause(NUM_VC_G-1 downto 0),
             sAxisMasters => dmaIbMasters,
             sAxisSlaves  => dmaIbSlaves,
             -- Master
