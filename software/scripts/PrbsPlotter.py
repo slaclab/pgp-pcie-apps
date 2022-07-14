@@ -10,8 +10,6 @@ import random
 
 from pathlib import Path
 
-
-
 def plot3D(x, y, z):
 
     fig = plt.figure() 
@@ -23,20 +21,36 @@ def plot3D(x, y, z):
     ax.set_ylabel('Packet Length')
     ax.set_zlabel('Bandwidth')
 
-def plot2D(x, y, args):
+def plotHzVsNumVc(db_con, args):
     fig, ax = plt.subplots(args.upperBound-args.lowerBound)
 
-    
-    print(len(ax))
+    # prep data base for query
+    cur = db_con.cursor()
+    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate FROM raw_data'''
 
+    # get data from data base
+    cur.execute(statement)
+    rows = cur.fetchall()
 
+    # initialize arrays
+    xdata = [[]*20 for i in range(20)]
+    ydata = [[]*20 for i in range(20)]
+
+    # collect data
+    for rw in rows:
+        if(True):
+            print(rw)
+            xdata[rw[2]].append(rw[0])
+            ydata[rw[2]].append(rw[4])
+
+    # plot data
     for dist in range(args.lowerBound, args.upperBound):
-        print(len(x[dist]))
-        print(len(y[dist]))
-        print(x[dist])
-        print(y[dist])
+        print(xdata[dist])
+        print(ydata[dist])
         print("")
-        ax[dist-args.lowerBound].plot(x[dist], y[dist], 'o', color = 'black')
+        ax[dist-args.lowerBound].set_xlabel('Active # of VC')
+        ax[dist-args.lowerBound].set_ylabel('Hz')
+        ax[dist-args.lowerBound].plot(xdata[dist], ydata[dist], 'o', color = 'black')
         ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
         
 
@@ -65,29 +79,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 zdata = []
-xdata = [[]*20 for i in range(20)]
-ydata = [[]*20 for i in range(20)]
-x = []
-y = []
 
 db_con = sqlite3.connect("test3")
-cur = db_con.cursor()
-statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate FROM raw_data'''
 
-cur.execute(statement)
-rows = cur.fetchall()
+plotHzVsNumVc(db_con, args)
 
-for rw in rows:
-    if(rw[1]==19):
-        print(rw)
-        xdata[rw[2]].append(rw[0])
-        ydata[rw[2]].append(rw[4])
-        if rw[2] == 19:
-            x.append(random.randrange(0,100))
-            y.append(rw[4])
-        zdata.append(rw[2])
-print(ydata)
-
-plot2D(xdata, ydata, args)
-#plt.plot(x, y, 'o', color = 'black')
 plt.show()
