@@ -35,7 +35,7 @@ def plotHzVsNumVc(db_con, args):
     # initialize arrays
     xdata = [[]*20 for i in range(20)]
     ydata = [[]*20 for i in range(20)]
-    ytotal = [[0]*20 for i in range(20)]
+    ytotal = [[0]*7 for i in range(20)]
     xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1]
 
     # collect data
