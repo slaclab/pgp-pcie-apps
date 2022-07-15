@@ -7,6 +7,7 @@ import sqlite3
 import os
 import argparse
 import random
+import math
 
 from pathlib import Path
 
@@ -104,11 +105,11 @@ def plotBwVsNumVc(db_con, args):
     for rw in rows:
         if(rw[1]==19):
             if(rw[6] == -1):
-                bwtot[rw[2]].append(rw[3])
+                bwtot[math.log2(rw[2])].append(rw[3])
             else:
                 print(rw)
-                xdata[rw[2]].append(rw[0])
-                ydata[rw[2]].append(rw[3])
+                xdata[math.log2(rw[2])].append(rw[0])
+                ydata[math.log2(rw[2])].append(rw[3])
                 
 
     for sets in range(20):
