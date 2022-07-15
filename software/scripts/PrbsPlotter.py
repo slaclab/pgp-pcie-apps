@@ -116,7 +116,7 @@ def plotBwVsNumVc(db_con, args):
     for max in bwtot:
         print(max)
 
-    for sets in range(20):
+    for sets in range(19):
         plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
         plt.plot(xtotals, bwtot[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
         #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
