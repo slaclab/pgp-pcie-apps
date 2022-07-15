@@ -105,6 +105,7 @@ def plotBwVsNumVc(db_con, args):
     for rw in rows:
         if(rw[1]==19):
             if(rw[6] == -1):
+                print(rw)
                 bwtot[math.log2(rw[2])].append(rw[3])
             else:
                 print(rw)
