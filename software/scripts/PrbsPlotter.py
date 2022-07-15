@@ -103,9 +103,10 @@ def plotBwVsNumVc(db_con, args):
 
     # collect data
     for rw in rows:
-        if(rw[1]==19):
+        if(rw[1]==19*5000):
             if(rw[6] == -1):
                 print(rw)
+                print("")
                 bwtot[math.log2(rw[2])].append(rw[3])
             else:
                 print(rw)
