@@ -32,6 +32,7 @@ entity PrbsLane is
       TPD_G             : time                    := 1 ns;
       COMMON_CLOCK_G    : boolean                 := false;
       NUM_VC_G          : positive range 1 to 128 := 4;  -- Will overflow axi-lite address space if larger
+      PRBS_FIFO_INT_WIDTH_SELECT_G : string := "NARRAOW";
       PRBS_SEED_SIZE_G  : natural range 32 to 512 := 32;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_BASE_ADDR_G   : slv(31 downto 0)        := (others => '0'));
@@ -130,7 +131,7 @@ begin
          generic map (
             TPD_G                     => TPD_G,
             GEN_SYNC_FIFO_G           => COMMON_CLOCK_G,
-            FIFO_INT_WIDTH_SELECT_G   => "NARROW",
+            FIFO_INT_WIDTH_SELECT_G   => PRBS_FIFO_INT_WIDTH_SELECT_G,
             PRBS_SEED_SIZE_G          => PRBS_SEED_SIZE_G,
             SLAVE_AXI_PIPE_STAGES_G   => 1,
             SLAVE_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)

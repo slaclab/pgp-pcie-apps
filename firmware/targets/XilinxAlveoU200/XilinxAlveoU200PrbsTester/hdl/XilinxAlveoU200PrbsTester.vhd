@@ -286,12 +286,13 @@ begin
    ---------------
    U_Hardware : entity work.Hardware
       generic map (
-         TPD_G             => TPD_G,
-         DMA_SIZE_G        => DMA_SIZE_G,
-         NUM_VC_G          => NUM_VC_G,
-         PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
-         AXI_BASE_ADDR_G   => AXIL_XBAR_CONFIG_C(4).baseAddr)
+         TPD_G                        => TPD_G,
+         DMA_SIZE_G                   => DMA_SIZE_G,
+         NUM_VC_G                     => NUM_VC_G,
+         PRBS_SEED_SIZE_G             => PRBS_SEED_SIZE_G,
+         PRBS_FIFO_INT_WIDTH_SELECT_G => "WIDE",
+         DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_C,
+         AXI_BASE_ADDR_G              => AXIL_XBAR_CONFIG_C(4).baseAddr)
       port map (
          -- AXI-Lite Interface
          axilClk         => axilClk,

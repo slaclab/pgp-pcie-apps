@@ -32,12 +32,13 @@ use unisim.vcomponents.all;
 
 entity Hardware is
    generic (
-      TPD_G             : time                    := 1 ns;
-      DMA_SIZE_G        : positive                := 1;
-      NUM_VC_G          : positive                := 1;
-      PRBS_SEED_SIZE_G  : natural range 32 to 512 := 32;
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      AXI_BASE_ADDR_G   : slv(31 downto 0)        := x"0080_0000");
+      TPD_G                        : time                    := 1 ns;
+      DMA_SIZE_G                   : positive                := 1;
+      NUM_VC_G                     : positive                := 1;
+      PRBS_SEED_SIZE_G             : natural range 32 to 512 := 32;
+      PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "NARRAOW";
+      DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
+      AXI_BASE_ADDR_G              : slv(31 downto 0)        := x"0080_0000");
    port (
       -- AXI-Lite Interface
       axilClk         : in  sl;
@@ -121,12 +122,13 @@ begin
 
       U_PrbsLane : entity work.PrbsLane
          generic map(
-            TPD_G             => TPD_G,
-            COMMON_CLOCK_G    => true,
-            NUM_VC_G          => NUM_VC_G,
-            DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-            PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
-            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
+            TPD_G                        => TPD_G,
+            COMMON_CLOCK_G               => true,
+            NUM_VC_G                     => NUM_VC_G,
+            DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_G,
+            PRBS_SEED_SIZE_G             => PRBS_SEED_SIZE_G,
+            PRBS_FIFO_INT_WIDTH_SELECT_G => PRBS_FIFO_INT_WIDTH_SELECT_G,
+            AXI_BASE_ADDR_G              => AXI_CONFIG_C(i).baseAddr)
          port map(
             -- DMA Interface
             dmaClk          => dmaClk,
