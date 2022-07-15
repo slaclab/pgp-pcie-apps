@@ -43,7 +43,7 @@ def plotHzVsNumVc(db_con, args):
     # collect data
     for rw in rows:
         if(rw[1]==19):
-            if(rw[0] == -1):
+            if(rw[6] == -1):
                 ytotal[rw[2]].append(rw[4])
                 bwtot[rw[2]].append(rw[3])
             else:
@@ -88,7 +88,7 @@ def plotBwVsNumVc(db_con, args):
 
     # prep data base for query
     cur = db_con.cursor()
-    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate, iteration_num FROM raw_data'''
+    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate, iteration_num, lane FROM raw_data'''
 
     # get data from data base
     cur.execute(statement)
@@ -103,7 +103,7 @@ def plotBwVsNumVc(db_con, args):
     # collect data
     for rw in rows:
         if(rw[1]==19):
-            if(rw[0] == -1):
+            if(rw[6] == -1):
                 bwtot[rw[2]].append(rw[3])
             else:
                 print(rw)
