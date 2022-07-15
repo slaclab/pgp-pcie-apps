@@ -113,6 +113,8 @@ def plotBwVsNumVc(db_con, args):
                 xdata[int(math.log2(rw[2]))-1].append(rw[0])
                 ydata[int(math.log2(rw[2]))-1].append(rw[3])
                 
+    for max in bwtot:
+        print(max)
 
     for sets in range(20):
         plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
