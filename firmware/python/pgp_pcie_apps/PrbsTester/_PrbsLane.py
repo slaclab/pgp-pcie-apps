@@ -26,14 +26,16 @@ class PrbsLane(pr.Device):
             # Add the FW PRBS RateGen Module
             self.add(ssi.SsiPrbsRateGen(
                 name    = f'FwPrbsRateGen[{vc}]',
-                offset  = (0x1000*(2*vc+0)),
+                offset  = (0x100*(2*vc+0)),
+                clock_freq = 250.0e6,
                 expand  = False,
             ))
 
             # Add the FW PRBS RX Module
             self.add(ssi.SsiPrbsRx(
                 name    = ('FwPrbsRx[%d]' % (vc)),
-                offset  = (0x1000*(2*vc+1)),
+                offset  = (0x100*(2*vc+1)),
+                rxClkPeriod = 250.0e6,
                 expand  = False,
             ))
 
