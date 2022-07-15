@@ -85,11 +85,15 @@ class PrbsRoot(pr.Root):
                 else:
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(dev,(0x100*lane)+vc,1)
 
+                self.addInterface(self.dmaStream[lane][vc])
+
                 # self.dmaStream[lane][vc].setDriverDebug(0)
 
                 if (loopback):
                     # Loopback the PRBS data
-                    self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
+                    fifo = rogue.interfaces.stream.Fifo(100, 0, True)
+                    self.addInterface(fifo)
+                    self.dmaStream[lane][vc] >> fifo >> self.dmaStream[lane][vc]
 
                 else:
 
@@ -102,6 +106,7 @@ class PrbsRoot(pr.Root):
                     )
                     self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                     self.add(self.prbsRx[lane][vc])
+                    self.addInterface(self.prbsRx[lane][vc])
 
 
                     # Connect the SW PRBS Transmitter module
@@ -112,6 +117,7 @@ class PrbsRoot(pr.Root):
                     )
                     self.prbRg[lane][vc] >> self.dmaStream[lane][vc]
                     self.add(self.prbRg[lane][vc])
+                    self.addInterface(self.prbRg[lane][vc])
 
         @self.command()
         def SetAllRawPeriods(arg):
