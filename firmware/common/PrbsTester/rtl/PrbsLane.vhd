@@ -195,7 +195,7 @@ begin
          generic map (
             TPD_G         => TPD_G,
             NUM_MASTERS_G => NUM_VC_G,
-            PIPE_STAGES_G => 1)
+            PIPE_STAGES_G => 2)
          port map (
             -- Clock and reset
             axisClk      => dmaClk,
