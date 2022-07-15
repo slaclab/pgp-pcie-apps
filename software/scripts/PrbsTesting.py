@@ -103,12 +103,13 @@ args = parser.parse_args()
 #################################################################
 
 with test.PrbsRoot(
-    dev = args.dev, 
-    sim = args.sim, 
-    numLanes = args.numLanes, 
-    prbsWidth = args.prbsWidth, 
-    numVc = args.numVc, 
-    loopback = args.loopback) as root:
+        dev = args.dev,
+        sim = args.sim,
+        numLanes = args.numLanes,
+        prbsWidth = args.prbsWidth,
+        numVc = args.numVc,
+        loopback = args.loopback,
+        pollEn=args.pollEn) as root:
 
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
     for rx in swRxDevices:
