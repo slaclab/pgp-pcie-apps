@@ -107,11 +107,11 @@ def plotBwVsNumVc(db_con, args):
             if(rw[6] == -1):
                 print(rw)
                 print("")
-                bwtot[math.log2(rw[2])].append(rw[3])
+                bwtot[int(math.log2(rw[2]))].append(rw[3])
             else:
                 print(rw)
-                xdata[math.log2(rw[2])].append(rw[0])
-                ydata[math.log2(rw[2])].append(rw[3])
+                xdata[int(math.log2(rw[2]))].append(rw[0])
+                ydata[int(math.log2(rw[2]))].append(rw[3])
                 
 
     for sets in range(20):
