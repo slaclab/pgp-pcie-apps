@@ -87,9 +87,14 @@ def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index=
         if(collectionFilter(rw[1])):
             if(rw[6] == -1):
                 tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+                print(rw)
+                print("")
             else:
                 xdata[int(math.log2(rw[2]))-1].append(rw[0])
                 ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+                print(rw)
+        else:
+            print(rw[1]/5000)
 
     # display data            
     displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter)    
