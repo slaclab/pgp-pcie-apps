@@ -27,49 +27,16 @@ def queryData(db_con):
     ret = cur.execute(statement)
     return ret
 
-def plotHzVsNumVc(db_con, args):
-    #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
+def displayFromArrays(x, y, total, tOffSet, namer, displayFilter):
 
-    rows = queryData(db_con)
+    # display all rows
+    for sets in range(len(x)-1):
+        if(displayFilter(y[sets], total[sets])):
+            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
+            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = str(namer(sets))+ " max")
 
-    # initialize arrays
-    xdata = [[]*20 for i in range(20)]
-    ydata = [[]*20 for i in range(20)]
-    ytotal = [[]*7 for i in range(20)]
-    bwtot = [[]*7 for i in range(20)]
-    #yexpected = [[0]*7 for i in range(20)]
-    xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1]
-
-    # collect data
-    for rw in rows:
-        if(rw[1]==19):
-            if(rw[6] == -1):
-                ytotal[rw[2]].append(rw[4])
-                bwtot[rw[2]].append(rw[3])
-            else:
-                print(rw)
-                xdata[rw[2]].append(rw[0])
-                ydata[rw[2]].append(rw[4])
-            
-           # yexpected[rw[2]][rw[0]-1] += 48e9/((2**rw[2])*rw[0])
-
-    for sets in range(20):
-        skip = False
-        for bw in range(len(bwtot[sets])):
-            
-            if(bwtot[sets][bw] > 48000):
-                skip = True
-
-        if(not skip):
-            plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
-            plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
-        else:
-            print("skipping:\n")
-            print(ydata[sets])
-            print("because bandwidth = ")
-            print(bwtot[sets])
-        #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
-    legend = plt.legend(loc = 'best')       
+    # create legend
+    legend = plt.legend(loc = 'best')
 
 def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index==19*5000, displayFilter = lambda val, max: True, namer = lambda num: 2**(num+1)):
 
@@ -98,18 +65,6 @@ def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index=
 
     # display data            
     displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter)    
-
-
-def displayFromArrays(x, y, total, tOffSet, namer, displayFilter):
-
-    # display all rows
-    for sets in range(len(x)-1):
-        if(displayFilter(y[sets], total[sets])):
-            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
-            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = "max " + str(namer(sets)))
-
-    # create legend
-    legend = plt.legend(loc = 'best')
 
 
 
