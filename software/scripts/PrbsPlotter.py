@@ -1,15 +1,11 @@
 from pickle import FALSE
 from mpl_toolkits import mplot3d
 
-import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3
-import os
 import argparse
-import random
 import math
-
-from pathlib import Path
+import string
 
 def plot3D(x, y, z):
 
@@ -22,16 +18,19 @@ def plot3D(x, y, z):
     ax.set_ylabel('Packet Length')
     ax.set_zlabel('Bandwidth')
 
-def plotHzVsNumVc(db_con, args):
-    #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
-
+def queryData(db_con):
     # prep data base for query
     cur = db_con.cursor()
     statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate FROM raw_data'''
 
     # get data from data base
     cur.execute(statement)
-    rows = cur.fetchall()
+    return cur.fetchall
+
+def plotHzVsNumVc(db_con, args):
+    #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
+
+    rows = queryData(db_con)
 
     # initialize arrays
     xdata = [[]*20 for i in range(20)]
@@ -70,63 +69,44 @@ def plotHzVsNumVc(db_con, args):
             print("because bandwidth = ")
             print(bwtot[sets])
         #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
-    legend = plt.legend(loc = 'best')
+    legend = plt.legend(loc = 'best')       
 
-    # plot data
-    for dist in range(args.lowerBound, args.upperBound):
-        print(xdata[dist])
-        print(ydata[dist])
-        print("")
-        #ax[dist-args.lowerBound].set_xlabel('Active # of VC')
-        #ax[dist-args.lowerBound].set_ylabel('Hz')
-        #ax[dist-args.lowerBound].plot(xdata[dist], ydata[dist], 'o', color = 'black', linestyle = 'solid')
-        #ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
-        #ax[dist-args.lowerBound].plot(xtotals, ytotal[dist], 'o', color = 'red', linestyle = 'solid')
-        
+def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index==19*5000, displayFilter = lambda val, max: True, namer = lambda num: 2**num):
 
-def plotBwVsNumVc(db_con, args):
-    #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
-
-    # prep data base for query
-    cur = db_con.cursor()
-    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate, iteration_num, lane FROM raw_data'''
-
-    # get data from data base
-    cur.execute(statement)
-    rows = cur.fetchall()
+    # query sql data base
+    rows = queryData(db_con)
 
     # initialize arrays
     xdata = [[]*20 for i in range(20)]
     ydata = [[]*20 for i in range(20)]
-    bwtot = [[]*7 for i in range(20)]
+    tot = [[]*7 for i in range(20)]
     xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1]
 
     # collect data
     for rw in rows:
-        if(rw[1]==19*5000):
+        if(collectionFilter(rw[1])):
             if(rw[6] == -1):
-                print(rw)
-                print("")
-                bwtot[int(math.log2(rw[2]))-1].append(rw[3])
+                tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
             else:
-                print(rw)
                 xdata[int(math.log2(rw[2]))-1].append(rw[0])
-                ydata[int(math.log2(rw[2]))-1].append(rw[3])
-                
-    for max in bwtot:
-        print(max)
+                ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
 
-    for sets in range(19):
-        plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
-        plt.plot(xtotals, bwtot[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
-        #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
+    # display data            
+    displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter)    
+
+
+def displayFromArrays(x, y, total, tOffSet, namer, displayFilter):
+
+    # display all rows
+    for sets in range(len(x)):
+        if(displayFilter(y[sets], total[sets])):
+            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(x))
+            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = "max " + namer(x))
+
+    # create legend
     legend = plt.legend(loc = 'best')
 
-    # plot data
-    for dist in range(args.lowerBound, args.upperBound):
-        print(xdata[dist])
-        print(ydata[dist])
-        print("")
+
 
 # Set the argument parser
 parser = argparse.ArgumentParser()
@@ -149,13 +129,43 @@ parser.add_argument(
     help     = "upper bound for number of plots",
 )
 
+parser.add_argument(
+    "--dataIndex",
+    "-i",
+    type     = int,
+    required = False,
+    default  = 3,
+    help     = "3 for bandwidth, 4 for frame rate",
+)
+
+parser.add_argument(
+    "--xLabel",
+    type     = string,
+    required = False,
+    default  = "Active Channels",
+    help     = "label for the x axis",
+)
+
+parser.add_argument(
+    "--yLabel",
+    type     = string,
+    required = False,
+    default  = "Bandwidth",
+    help     = "label for the y axis",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
-zdata = []
-
+# connect to data base
 db_con = sqlite3.connect("test5")
 
-plotBwVsNumVc(db_con, args)
+# collect and plot data
+plotBwVsNumVc(db_con, args.datIndex)
 
+# set axis labels
+plt.set_ylabel(args.yLabel)
+plt.set_xlabel(args.xLabel)
+
+# show plot
 plt.show()
