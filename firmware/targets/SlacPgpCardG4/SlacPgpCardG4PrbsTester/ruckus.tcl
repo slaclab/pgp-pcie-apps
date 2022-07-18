@@ -12,7 +12,7 @@ loadConstraints -dir "$::DIR_PATH/hdl"
 loadSource -sim_only -dir "$::DIR_PATH/tb"
 
 # Update impl_1 strategy
-set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]
+set_property strategy Performance_WLBlockPlacementFanoutOpt [get_runs impl_1]
 
 # Top level sim
 set_property top {SlacPgpCardG4PrbsTesterTb} [get_filesets sim_1]
