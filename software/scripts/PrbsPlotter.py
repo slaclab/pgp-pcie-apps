@@ -71,7 +71,7 @@ def plotHzVsNumVc(db_con, args):
         #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
     legend = plt.legend(loc = 'best')       
 
-def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index==19*5000, displayFilter = lambda val, max: True, namer = lambda num: 2**num):
+def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index==19*5000, displayFilter = lambda val, max: True, namer = lambda num: 2**(num+1)):
 
     # query sql data base
     rows = queryData(db_con)
@@ -100,8 +100,8 @@ def displayFromArrays(x, y, total, tOffSet, namer, displayFilter):
     # display all rows
     for sets in range(len(x)):
         if(displayFilter(y[sets], total[sets])):
-            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets+1))
-            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = "max " + namer(sets+1))
+            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
+            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = "max " + namer(sets))
 
     # create legend
     legend = plt.legend(loc = 'best')
