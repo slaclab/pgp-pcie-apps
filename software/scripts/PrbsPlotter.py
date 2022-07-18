@@ -100,8 +100,8 @@ def displayFromArrays(x, y, total, tOffSet, namer, displayFilter):
     # display all rows
     for sets in range(len(x)):
         if(displayFilter(y[sets], total[sets])):
-            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(x[sets]))
-            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = "max " + namer(x[sets]))
+            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets+1))
+            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = "max " + namer(sets+1))
 
     # create legend
     legend = plt.legend(loc = 'best')
