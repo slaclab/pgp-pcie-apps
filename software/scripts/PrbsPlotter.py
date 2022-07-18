@@ -1,11 +1,11 @@
 from pickle import FALSE
+from tokenize import Double
 from mpl_toolkits import mplot3d
 
 import matplotlib.pyplot as plt
 import sqlite3
 import argparse
 import math
-import string
 
 def plot3D(x, y, z):
 
@@ -138,21 +138,6 @@ parser.add_argument(
     help     = "3 for bandwidth, 4 for frame rate",
 )
 
-parser.add_argument(
-    "--xLabel",
-    type     = string,
-    required = False,
-    default  = "Active Channels",
-    help     = "label for the x axis",
-)
-
-parser.add_argument(
-    "--yLabel",
-    type     = string,
-    required = False,
-    default  = "Bandwidth",
-    help     = "label for the y axis",
-)
 
 # Get the arguments
 args = parser.parse_args()
@@ -164,8 +149,16 @@ db_con = sqlite3.connect("test5")
 plotBwVsNumVc(db_con, args.datIndex)
 
 # set axis labels
-plt.set_ylabel(args.yLabel)
-plt.set_xlabel(args.xLabel)
+
+if(args.datIndex == 3):
+    ylabel = "Bandwidth"
+elif(args.datIndex == 4):
+    ylabel = "Frame Rate"
+else:
+    ylabel = "Unknown"
+
+plt.set_ylabel(ylabel)
+plt.set_xlabel("Active Channels")
 
 # show plot
 plt.show()
