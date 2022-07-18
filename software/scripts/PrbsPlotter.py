@@ -27,18 +27,20 @@ def queryData(db_con):
     ret = cur.execute(statement)
     return ret
 
-def displayFromArrays(x, y, total, tOffSet, namer, displayFilter):
+def displayFromArrays(x, y, total, tOffSet, namer, displayFilter, displayMax):
 
     # display all rows
     for sets in range(len(x)-1):
-        if(displayFilter(y[sets], total[sets])):
-            plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
-            plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = str(namer(sets))+ " max")
+        if(displayFilter(y[sets], total[sets], sets)):
+            if(not displayMax):
+                plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
+            else:
+                plt.plot(tOffSet, total[sets], 'o', linestyle = 'dashed', label = str(namer(sets))+ " max")
 
     # create legend
-    legend = plt.legend(loc = 'best')
+    legend = plt.legend(title = 'Frame Size in Words', loc = 'upper right')
 
-def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index==19*5000, displayFilter = lambda val, max: True, namer = lambda num: 2**(num+1)):
+def plotData(db_con, dataIndex, displayMax, collectionFilter = lambda row: row[1]==19*5000, displayFilter = lambda val, maxi, index: True, namer = lambda num: 2**(num+1)):
 
     # query sql data base
     rows = queryData(db_con)
@@ -47,25 +49,41 @@ def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index=
     xdata = [[]*20 for i in range(20)]
     ydata = [[]*20 for i in range(20)]
     tot = [[]*7 for i in range(20)]
-    xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1]
+    xtotals = [1, 2, 3, 4, 5, 6, 7, 8]
 
     # collect data
     for rw in rows:
-        if(collectionFilter(rw[1])):
+        if(collectionFilter(rw)):
             if(rw[6] == -1):
                 tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
-                print(rw)
-                print("")
+                #print(rw)
+                #print("")
             else:
                 xdata[int(math.log2(rw[2]))-1].append(rw[0])
                 ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
-                print(rw)
-        else:
-            print(rw[1]/5000)
+                #print(rw)
+        #else:
+            #print(rw[1]/5000)
 
     # display data            
-    displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter)    
+    displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter, displayMax)  
+    
+    setAxisNames(dataIndex, displayMax)
 
+def setAxisNames(dataIndex, isAgg):
+    # set axis labels
+
+    if(dataIndex == 3):
+        ylabel = "Bandwidth"
+    elif(dataIndex == 4):
+        ylabel = "Frame Rate"
+    else:
+        ylabel = "Unknown"
+
+    if(isAgg):
+        ylabel = "Aggregate " + ylabel
+    plt.ylabel(ylabel)
+    plt.xlabel("Active Channels")
 
 
 # Set the argument parser
@@ -94,7 +112,7 @@ parser.add_argument(
     "-i",
     type     = int,
     required = False,
-    default  = 3,
+    default  = 4,
     help     = "3 for bandwidth, 4 for frame rate",
 )
 
@@ -106,19 +124,9 @@ args = parser.parse_args()
 db_con = sqlite3.connect("test5")
 
 # collect and plot data
-plotBwVsNumVc(db_con, args.dataIndex)
+#plotBwVsNumVc(db_con, args.dataIndex, True)
 
-# set axis labels
 
-if(args.dataIndex == 3):
-    ylabel = "Bandwidth"
-elif(args.dataIndex == 4):
-    ylabel = "Frame Rate"
-else:
-    ylabel = "Unknown"
-
-plt.ylabel(ylabel)
-plt.xlabel("Active Channels")
 
 # show plot
-plt.show()
+#plt.show()
