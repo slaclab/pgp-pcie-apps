@@ -162,8 +162,8 @@ elif(args.dataIndex == 4):
 else:
     ylabel = "Unknown"
 
-plt.set_ylabel(ylabel)
-plt.set_xlabel("Active Channels")
+plt.ylabel(ylabel)
+plt.xlabel("Active Channels")
 
 # show plot
 plt.show()
