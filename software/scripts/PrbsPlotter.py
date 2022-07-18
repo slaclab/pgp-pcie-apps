@@ -24,8 +24,8 @@ def queryData(db_con):
     statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate FROM raw_data'''
 
     # get data from data base
-    cur.execute(statement)
-    return cur.fetchall
+    ret = cur.execute(statement)
+    return ret
 
 def plotHzVsNumVc(db_con, args):
     #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
