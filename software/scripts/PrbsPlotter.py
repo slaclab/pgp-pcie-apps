@@ -21,7 +21,7 @@ def plot3D(x, y, z):
 def queryData(db_con):
     # prep data base for query
     cur = db_con.cursor()
-    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate FROM raw_data'''
+    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate, iteration_num, lane FROM raw_data'''
 
     # get data from data base
     ret = cur.execute(statement)
