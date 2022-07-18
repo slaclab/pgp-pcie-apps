@@ -103,7 +103,7 @@ def plotBwVsNumVc(db_con, dataIndex = 3, collectionFilter = lambda index: index=
 def displayFromArrays(x, y, total, tOffSet, namer, displayFilter):
 
     # display all rows
-    for sets in range(len(x)):
+    for sets in range(len(x)-1):
         if(displayFilter(y[sets], total[sets])):
             plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
             plt.plot(tOffSet, total[sets], 'o', color = 'red', linestyle = 'dashed', label = "max " + str(namer(sets)))
