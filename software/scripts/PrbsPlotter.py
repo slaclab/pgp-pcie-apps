@@ -146,13 +146,13 @@ args = parser.parse_args()
 db_con = sqlite3.connect("test5")
 
 # collect and plot data
-plotBwVsNumVc(db_con, args.datIndex)
+plotBwVsNumVc(db_con, args.dataIndex)
 
 # set axis labels
 
-if(args.datIndex == 3):
+if(args.dataIndex == 3):
     ylabel = "Bandwidth"
-elif(args.datIndex == 4):
+elif(args.dataIndex == 4):
     ylabel = "Frame Rate"
 else:
     ylabel = "Unknown"
