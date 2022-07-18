@@ -38,7 +38,8 @@ entity Hardware is
       PRBS_SEED_SIZE_G             : natural range 32 to 512 := 32;
       PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "NARRAOW";
       DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
-      AXI_BASE_ADDR_G              : slv(31 downto 0)        := x"0080_0000");
+      AXI_BASE_ADDR_G              : slv(31 downto 0)        := x"0080_0000";
+      AXIL_CLK_IS_DMA_CLK_G        : boolean                 := false);
    port (
       -- AXI-Lite Interface
       axilClk         : in  sl;
@@ -79,7 +80,8 @@ architecture mapping of Hardware is
 begin
    U_AxiLiteAsync_1 : entity surf.AxiLiteAsync
       generic map (
-         TPD_G => TPD_G)
+         TPD_G          => TPD_G,
+         COMMON_CLK_G => AXIL_CLK_IS_DMA_CLK_G)
       port map (
          sAxiClk         => axilClk,             -- [in]
          sAxiClkRst      => axilRst,             -- [in]

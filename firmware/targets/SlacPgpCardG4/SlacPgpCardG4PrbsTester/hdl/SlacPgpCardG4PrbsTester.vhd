@@ -121,22 +121,25 @@ architecture top_level of SlacPgpCardG4PrbsTester is
 
 begin
 
-   U_axilClk : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 2)
-      port map (
-         I   => dmaClk,                 -- 250 MHz
-         CE  => '1',
-         CLR => '0',
-         O   => axilClk);               -- 125 MHz
+--    U_axilClk : BUFGCE_DIV
+--       generic map (
+--          BUFGCE_DIVIDE => 2)
+--       port map (
+--          I   => dmaClk,                 -- 250 MHz
+--          CE  => '1',
+--          CLR => '0',
+--          O   => axilClk);               -- 125 MHz
 
-   U_axilRst : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => axilClk,
-         asyncRst => dmaRst,
-         syncRst  => axilRst);
+--    U_axilRst : entity surf.RstSync
+--       generic map (
+--          TPD_G => TPD_G)
+--       port map (
+--          clk      => axilClk,
+--          asyncRst => dmaRst,
+--          syncRst  => axilRst);
+
+   axilClk <= dmaClk;
+   axilRst <= dmaRst;
 
    -----------------------
    -- axi-pcie-core module
@@ -149,7 +152,8 @@ begin
          ROGUE_SIM_CH_COUNT_G => NUM_VC_G,
          BUILD_INFO_G         => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G           => DMA_LANES_G)
+         DMA_SIZE_G           => DMA_LANES_G,
+         APP_CLK_IS_DMA_CLK_G => true)
       port map (
          ------------------------
          --  Top Level Interfaces
