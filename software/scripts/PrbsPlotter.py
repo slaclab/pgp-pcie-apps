@@ -7,6 +7,13 @@ import sqlite3
 import argparse
 import math
 
+
+# standard collection filters:
+#lambda row: row[1]==19*5000
+
+#standard display filters:
+#
+
 def plot3D(x, y, z):
 
     fig = plt.figure() 
@@ -17,6 +24,9 @@ def plot3D(x, y, z):
     ax.set_xlabel('Rate')
     ax.set_ylabel('Packet Length')
     ax.set_zlabel('Bandwidth')
+
+#def calculateBandwithError():
+    #((packetLength+1)*32)*frameRate/bandwidth
 
 def queryData(db_con):
     # prep data base for query
@@ -40,12 +50,8 @@ def displayFromArrays(x, y, total, tOffSet, namer, displayFilter, displayMax):
     # create legend
     legend = plt.legend(title = 'Frame Size in Words', loc = 'upper right')
 
-def plotData(db_con, dataIndex, displayMax, collectionFilter = lambda row: row[1]==19*5000, displayFilter = lambda val, maxi, index: True, namer = lambda num: 2**(num+1)):
-
-    # query sql data base
-    rows = queryData(db_con)
-
-    # initialize arrays
+def collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax):
+        # initialize arrays
     xdata = [[]*20 for i in range(20)]
     ydata = [[]*20 for i in range(20)]
     tot = [[]*7 for i in range(20)]
@@ -56,23 +62,72 @@ def plotData(db_con, dataIndex, displayMax, collectionFilter = lambda row: row[1
         if(collectionFilter(rw)):
             if(rw[6] == -1):
                 tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
-                #print(rw)
-                #print("")
             else:
                 xdata[int(math.log2(rw[2]))-1].append(rw[0])
                 ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
-                #print(rw)
-        #else:
-            #print(rw[1]/5000)
 
     # display data            
     displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter, displayMax)  
+
+def collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax):
+        # initialize arrays
+    xdata   = [[] for i in range(8)]
+    ydata   = [[] for i in range(8)]
+    ytot    = [[] for i in range(8)]
+    xtot    = [[] for i in range(8)]
+
+    # collect data
+    for rw in rows:
+        if(collectionFilter(rw)):
+            if(rw[6] == -1):
+                ytot[rw[0]].append(rw[dataIndex])
+                xtot[rw[0]].append(math.log2(rw[2]))
+            else:
+                xdata[rw[0]].append(math.log2(rw[2]))
+                ydata[rw[0]].append(rw[dataIndex])
+
+    # display data            
+    displayFromArrays(xdata, ydata, ytot, xtot, namer, displayFilter, displayMax) 
+
+    # set x axis label
+    plt.xlabel("log2 of frame size") 
+
+def collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax):
+        # initialize arrays
+    xdata = [[]*20 for i in range(20)]
+    ydata = [[]*20 for i in range(20)]
+    tot = [[]*7 for i in range(20)]
+    xtotals = [1, 2, 3, 4, 5, 6, 7, 8]
+
+    # collect data
+    for rw in rows:
+        if(collectionFilter(rw)):
+            if(rw[6] == -1):
+                tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+            else:
+                xdata[int(math.log2(rw[2]))-1].append(rw[0])
+                ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+
+    # display data            
+    displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter, displayMax) 
+
+    # set x axis label
+    plt.xlabel("Active Channels")
+
+def plotData(db_con, funcSelect, dataIndex, displayMax, collectionFilter = lambda row: row[1]==19*5000, displayFilter = lambda val, maxi, index: True, namer = lambda num: 2**(num+1)):
+
+    # query sql data base
+    rows = queryData(db_con)
+
+    # collect and dispaly data
+    if(funcSelect == 1):
+        collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax)
+    elif(funcSelect == 2):
+        collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax)
+    else:
+        print("invalid function selection")
     
-    setAxisNames(dataIndex, displayMax)
-
-def setAxisNames(dataIndex, isAgg):
-    # set axis labels
-
+    # set y axis label
     if(dataIndex == 3):
         ylabel = "Bandwidth"
     elif(dataIndex == 4):
@@ -80,10 +135,10 @@ def setAxisNames(dataIndex, isAgg):
     else:
         ylabel = "Unknown"
 
-    if(isAgg):
+    if(displayMax):
         ylabel = "Aggregate " + ylabel
     plt.ylabel(ylabel)
-    plt.xlabel("Active Channels")
+    
 
 
 # Set the argument parser
