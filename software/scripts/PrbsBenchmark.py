@@ -43,7 +43,7 @@ def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
 
         for data in hwData:
             dbCon.execute("INSERT INTO raw_data (iteration_num, set_num_lanes, set_num_vc, set_rate, set_packet_length, lane, channel, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                            (iter, enableLanes, vcPerLane, currRate*5000, 2**currLength, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
+                                            (iter, enableLanes, vcPerLane, data[2], 2**currLength, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
 
 def readHardwareData(root):
     hwData = [[]]
@@ -193,7 +193,7 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
     
-    dbCon = sqlite3.connect("test5")
+    dbCon = sqlite3.connect("test6")
 
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
@@ -223,40 +223,35 @@ with test.PrbsRoot(
 
     iter = 0
 
-    for currRate in range(1, 20):
+    root.SetAllRawPeriods(0)
 
-        print(f"current rate: {currRate*5000}")
+    for currLength in range(1,20):
 
-        # adjust rate
-        root.SetAllRates(currRate*5000)
+        print(f"packet length: {2**currLength}")
 
-        for currLength in range(1,20):
+        # adjust lengths
+        root.SetAllPacketLengths(2**currLength)
 
-            print(f"packet length: {2**currLength}")
+        for enableLanes in range(1, 9):
 
-            # adjust lengths
-            root.SetAllPacketLengths(2**currLength)
+            print(f"lanes enabled: {enableLanes}")
 
-            for enableLanes in range(1, 9):
+            # enable channels
+            root.EnableN(enableLanes)
 
-                print(f"lanes enabled: {enableLanes}")
+            # let data settle
+            time.sleep(2.0)
 
-                # enable channels
-                root.EnableN(enableLanes)
+            # reset data
+            root.PurgeData()
 
-                # let data settle
-                time.sleep(2.0)
+            # allow time for data to be collected
+            time.sleep(2.0)
 
-                # reset data
-                root.PurgeData()
+            # read and save data
+            readData(root, dbCon, iter, enableLanes, 1, 0, currLength)
 
-                # allow time for data to be collected
-                time.sleep(2.0)
-
-                # read and save data
-                readData(root, dbCon, iter, enableLanes, 1, currRate, currLength)
-
-                iter += 1
+            iter += 1
 
 
     pyrogue.pydm.runPyDM(root=root)

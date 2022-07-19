@@ -1,15 +1,18 @@
 from pickle import FALSE
+from tokenize import Double
 from mpl_toolkits import mplot3d
 
-import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3
-import os
 import argparse
-import random
 import math
 
-from pathlib import Path
+
+# standard collection filters:
+#lambda row: row[1]==19*5000
+
+#standard display filters:
+#
 
 def plot3D(x, y, z):
 
@@ -22,111 +25,121 @@ def plot3D(x, y, z):
     ax.set_ylabel('Packet Length')
     ax.set_zlabel('Bandwidth')
 
-def plotHzVsNumVc(db_con, args):
-    #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
+#def calculateBandwithError():
+    #((packetLength+1)*32)*frameRate/bandwidth
 
-    # prep data base for query
-    cur = db_con.cursor()
-    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate FROM raw_data'''
-
-    # get data from data base
-    cur.execute(statement)
-    rows = cur.fetchall()
-
-    # initialize arrays
-    xdata = [[]*20 for i in range(20)]
-    ydata = [[]*20 for i in range(20)]
-    ytotal = [[]*7 for i in range(20)]
-    bwtot = [[]*7 for i in range(20)]
-    #yexpected = [[0]*7 for i in range(20)]
-    xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1]
-
-    # collect data
-    for rw in rows:
-        if(rw[1]==19):
-            if(rw[6] == -1):
-                ytotal[rw[2]].append(rw[4])
-                bwtot[rw[2]].append(rw[3])
-            else:
-                print(rw)
-                xdata[rw[2]].append(rw[0])
-                ydata[rw[2]].append(rw[4])
-            
-           # yexpected[rw[2]][rw[0]-1] += 48e9/((2**rw[2])*rw[0])
-
-    for sets in range(20):
-        skip = False
-        for bw in range(len(bwtot[sets])):
-            
-            if(bwtot[sets][bw] > 48000):
-                skip = True
-
-        if(not skip):
-            plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
-            plt.plot(xtotals, ytotal[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
-        else:
-            print("skipping:\n")
-            print(ydata[sets])
-            print("because bandwidth = ")
-            print(bwtot[sets])
-        #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
-    legend = plt.legend(loc = 'best')
-
-    # plot data
-    for dist in range(args.lowerBound, args.upperBound):
-        print(xdata[dist])
-        print(ydata[dist])
-        print("")
-        #ax[dist-args.lowerBound].set_xlabel('Active # of VC')
-        #ax[dist-args.lowerBound].set_ylabel('Hz')
-        #ax[dist-args.lowerBound].plot(xdata[dist], ydata[dist], 'o', color = 'black', linestyle = 'solid')
-        #ax[dist-args.lowerBound].set_title(f'set length: {(2**(dist))}')
-        #ax[dist-args.lowerBound].plot(xtotals, ytotal[dist], 'o', color = 'red', linestyle = 'solid')
-        
-
-def plotBwVsNumVc(db_con, args):
-    #fig, ax = plt.subplots(args.upperBound-args.lowerBound)
-
+def queryData(db_con):
     # prep data base for query
     cur = db_con.cursor()
     statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate, iteration_num, lane FROM raw_data'''
 
     # get data from data base
-    cur.execute(statement)
-    rows = cur.fetchall()
+    ret = cur.execute(statement)
+    return ret
 
-    # initialize arrays
+def displayFromArrays(x, y, total, tOffSet, namer, displayFilter, displayMax):
+
+    # display all rows
+    for sets in range(len(x)-1):
+        if(displayFilter(y[sets], total[sets], sets)):
+            if(not displayMax):
+                plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
+            else:
+                plt.plot(tOffSet, total[sets], 'o', linestyle = 'dashed', label = str(namer(sets))+ " max")
+
+    # create legend
+    legend = plt.legend(title = 'Frame Size in Words', loc = 'upper right')
+
+def collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax):
+        # initialize arrays
     xdata = [[]*20 for i in range(20)]
     ydata = [[]*20 for i in range(20)]
-    bwtot = [[]*7 for i in range(20)]
-    xtotals = [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1]
+    tot = [[]*7 for i in range(20)]
+    xtotals = [1, 2, 3, 4, 5, 6, 7, 8]
 
     # collect data
     for rw in rows:
-        if(rw[1]==19*5000):
+        if(collectionFilter(rw)):
             if(rw[6] == -1):
-                print(rw)
-                print("")
-                bwtot[int(math.log2(rw[2]))-1].append(rw[3])
+                tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
             else:
-                print(rw)
                 xdata[int(math.log2(rw[2]))-1].append(rw[0])
-                ydata[int(math.log2(rw[2]))-1].append(rw[3])
-                
-    for max in bwtot:
-        print(max)
+                ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
 
-    for sets in range(19):
-        plt.plot(xdata[sets], ydata[sets], 'o', linestyle = 'solid', label = (sets+1))
-        plt.plot(xtotals, bwtot[sets], 'o', color = 'red', linestyle = 'dashed', label = (sets+1))
-        #plt.plot(xtotals, yexpected[sets], 'o', color = 'blue', linestyle = 'dashed', label = (sets+1))
-    legend = plt.legend(loc = 'best')
+    # display data            
+    displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter, displayMax)  
 
-    # plot data
-    for dist in range(args.lowerBound, args.upperBound):
-        print(xdata[dist])
-        print(ydata[dist])
-        print("")
+def collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax):
+        # initialize arrays
+    xdata   = [[] for i in range(8)]
+    ydata   = [[] for i in range(8)]
+    ytot    = [[] for i in range(8)]
+    xtot    = [[] for i in range(8)]
+
+    # collect data
+    for rw in rows:
+        if(collectionFilter(rw)):
+            if(rw[6] == -1):
+                ytot[rw[0]].append(rw[dataIndex])
+                xtot[rw[0]].append(math.log2(rw[2]))
+            else:
+                xdata[rw[0]].append(math.log2(rw[2]))
+                ydata[rw[0]].append(rw[dataIndex])
+
+    # display data            
+    displayFromArrays(xdata, ydata, ytot, xtot, namer, displayFilter, displayMax) 
+
+    # set x axis label
+    plt.xlabel("log2 of frame size") 
+
+def collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax):
+        # initialize arrays
+    xdata = [[]*20 for i in range(20)]
+    ydata = [[]*20 for i in range(20)]
+    tot = [[]*7 for i in range(20)]
+    xtotals = [1, 2, 3, 4, 5, 6, 7, 8]
+
+    # collect data
+    for rw in rows:
+        if(collectionFilter(rw)):
+            if(rw[6] == -1):
+                tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+            else:
+                xdata[int(math.log2(rw[2]))-1].append(rw[0])
+                ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+
+    # display data            
+    displayFromArrays(xdata, ydata, tot, xtotals, namer, displayFilter, displayMax) 
+
+    # set x axis label
+    plt.xlabel("Active Channels")
+
+def plotData(db_con, funcSelect, dataIndex, displayMax, collectionFilter = lambda row: row[1]==19*5000, displayFilter = lambda val, maxi, index: True, namer = lambda num: 2**(num+1)):
+
+    # query sql data base
+    rows = queryData(db_con)
+
+    # collect and dispaly data
+    if(funcSelect == 1):
+        collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax)
+    elif(funcSelect == 2):
+        collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax)
+    else:
+        print("invalid function selection")
+    
+    # set y axis label
+    if(dataIndex == 3):
+        ylabel = "Bandwidth"
+    elif(dataIndex == 4):
+        ylabel = "Frame Rate"
+    else:
+        ylabel = "Unknown"
+
+    if(displayMax):
+        ylabel = "Aggregate " + ylabel
+    plt.ylabel(ylabel)
+    
+
 
 # Set the argument parser
 parser = argparse.ArgumentParser()
@@ -149,13 +162,26 @@ parser.add_argument(
     help     = "upper bound for number of plots",
 )
 
+parser.add_argument(
+    "--dataIndex",
+    "-i",
+    type     = int,
+    required = False,
+    default  = 4,
+    help     = "3 for bandwidth, 4 for frame rate",
+)
+
+
 # Get the arguments
 args = parser.parse_args()
 
-zdata = []
-
+# connect to data base
 db_con = sqlite3.connect("test5")
 
-plotBwVsNumVc(db_con, args)
+# collect and plot data
+#plotBwVsNumVc(db_con, args.dataIndex, True)
 
-plt.show()
+
+
+# show plot
+#plt.show()
