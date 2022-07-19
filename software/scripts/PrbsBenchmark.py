@@ -193,7 +193,7 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
     
-    dbCon = sqlite3.connect("test6")
+    dbCon = sqlite3.connect("test7")
 
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
