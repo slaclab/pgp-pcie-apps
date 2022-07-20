@@ -35,11 +35,11 @@ entity SlacPgpCardG4PrbsTester is
       BUILD_INFO_G         : BuildInfoType;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-
-      DMA_LANES_G      : positive                := 8;
-      NUM_VC_G         : positive                := 1;
-      DMA_BYTE_WIDTH_G : integer range 8 to 64   := 32;
-      PRBS_SEED_SIZE_G : natural range 32 to 256 := 256);
+      DMA_LANES_G          : positive                    := 8;
+      DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
+      NUM_VC_G             : positive                    := 1;
+      DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 32;
+      PRBS_SEED_SIZE_G     : natural range 32 to 256     := 256);
 
    port (
       --------------
@@ -153,6 +153,7 @@ begin
          BUILD_INFO_G         => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C,
          DMA_SIZE_G           => DMA_LANES_G,
+         DMA_BURST_BYTES_G    => DMA_BURST_BYTES_G,
          APP_CLK_IS_DMA_CLK_G => true)
       port map (
          ------------------------
