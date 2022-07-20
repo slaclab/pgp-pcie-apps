@@ -112,6 +112,15 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--fileName",
+    "-o",
+    type     = str,
+    required = True,
+    default  = 'junk',
+    help     = "file name for output file",
+)
+
+parser.add_argument(
     "--sim",
     action = 'store_true',
     default = False)
@@ -193,7 +202,7 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     loopback = args.loopback) as root:
     
-    dbCon = sqlite3.connect("test6")
+    dbCon = sqlite3.connect(args.fileName)
 
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
