@@ -55,6 +55,8 @@ class PrbsRoot(pr.Root):
         else:
             self.memMap = rogue.hardware.axi.AxiMemMap(dev,)
 
+        self.addInterface(self.memMap)
+
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
             offset      = 0x00000000,
@@ -118,6 +120,20 @@ class PrbsRoot(pr.Root):
                     self.prbRg[lane][vc] >> self.dmaStream[lane][vc]
                     self.add(self.prbRg[lane][vc])
                     self.addInterface(self.prbRg[lane][vc])
+
+        self.add(pr.LinkVariable(
+            name = 'AggBandwidth',
+            dependencies = [rx.Bandwidth for lane in self.Hardware.Lane.values() for rx in lane.FwPrbsRateGen.values()],
+            mode = 'RO',
+            units = 'Mbps',
+            linkedGet = lambda var, read: sum([x.get(read=read) for x in var.dependencies])))
+
+        self.add(pr.LinkVariable(
+            name = 'AggFrameRate',
+            dependencies = [rx.FrameRate for lane in self.Hardware.Lane.values() for rx in lane.FwPrbsRateGen.values()],
+            mode = 'RO',
+            units = 'Hz',
+            linkedGet = lambda var, read: sum([x.get(read=read) for x in var.dependencies])))
 
         @self.command()
         def SetAllRawPeriods(arg):
