@@ -27,7 +27,7 @@ def plot3D(x, y, z):
     ax.set_zlabel('Bandwidth')
 
 def calculateBandwidthError(packetLength, frameRate, bandwidth):
-    return ((packetLength+1)*32)*frameRate/(bandwidth*1e6)
+    return ((packetLength+1)*32*8)*frameRate/(bandwidth*1e6)
 
 def queryData(db_con):
     # prep data base for query
@@ -48,13 +48,14 @@ def displayFromArrays(
     namer, 
     displayFilter, 
     displayMax,
-    displayError
+    displayError,
+    colorCount
 ):
 
     colormap = plt.get_cmap('gist_rainbow')
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0,1,20)))
+    ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0,1,colorCount)))
     
     # display all rows
     for sets in range(len(x)-1):
@@ -94,7 +95,7 @@ def collectDataVsFrameSize(
                 xtot[rw[0]-1].append(math.log2(rw[2]))
             elif(dataIndex == 5):
                 xdata[rw[0]-1].append(math.log2(rw[2]))
-                ydata[rw[0]-1].append(calculateBandwidthError(rw[2], rw[4], rw[3])/rw[0])
+                ydata[rw[0]-1].append(calculateBandwidthError(rw[2], rw[4], rw[3]))
                 
             else:
                 xdata[rw[0]-1].append(math.log2(rw[2]))
@@ -106,7 +107,7 @@ def collectDataVsFrameSize(
                 
 
     # display data            
-    displayFromArrays(xdata, ydata, ytot, xtot, yhigh, ylow, namer, displayFilter, displayMax, displayError) 
+    displayFromArrays(xdata, ydata, ytot, xtot, yhigh, ylow, namer, displayFilter, displayMax, displayError, 8) 
 
     # set x axis label
     plt.xlabel("log2 of frame size") 
@@ -143,7 +144,7 @@ def collectDataVsVc(
                 ylow[int(math.log2(rw[2]))-1].append(rw[dataIndex+4])
 
     # display data            
-    displayFromArrays(xdata, ydata, tot, xtotals, yhigh, ylow, namer, displayFilter, displayMax, displayError) 
+    displayFromArrays(xdata, ydata, tot, xtotals, yhigh, ylow, namer, displayFilter, displayMax, displayError, 20) 
 
     # set x axis label
     plt.xlabel("Active Channels")
@@ -152,7 +153,7 @@ def plotData(
     db_con, 
     funcSelect, 
     dataIndex, 
-    displayMax, 
+    displayAggregate, 
     collectionFilter = lambda row: True, 
     displayFilter = lambda val, maxi, index: True, 
     namer = lambda num: 2**(num+1), 
@@ -165,9 +166,9 @@ def plotData(
 
     # collect and dispaly data
     if(funcSelect == 1):
-        collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax, displayError)
+        collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayAggregate, displayError)
     elif(funcSelect == 2):
-        collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayFilter, displayMax, displayError)
+        collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayFilter, displayAggregate, displayError)
     else:
         print("invalid function selection")
     
@@ -179,7 +180,7 @@ def plotData(
     else:
         ylabel = "Unknown"
 
-    if(displayMax):
+    if(displayAggregate):
         ylabel = "Aggregate " + ylabel
     plt.ylabel(ylabel)
     
@@ -223,7 +224,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 # connect to data base
-db_con = sqlite3.connect("test6")
+db_con = sqlite3.connect("test7")
 
 # collect and plot data
 #plotBwVsNumVc(db_con, args.dataIndex, True)
