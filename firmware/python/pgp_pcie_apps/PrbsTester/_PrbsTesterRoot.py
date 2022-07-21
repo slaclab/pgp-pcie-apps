@@ -163,10 +163,27 @@ class PrbsRoot(pr.Root):
                 rg.TxEn.set(val)
 
         @self.command()
-        def EnableN(arg):
+        def EnableNVc(arg):
             fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
             for rg in fwRgDevices:
                 rg.TxEn.set(arg>0)
+                arg -= 1
+
+        @self.command()
+        def EnableNVcPerLane(arg):
+            lanes = self.find(typ=ssi.Lane)
+            for ln in lanes:
+                rateGens = ln.find(typ=ssi.SsiPrbsRateGen)
+                count = arg
+                for rg in rateGens:
+                    rg.TxEn.set(count>0)
+                    count -= 1
+
+        @self.command()
+        def EnableNLane(arg):
+            lanes = self.find(typ=ssi.Lane)
+            for ln in lanes:
+                ln.enable.set(arg>0)
                 arg -= 1
 
         @self.command()

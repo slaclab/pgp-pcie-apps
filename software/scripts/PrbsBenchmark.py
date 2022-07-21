@@ -246,7 +246,7 @@ with test.PrbsRoot(
             print(f"lanes enabled: {enableLanes}")
 
             # enable channels
-            root.EnableN(enableLanes)
+            root.EnableNVc(enableLanes)
 
             # let data settle
             time.sleep(2.0)
