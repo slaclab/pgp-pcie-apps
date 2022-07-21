@@ -171,7 +171,7 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def EnableNVcPerLane(arg):
-            lanes = self.find(typ=ssi.Lane)
+            lanes = self.find(typ=ssi.PrbsLane)
             for ln in lanes:
                 rateGens = ln.find(typ=ssi.SsiPrbsRateGen)
                 count = arg
@@ -181,7 +181,7 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def EnableNLane(arg):
-            lanes = self.find(typ=ssi.Lane)
+            lanes = self.find(typ=ssi.PrbsLane)
             for ln in lanes:
                 ln.enable.set(arg>0)
                 arg -= 1
