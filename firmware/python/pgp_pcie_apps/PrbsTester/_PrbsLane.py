@@ -13,6 +13,7 @@
 
 import pyrogue as pr
 import surf.protocols.ssi as ssi
+import surf.axi as axi
 
 #################################################################
 
@@ -24,18 +25,31 @@ class PrbsLane(pr.Device):
         for vc in range(numvc):
 
             # Add the FW PRBS RateGen Module
-            self.add(ssi.SsiPrbsRateGen(
-                name    = f'FwPrbsRateGen[{vc}]',
-                offset  = (0x100*(2*vc+0)),
+            self.add(ssi.SsiPrbsTx(
+                name    = f'PrbsTx[{vc}]',
+                offset  = (0x1000*(2*vc+0)),
                 clock_freq = 250.0e6,
                 expand  = False,
             ))
 
+        for vc in range(numvc):            
             # Add the FW PRBS RX Module
             self.add(ssi.SsiPrbsRx(
-                name    = ('FwPrbsRx[%d]' % (vc)),
-                offset  = (0x100*(2*vc+1)),
+                name    = f'PrbsRx[{vc}]',
+                offset  = (0x1000*(2*vc+1)),
                 rxClkPeriod = 250.0e6,
                 expand  = False,
             ))
 
+        self.add(axi.AxiStreamMonAxiL(
+            name = f'TxMon',
+            offset = 0x1000*2*numvc,
+            numberLanes = numvc,
+            ))
+
+        self.add(axi.AxiStreamMonAxiL(
+            name = f'RxMon',
+            offset = 0x1000*((2*numvc)+1),
+            numberLanes = numvc,
+            ))
+        

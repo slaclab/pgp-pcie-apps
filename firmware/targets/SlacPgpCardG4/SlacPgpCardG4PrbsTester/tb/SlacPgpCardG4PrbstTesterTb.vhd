@@ -37,13 +37,13 @@ end entity SlacPgpCardG4PrbsTesterTb;
 architecture sim of SlacPgpCardG4PrbsTesterTb is
 
    -- component generics
-   constant TPD_G                : time                        := 1 ns;
-   constant DMA_LANES_G          : positive                    := 8;
-   constant NUM_VC_G             : positive                    := 1;
+   constant TPD_G                : time                        := 0.2 ns;
+   constant DMA_LANES_G          : positive                    := 2;
+   constant NUM_VC_G             : positive                    := 8;
    constant ROGUE_SIM_EN_G       : boolean                     := true;
    constant ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
    constant DMA_BYTE_WIDTH_G     : natural                     := 32;
-   constant PRBS_SEED_SIZE_G     : natural range 32 to 256     := 256;
+   constant PRBS_SEED_SIZE_G     : natural range 32 to 256     := 32;
    constant BUILD_INFO_G         : BuildInfoType               := BUILD_INFO_C;
 
    -- component ports

@@ -113,7 +113,7 @@ class PrbsRoot(pr.Root):
 
                     # Connect the SW PRBS Transmitter module
                     self.prbRg[lane][vc] = pr.utilities.prbs.PrbsTx(
-                        name    = ('SwPrbsRateGen[%d][%d]'%(lane,vc)),
+                        name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
                         width   = prbsWidth,
                         expand  = False,
                     )
@@ -123,39 +123,39 @@ class PrbsRoot(pr.Root):
 
         self.add(pr.LinkVariable(
             name = 'AggBandwidth',
-            dependencies = [rx.Bandwidth for lane in self.Hardware.Lane.values() for rx in lane.FwPrbsRateGen.values()],
+            dependencies = [rx.Bandwidth for lane in self.Hardware.Lane.values() for rx in lane.TxMon.Ch.values()],
             mode = 'RO',
             units = 'Mbps',
             linkedGet = lambda var, read: sum([x.get(read=read) for x in var.dependencies])))
 
         self.add(pr.LinkVariable(
             name = 'AggFrameRate',
-            dependencies = [rx.FrameRate for lane in self.Hardware.Lane.values() for rx in lane.FwPrbsRateGen.values()],
+            dependencies = [rx.FrameRate for lane in self.Hardware.Lane.values() for rx in lane.TxMon.Ch.values()],
             mode = 'RO',
             units = 'Hz',
             linkedGet = lambda var, read: sum([x.get(read=read) for x in var.dependencies])))
 
         @self.command()
-        def SetAllRawPeriods(arg):
-            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
+        def SetAllPeriods(arg):
+            fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
-                rg.RawPeriod.set(arg)
+                rg.TrigDly.set(arg)
                 rg.TxEn.set(val)
 
         @self.command()
         def SetAllRates(arg):
-            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
-                rg.TxRate.set(arg)
+                rg.TrigRate.set(arg)
                 rg.TxEn.set(val)
 
         @self.command()
         def SetAllPacketLengths(arg):
-            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
@@ -163,22 +163,22 @@ class PrbsRoot(pr.Root):
                 rg.TxEn.set(val)
 
         @self.command()
-        def EnableN(arg):
-            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
-            for rg in fwRgDevices:
-                rg.TxEn.set(arg>0)
-                arg -= 1
+        def EnableChannels(arg):
+            lanes = arg[0]
+            channels = arg[1]
+            for lane in range(lanes):
+                for channel in range(channels):
+                    self.Hardware.Lane[lane].PrbsTx[channel].TxEn.set(1)
 
         @self.command()
-        def EnableAllFwRg():
-            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
+        def EnableAllChannels():
+            fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
                 rg.TxEn.set(True)
         
-
         @self.command()
-        def DisableAllFwRg():
-            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
+        def DisableAllChannels():
+            fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
                 rg.TxEn.set(False)
 
@@ -192,6 +192,7 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def PurgeData():
-            fwRgDevices = self.find(typ=ssi.SsiPrbsRateGen)
+            fwRgDevices = self.find(typ=axi.AxiStreamMonAxiL)
             for rg in fwRgDevices:
-                rg.StatReset()
+                rg.CntRst()
+                

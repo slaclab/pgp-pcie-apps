@@ -35,11 +35,11 @@ entity SlacPgpCardG4PrbsTester is
       BUILD_INFO_G         : BuildInfoType;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-      DMA_LANES_G          : positive                    := 8;
+      DMA_LANES_G          : positive                    := 2;
       DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
-      NUM_VC_G             : positive                    := 1;
+      NUM_VC_G             : positive                    := 8;
       DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 32;
-      PRBS_SEED_SIZE_G     : natural range 32 to 256     := 256);
+      PRBS_SEED_SIZE_G     : natural range 32 to 256     := 32);
 
    port (
       --------------
@@ -75,7 +75,7 @@ end SlacPgpCardG4PrbsTester;
 
 architecture top_level of SlacPgpCardG4PrbsTester is
 
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3);
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 8);
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (

@@ -29,7 +29,7 @@ import pgp_pcie_apps.PrbsTester as test
 
 #################################################################
 
-rogue.Logging.setFilter('pyrogue.Block', rogue.Logging.Debug)
+rogue.Logging.setFilter('pyrogue.prbs.rx', rogue.Logging.Debug)
 
 
 # Set the argument parser

@@ -27,7 +27,7 @@ class Hardware(pr.Device):
             self.add(test.PrbsLane(
             numvc = VCs,
             name    =(f"Lane[{lane}]"),
-            offset =  (0x10000*lane),
+            offset =  (0x100000*lane),
             expand = False,
             ))
 
