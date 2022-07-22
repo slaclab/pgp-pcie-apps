@@ -29,14 +29,14 @@ use axi_pcie_core.AxiPciePkg.all;
 
 entity PrbsLane is
    generic (
-      TPD_G                        : time                    := 1 ns;
-      COMMON_CLOCK_G               : boolean                 := false;
-      NUM_VC_G                     : positive range 1 to 128 := 4;  -- Will overflow axi-lite address space if larger
-      PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "NARRAOW";
-      PRBS_SEED_SIZE_G             : natural range 32 to 512 := 32;
+      TPD_G                        : time                      := 1 ns;
+      COMMON_CLOCK_G               : boolean                   := false;
+      NUM_VC_G                     : positive range 1 to 8     := 4;  -- Will overflow axi-lite address space if larger
+      PRBS_FIFO_INT_WIDTH_SELECT_G : string                    := "NARRAOW";
+      PRBS_SEED_SIZE_G             : natural range 32 to 512   := 32;
       DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
-      DMA_BURST_BYTES_G : integer range 256 to 4096 := 4096;
-      AXI_BASE_ADDR_G              : slv(31 downto 0)        := (others => '0'));
+      DMA_BURST_BYTES_G            : integer range 256 to 4096 := 4096;
+      AXI_BASE_ADDR_G              : slv(31 downto 0)          := (others => '0'));
    port (
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
@@ -225,7 +225,7 @@ begin
    end generate;
 
    DISABLE_SEL_GEN : for i in NUM_VC_G-1 downto 0 generate
-      disableSel(i) <= dmaBuffGrpPause(i mod 7);
+      disableSel(i) <= dmaBuffGrpPause(i);
    end generate DISABLE_SEL_GEN;
 
 
