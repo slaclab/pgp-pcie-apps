@@ -164,11 +164,13 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def EnableChannels(arg):
-            for lane in range(min(arg[0], numLanes)):
+            lanes = arg[0]
+            for ln in range(numLanes):
                 channels = arg[1]
-                for channel in range(arg[1]):
-                    self.Hardware.Lane[lane].PrbsTx[channel].TxEn.set(channels > 0)
+                for vc in range(numVc):
+                    self.Hardware.Lane[ln].PrbsTx[vc].TxEn.set(channels > 0 and lanes > 0)
                     channels -= 1
+                lanes -= 1
 
         @self.command()
         def EnableAllChannels():
