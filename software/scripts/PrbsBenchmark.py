@@ -14,6 +14,7 @@ import sqlite3
 import setupLibPaths
 import sys
 import argparse
+import math
 
 import pgp_pcie_apps.PrbsTester as test
 import surf.protocols.ssi as ssi
@@ -54,33 +55,31 @@ def readHardwareData(root):
     # iterate through active lanes
     for ln in range(args.numLanes):
 
-        if root.Hardware.Lane[ln].enable.get():
+        # iterate through active channels
+        for rg in range(args.numVc):
+            if root.Hardware.Lane[ln].PrbsTx[rg].TxEn.get():
 
-            # iterate through active channels
-            for rg in range(args.numVc):
-                if root.Hardware.Lane[ln].FwPrbsRateGen[rg].TxEn.get():
+                # read data
+                hwData[vcCount].append(ln)
+                hwData[vcCount].append(rg)
 
-                    # read data
-                    hwData[vcCount].append(ln)
-                    hwData[vcCount].append(rg)
+                hwData[vcCount].append(root.Hardware.Lane[ln].TxMon.Ch[rg].FrameRate.get())
+                hwData[vcCount].append(root.Hardware.Lane[ln].TxMon.Ch[rg].FrameRateMax.get())
+                hwData[vcCount].append(root.Hardware.Lane[ln].TxMon.Ch[rg].FrameRateMin.get())
 
-                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRate.get())
-                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRateMax.get())
-                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRateMin.get())
+                hwData[vcCount].append(root.Hardware.Lane[ln].TxMon.Ch[rg].Bandwidth.get())
+                hwData[vcCount].append(root.Hardware.Lane[ln].TxMon.Ch[rg].BandwidthMax.get())
+                hwData[vcCount].append(root.Hardware.Lane[ln].TxMon.Ch[rg].BandwidthMin.get())
 
-                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].Bandwidth.get())
-                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMax.get())
-                    hwData[vcCount].append(root.Hardware.Lane[ln].FwPrbsRateGen[rg].BandwidthMin.get())
+                hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate.get())
+                hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxBw.get()*8e-6)
 
-                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxRate.get())
-                    hwData[vcCount].append(root.SwPrbsRx[ln][rg].rxBw.get()*8e-6)
+                totalBW += root.Hardware.Lane[ln].TxMon.Ch[rg].Bandwidth.get()
+                totalFR += root.Hardware.Lane[ln].TxMon.Ch[rg].FrameRate.get()
 
-                    totalBW += root.Hardware.Lane[ln].FwPrbsRateGen[rg].Bandwidth.get()
-                    totalFR += root.Hardware.Lane[ln].FwPrbsRateGen[rg].FrameRate.get()
-
-                    # extend list and increment counter
-                    hwData.append([])
-                    vcCount += 1
+                # extend list and increment counter
+                hwData.append([])
+                vcCount += 1
 
     #store agregates
     hwData[vcCount].append(-1)
@@ -232,37 +231,48 @@ with test.PrbsRoot(
 
     iter = 0
 
+    # set rate to maximum
     root.SetAllRawPeriods(0)
 
-    for currLength in range(1,20):
+    # iterate through frame sizes
+    for currLength in range(1,21):
 
         print(f"packet length: {2**currLength}")
 
         # adjust lengths
         root.SetAllPacketLengths(2**currLength)
 
-        for enableLanes in range(1, 9):
+        #   loop through lanes
+        for enableLanes in range(1, args.numLanes+1):
 
             print(f"lanes enabled: {enableLanes}")
 
-            # enable channels
-            root.EnableNVc(enableLanes)
-
-            # let data settle
-            time.sleep(2.0)
-
-            # reset data
-            root.PurgeData()
-
-            # allow time for data to be collected
-            time.sleep(2.0)
-
-            # read and save data
-            readData(root, dbCon, iter, enableLanes, 1, 0, currLength)
-
-            iter += 1
+            #   loop through channels
+            for enableChannels in range(0, math.log2(args.numVc)+1):
 
 
+                print(f"channels enabled: {2**enableChannels}")
+
+                # enable channels
+                root.EnableChannels([enableLanes,2**enableChannels])
+
+                # let data settle
+                time.sleep(2.0)
+
+                # reset data
+                root.PurgeData()
+
+                # allow time for data to be collected
+                time.sleep(2.0)
+
+                # read and save data
+                readData(root, dbCon, iter, enableLanes, 2**enableChannels, 0, currLength)
+
+                iter += 1
+
+    print("****************************************************")
+    print("data collection completed!")
+    print("****************************************************")
     pyrogue.pydm.runPyDM(root=root)
 
 
