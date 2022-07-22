@@ -155,7 +155,7 @@ def collectDataVsVc(
 
             if(rw[9] == -1):
                 ytot[index].append(rw[dataIndex])
-                xtot[index].append((rw[0], rw[1]))
+                xtot[index].append(rw[0]*rw[1])
                 
             else:
                 xdata[index].append(rw[0])
