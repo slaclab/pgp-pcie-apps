@@ -106,7 +106,7 @@ class PrbsRoot(pr.Root):
                         checkPayload = False,
                         expand       = False,
                     )
-                    self.dmaStream[lane][vc] >>  self.prbsRx[lane][vc]
+                    self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                     self.add(self.prbsRx[lane][vc])
                     self.addInterface(self.prbsRx[lane][vc])
 
@@ -164,12 +164,11 @@ class PrbsRoot(pr.Root):
 
         @self.command()
         def EnableChannels(arg):
-            lanes = arg[0]
-            channels = arg[1]
-            DisableAllChannels()
-            for lane in range(lanes):
-                for channel in range(channels):
-                    self.Hardware.Lane[lane].PrbsTx[channel].TxEn.set(1)
+            for lane in range(min(arg[0], numLanes)):
+                channels = arg[1]
+                for channel in range(arg[1]):
+                    self.Hardware.Lane[lane].PrbsTx[channel].TxEn.set(channels > 0)
+                    channels -= 1
 
         @self.command()
         def EnableAllChannels():
