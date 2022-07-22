@@ -232,7 +232,7 @@ with test.PrbsRoot(
     iter = 0
 
     # set rate to maximum
-    root.SetAllRawPeriods(0)
+    root.SetAllPeriods(0)
 
     # iterate through frame sizes
     for currLength in range(1,21):
