@@ -33,10 +33,12 @@ use unisim.vcomponents.all;
 entity Hardware is
    generic (
       TPD_G                        : time                    := 1 ns;
+      EN_TX_G                      : boolean                 := true;
+      EN_RX_G                      : boolean                 := true;
       DMA_SIZE_G                   : positive                := 1;
       NUM_VC_G                     : positive                := 1;
       PRBS_SEED_SIZE_G             : natural range 32 to 512 := 32;
-      PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "NARRAOW";
+      PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "WIDE";
       DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
       AXI_BASE_ADDR_G              : slv(31 downto 0)        := x"0080_0000";
       AXIL_CLK_IS_DMA_CLK_G        : boolean                 := false);
@@ -80,7 +82,7 @@ architecture mapping of Hardware is
 begin
    U_AxiLiteAsync_1 : entity surf.AxiLiteAsync
       generic map (
-         TPD_G          => TPD_G,
+         TPD_G        => TPD_G,
          COMMON_CLK_G => AXIL_CLK_IS_DMA_CLK_G)
       port map (
          sAxiClk         => axilClk,             -- [in]
@@ -125,6 +127,8 @@ begin
       U_PrbsLane : entity work.PrbsLane
          generic map(
             TPD_G                        => TPD_G,
+            EN_TX_G                      => EN_TX_G,
+            EN_RX_G                      => EN_RX_G,
             COMMON_CLOCK_G               => true,
             NUM_VC_G                     => NUM_VC_G,
             DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_G,
