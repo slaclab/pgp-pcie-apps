@@ -51,7 +51,7 @@ class PrbsRoot(pr.Root):
 
         # Create PCIE memory mapped interface
         if sim:
-            self.memMap = rogue.interfaces.memory.TcpClient('localhost', 8000)
+            self.memMap = rogue.interfaces.memory.TcpClient('localhost', 11000)
         else:
             self.memMap = rogue.hardware.axi.AxiMemMap(dev,)
 
@@ -83,7 +83,7 @@ class PrbsRoot(pr.Root):
 
                 # Set the DMA loopback channel
                 if sim:
-                    self.dmaStream[lane][vc] = rogue.interfaces.stream.TcpClient('localhost', 8002 + (512*lane) + (vc*2))
+                    self.dmaStream[lane][vc] = rogue.interfaces.stream.TcpClient('localhost', 11002 + (512*lane) + (vc*2))
                 else:
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(dev,(0x100*lane)+vc,1)
 
