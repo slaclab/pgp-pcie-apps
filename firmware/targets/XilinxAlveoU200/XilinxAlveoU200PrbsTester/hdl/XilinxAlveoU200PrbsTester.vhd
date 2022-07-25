@@ -33,12 +33,14 @@ use unisim.vcomponents.all;
 entity XilinxAlveoU200PrbsTester is
    generic (
       TPD_G            : time                    := 1 ns;
+      EN_TX_G          : boolean                 := true;
+      EN_RX_G          : boolean                 := false;
       BUILD_INFO_G     : BuildInfoType;
       MIG_EN_G         : boolean                 := false;
-      DMA_SIZE_G       : positive                := 8;
-      NUM_VC_G         : positive                := 1;
+      DMA_SIZE_G       : positive                := 4;
+      NUM_VC_G         : positive                := 16;
       DMA_BYTE_WIDTH_G : integer range 8 to 64   := 64;
-      PRBS_SEED_SIZE_G : natural range 32 to 512 := 512);
+      PRBS_SEED_SIZE_G : natural range 32 to 512 := 32);
    port (
       ---------------------
       --  Application Ports
