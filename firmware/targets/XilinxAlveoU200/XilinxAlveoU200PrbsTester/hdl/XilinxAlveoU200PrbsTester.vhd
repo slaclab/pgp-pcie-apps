@@ -35,7 +35,7 @@ entity XilinxAlveoU200PrbsTester is
       TPD_G             : time                      := 1 ns;
       BUILD_INFO_G      : BuildInfoType;
       TX_EN_G           : boolean                   := true;
-      RX_EN_G           : boolean                   := false;
+      RX_EN_G           : boolean                   := true;
       MIG_EN_G          : boolean                   := false;
       DMA_SIZE_G        : positive                  := 2;
       NUM_VC_G          : positive                  := 8;

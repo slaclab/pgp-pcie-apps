@@ -71,9 +71,9 @@ architecture mapping of Hardware is
 
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(DMA_SIZE_G-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G-1 downto 0):= (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
    signal axilReadMasters  : AxiLiteReadMasterArray(DMA_SIZE_G-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G-1 downto 0):= (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
    signal axilReset : slv(DMA_SIZE_G-1 downto 0);
