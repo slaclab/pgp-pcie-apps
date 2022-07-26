@@ -41,6 +41,8 @@ class PrbsRoot(pr.Root):
                     prbsWidth,
                     numVc,
                     loopback,
+                    no_tx=False,
+                    no_rx=False,
             **kwargs):
         super().__init__(**kwargs)
 
@@ -69,6 +71,8 @@ class PrbsRoot(pr.Root):
         self.add(test.Hardware(
             numLanes = numLanes,
             VCs = numVc,
+            no_rx = no_rx,
+            no_tx = no_tx,
             name    =("Hardware"),
             memBase = self.memMap,
             offset =  0x00800000,
@@ -100,26 +104,28 @@ class PrbsRoot(pr.Root):
                 else:
 
                     # Connect the SW PRBS Receiver module
-                    self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
-                        name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
-                        width        = prbsWidth,
-                        checkPayload = False,
-                        expand       = False,
-                    )
-                    self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
-                    self.add(self.prbsRx[lane][vc])
-                    self.addInterface(self.prbsRx[lane][vc])
+                    if no_tx is not True:
+                        self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
+                            name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
+                            width        = prbsWidth,
+                            checkPayload = False,
+                            expand       = False,
+                        )
+                        self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
+                        self.add(self.prbsRx[lane][vc])
+                        self.addInterface(self.prbsRx[lane][vc])
 
 
                     # Connect the SW PRBS Transmitter module
-                    self.prbRg[lane][vc] = pr.utilities.prbs.PrbsTx(
-                        name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
-                        width   = prbsWidth,
-                        expand  = False,
-                    )
-                    self.prbRg[lane][vc] >> self.dmaStream[lane][vc]
-                    self.add(self.prbRg[lane][vc])
-                    self.addInterface(self.prbRg[lane][vc])
+                    if no_rx is not True:
+                        self.prbRg[lane][vc] = pr.utilities.prbs.PrbsTx(
+                            name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
+                            width   = prbsWidth,
+                            expand  = False,
+                        )
+                        self.prbRg[lane][vc] >> self.dmaStream[lane][vc]
+                        self.add(self.prbRg[lane][vc])
+                        self.addInterface(self.prbRg[lane][vc])
 
         self.add(pr.LinkVariable(
             name = 'AggBandwidth',

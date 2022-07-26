@@ -18,38 +18,42 @@ import surf.axi as axi
 #################################################################
 
 class PrbsLane(pr.Device):
-    def __init__(self, numvc, **kwargs):
+    def __init__(self, numvc, no_rx=False, no_tx=False, **kwargs):
         super().__init__(**kwargs)
 
         # Loop through the virtual channels
         for vc in range(numvc):
 
             # Add the FW PRBS RateGen Module
-            self.add(ssi.SsiPrbsTx(
-                name    = f'PrbsTx[{vc}]',
-                offset  = (0x1000*(2*vc+0)),
-                clock_freq = 250.0e6,
-                expand  = False,
-            ))
+            if no_tx is not True:
+                self.add(ssi.SsiPrbsTx(
+                    name    = f'PrbsTx[{vc}]',
+                    offset  = (0x1000*(2*vc+0)),
+                    clock_freq = 250.0e6,
+                    expand  = False,
+                ))
 
         for vc in range(numvc):            
             # Add the FW PRBS RX Module
-            self.add(ssi.SsiPrbsRx(
-                name    = f'PrbsRx[{vc}]',
-                offset  = (0x1000*(2*vc+1)),
-                rxClkPeriod = 250.0e6,
-                expand  = False,
+            if no_rx is not True:
+                self.add(ssi.SsiPrbsRx(
+                    name    = f'PrbsRx[{vc}]',
+                    offset  = (0x1000*(2*vc+1)),
+                    rxClkPeriod = 250.0e6,
+                    expand  = False,
+                ))
+
+        if no_tx is not True:
+            self.add(axi.AxiStreamMonAxiL(
+                name = f'TxMon',
+                offset = 0x1000*2*numvc,
+                numberLanes = numvc,
             ))
 
-        self.add(axi.AxiStreamMonAxiL(
-            name = f'TxMon',
-            offset = 0x1000*2*numvc,
-            numberLanes = numvc,
-            ))
-
-        self.add(axi.AxiStreamMonAxiL(
-            name = f'RxMon',
-            offset = 0x1000*((2*numvc)+1),
-            numberLanes = numvc,
+        if no_rx is not True:
+            self.add(axi.AxiStreamMonAxiL(
+                name = f'RxMon',
+                offset = 0x1000*((2*numvc)+1),
+                numberLanes = numvc,
             ))
         
