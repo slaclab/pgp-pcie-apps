@@ -33,15 +33,15 @@ use unisim.vcomponents.all;
 entity XilinxAlveoU200PrbsTester is
    generic (
       TPD_G             : time                      := 1 ns;
-      EN_TX_G           : boolean                   := true;
-      EN_RX_G           : boolean                   := false;
       BUILD_INFO_G      : BuildInfoType;
+      TX_EN_G           : boolean                   := true;
+      RX_EN_G           : boolean                   := false;
       MIG_EN_G          : boolean                   := false;
       DMA_SIZE_G        : positive                  := 4;
       NUM_VC_G          : positive                  := 16;
       DMA_BURST_BYTES_G : integer range 256 to 4096 := 4096;
       DMA_BYTE_WIDTH_G  : integer range 8 to 64     := 64;
-      PRBS_SEED_SIZE_G  : natural range 32 to 512   := 32);
+      PRBS_SEED_SIZE_G  : natural range 32 to 512   := 64);
    port (
       ---------------------
       --  Application Ports
@@ -167,6 +167,7 @@ begin
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
+         DMA_BURST_BYTES_G => DMA_BURST_BYTES_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          DMA_SIZE_G        => DMA_SIZE_G)
       port map (
@@ -297,7 +298,6 @@ begin
          PRBS_SEED_SIZE_G             => PRBS_SEED_SIZE_G,
          PRBS_FIFO_INT_WIDTH_SELECT_G => "WIDE",
          DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_C,
-         DMA_BURST_BYTES_G            => DMA_BURST_BYTES_G,
          AXI_BASE_ADDR_G              => AXIL_XBAR_CONFIG_C(4).baseAddr)
       port map (
          -- AXI-Lite Interface

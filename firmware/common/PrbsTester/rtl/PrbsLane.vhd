@@ -59,16 +59,17 @@ end PrbsLane;
 
 architecture mapping of PrbsLane is
 
-   constant ILEAVE_REARB_C : positive := DMA_BURST_BYTES_G / DMA_AXIS_CONFIG_G.TDATA_BYTES_C;
+   constant ILEAVE_REARB_C    : positive := DMA_BURST_BYTES_G / DMA_AXIS_CONFIG_G.TDATA_BYTES_C;
+   constant FIFO_ADDR_WIDTH_C : integer  := bitSize(ILEAVE_REARB_C);
 
    constant NUM_AXI_MASTERS_C : natural := 2*NUM_VC_G+2;
 
    constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 20, 12);
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0) := (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
 
    signal dmaIbMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal dmaIbSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
@@ -104,13 +105,16 @@ begin
    ---------------
    -- PRBS Modules
    ---------------
-   GEN_VC :   for i in NUM_VC_G-1 downto 0 generate
+   GEN_VC : for i in NUM_VC_G-1 downto 0 generate
       GEN_TX : if (TX_EN_G) generate
 
          U_SsiPrbsTx : entity surf.SsiPrbsTx
             generic map (
                TPD_G                      => TPD_G,
                GEN_SYNC_FIFO_G            => COMMON_CLOCK_G,
+               SYNTH_MODE_G               => "xpm",
+               MEMORY_TYPE_G              => "block",
+               FIFO_ADDR_WIDTH_G          => FIFO_ADDR_WIDTH_C,
                PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
                VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
                VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
