@@ -97,6 +97,21 @@ parser.add_argument(
     help     = "Enable read all variables at start",
 )
 
+parser.add_argument(
+    "--noRx",
+    type     = bool,
+    required = False,
+    default  = False,
+    help     = "No Rx's present",
+)
+
+parser.add_argument(
+    "--noTx",
+    type     = bool,
+    required = False,
+    default  = False,
+    help     = "No Tx's present",
+)
 # Get the arguments
 args = parser.parse_args()
 
@@ -109,7 +124,9 @@ with test.PrbsRoot(
         prbsWidth = args.prbsWidth,
         numVc = args.numVc,
         loopback = args.loopback,
-        pollEn=args.pollEn) as root:
+        pollEn=args.pollEn,
+        noRx = args.noRx,
+        noTx = args.noTx) as root:
 
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
     for rx in swRxDevices:
