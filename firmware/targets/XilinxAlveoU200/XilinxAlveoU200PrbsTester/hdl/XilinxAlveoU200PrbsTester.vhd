@@ -41,7 +41,7 @@ entity XilinxAlveoU200PrbsTester is
       NUM_VC_G          : positive                  := 16;
       DMA_BURST_BYTES_G : integer range 256 to 4096 := 4096;
       DMA_BYTE_WIDTH_G  : integer range 8 to 64     := 64;
-      PRBS_SEED_SIZE_G  : natural range 32 to 512   := 64);
+      PRBS_SEED_SIZE_G  : natural range 32 to 512   := 32);
    port (
       ---------------------
       --  Application Ports
