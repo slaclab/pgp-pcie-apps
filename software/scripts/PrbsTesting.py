@@ -84,6 +84,19 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--no_tx",
+    action = 'store_true',
+    default  = False,
+)
+
+parser.add_argument(
+    "--no_rx",
+    action = 'store_true',
+    default  = False,
+)
+
+
+parser.add_argument(
     "--pollEn",
     action = 'store_true',
     default  = False,
@@ -106,6 +119,8 @@ with test.PrbsRoot(
         dev = args.dev,
         sim = args.sim,
         numLanes = args.numLanes,
+        no_tx = args.no_tx,
+        no_rx = args.no_rx,
         prbsWidth = args.prbsWidth,
         numVc = args.numVc,
         loopback = args.loopback,
