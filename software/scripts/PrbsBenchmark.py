@@ -188,6 +188,22 @@ parser.add_argument(
     help     = "Max Pcket Length for Collection",
 )
 
+parser.add_argument(
+    "--noRx",
+    type     = bool,
+    required = False,
+    default  = False,
+    help     = "No Rx's present",
+)
+
+parser.add_argument(
+    "--noTx",
+    type     = bool,
+    required = False,
+    default  = False,
+    help     = "No Tx's present",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -199,6 +215,8 @@ with test.PrbsRoot(
     numLanes = args.numLanes, 
     prbsWidth = args.prbsWidth, 
     numVc = args.numVc, 
+    noRx = args.noRx,
+    noTx = args.noTx,
     loopback = args.loopback) as root:
     
     dbCon = sqlite3.connect(args.fileName)

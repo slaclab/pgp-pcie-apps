@@ -41,6 +41,8 @@ class PrbsRoot(pr.Root):
                     prbsWidth,
                     numVc,
                     loopback,
+                    noRx,
+                    noTx,
             **kwargs):
         super().__init__(**kwargs)
 
