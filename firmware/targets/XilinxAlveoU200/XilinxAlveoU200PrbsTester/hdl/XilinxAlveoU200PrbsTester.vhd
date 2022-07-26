@@ -32,18 +32,18 @@ use unisim.vcomponents.all;
 
 entity XilinxAlveoU200PrbsTester is
    generic (
-      TPD_G             : time                      := 1 ns;
-      BUILD_INFO_G      : BuildInfoType;
+      TPD_G                : time                        := 1 ns;
+      BUILD_INFO_G         : BuildInfoType;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 11000;
-      TX_EN_G           : boolean                   := true;
-      RX_EN_G           : boolean                   := true;
-      MIG_EN_G          : boolean                   := false;
-      DMA_SIZE_G        : positive                  := 8;
-      NUM_VC_G          : positive                  := 8;
-      DMA_BURST_BYTES_G : integer range 256 to 4096 := 4096;
-      DMA_BYTE_WIDTH_G  : integer range 8 to 64     := 16;
-      PRBS_SEED_SIZE_G  : natural range 32 to 512   := 32);
+      TX_EN_G              : boolean                     := true;
+      RX_EN_G              : boolean                     := true;
+      MIG_EN_G             : boolean                     := false;
+      DMA_SIZE_G           : positive                    := 8;
+      NUM_VC_G             : positive                    := 8;
+      DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
+      DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 16;
+      PRBS_SEED_SIZE_G     : natural range 32 to 512     := 32);
    port (
       ---------------------
       --  Application Ports
@@ -167,14 +167,14 @@ begin
    -----------------------
    U_Core : entity axi_pcie_core.XilinxAlveoU200Core
       generic map (
-         TPD_G             => TPD_G,
-         BUILD_INFO_G      => BUILD_INFO_G,
+         TPD_G                => TPD_G,
+         BUILD_INFO_G         => BUILD_INFO_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          ROGUE_SIM_CH_COUNT_G => NUM_VC_G,
-         DMA_BURST_BYTES_G => DMA_BURST_BYTES_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G        => DMA_SIZE_G)
+         DMA_BURST_BYTES_G    => DMA_BURST_BYTES_G,
+         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C,
+         DMA_SIZE_G           => DMA_SIZE_G)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -189,7 +189,7 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => dmaClk,
+         appClk          => axilClk,
          appRst          => axilRst,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
