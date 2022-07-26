@@ -33,8 +33,8 @@ use unisim.vcomponents.all;
 entity Hardware is
    generic (
       TPD_G                        : time                    := 1 ns;
-      EN_TX_G                      : boolean                 := true;
-      EN_RX_G                      : boolean                 := true;
+      TX_EN_G                      : boolean                 := true;
+      RX_EN_G                      : boolean                 := true;
       DMA_SIZE_G                   : positive                := 1;
       NUM_VC_G                     : positive                := 1;
       PRBS_SEED_SIZE_G             : natural range 32 to 512 := 32;
@@ -127,8 +127,8 @@ begin
       U_PrbsLane : entity work.PrbsLane
          generic map(
             TPD_G                        => TPD_G,
-            EN_TX_G                      => EN_TX_G,
-            EN_RX_G                      => EN_RX_G,
+            TX_EN_G                      => TX_EN_G,
+            RX_EN_G                      => RX_EN_G,
             COMMON_CLOCK_G               => true,
             NUM_VC_G                     => NUM_VC_G,
             DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_G,

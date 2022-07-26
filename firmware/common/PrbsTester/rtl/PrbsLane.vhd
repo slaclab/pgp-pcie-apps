@@ -31,10 +31,10 @@ entity PrbsLane is
    generic (
       TPD_G                        : time                      := 1 ns;
       COMMON_CLOCK_G               : boolean                   := false;
-      EN_TX_G                      : boolean                   := true;
-      EN_RX_G                      : boolean                   := true;
+      TX_EN_G                      : boolean                   := true;
+      RX_EN_G                      : boolean                   := true;
       NUM_VC_G                     : positive range 1 to 16    := 4;  -- Will overflow axi-lite address space if larger
-      PRBS_FIFO_INT_WIDTH_SELECT_G : string                    := "NARRAOW";
+      PRBS_FIFO_INT_WIDTH_SELECT_G : string                    := "WIDE";
       PRBS_SEED_SIZE_G             : natural range 32 to 512   := 32;
       DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
       DMA_BURST_BYTES_G            : integer range 256 to 4096 := 4096;
@@ -104,10 +104,8 @@ begin
    ---------------
    -- PRBS Modules
    ---------------
-   GEN_VC :
-   for i in NUM_VC_G-1 downto 0 generate
-      GEN_TX : if (EN_TX_G) generate
-
+   GEN_VC :   for i in NUM_VC_G-1 downto 0 generate
+      GEN_TX : if (TX_EN_G) generate
 
          U_SsiPrbsTx : entity surf.SsiPrbsTx
             generic map (
@@ -116,7 +114,6 @@ begin
                PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
                VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
                VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
-               FIFO_INT_WIDTH_SELECT_G    => "NARROW",
                MASTER_AXI_PIPE_STAGES_G   => 1,
                MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
             port map (
@@ -136,9 +133,7 @@ begin
 
       end generate GEN_TX;
 
-      GEN_RX : if (EN_RX_G) generate
-
-
+      GEN_RX : if (RX_EN_G) generate
          U_SsiPrbsRx : entity surf.SsiPrbsRx
             generic map (
                TPD_G                     => TPD_G,
@@ -187,7 +182,7 @@ begin
 
    end generate GEN_VC;
 
-   GEN_TX : if (EN_TX_G) generate
+   GEN_TX : if (TX_EN_G) generate
       U_AxiStreamMonAxiL_1 : entity surf.AxiStreamMonAxiL
          generic map (
             TPD_G            => TPD_G,
@@ -208,7 +203,7 @@ begin
             sAxilReadSlave   => axilReadSlaves(2*NUM_VC_G));   -- [out]
    end generate GEN_TX;
 
-   GEN_RX : if (EN_RX_G) generate
+   GEN_RX : if (RX_EN_G) generate
       U_AxiStreamMonAxiL_2 : entity surf.AxiStreamMonAxiL
          generic map (
             TPD_G            => TPD_G,
