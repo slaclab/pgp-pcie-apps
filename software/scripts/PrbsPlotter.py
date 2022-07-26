@@ -29,16 +29,21 @@ def plot3D(x, y, z):
 def calculateBandwidthError(packetLength, frameRate, bandwidth):
     return ((packetLength+1)*32*8)*frameRate/(bandwidth*1e6)
 
+def prepDicts(index, dicts):
+    for d in dicts:
+        if index not in d:
+            d[index] = []
+
 def queryData(db_con):
     # prep data base for query
     cur = db_con.cursor()
-    statement = '''SELECT set_num_lanes, set_rate, set_packet_length, tx_bandwidth, tx_frame_rate, tx_bandwidth_max, tx_frame_rate_max, tx_bandwidth_min, tx_frame_rate_min, lane lane FROM raw_data'''
+    statement = '''SELECT set_num_lanes, set_num_vc, set_packet_length, tx_bandwidth, tx_frame_rate, tx_bandwidth_max, tx_frame_rate_max, tx_bandwidth_min, tx_frame_rate_min, lane FROM raw_data'''
 
     # get data from data base
     ret = cur.execute(statement)
     return ret
 
-def displayFromArrays(
+def displayFromDicts(
     x, 
     y, 
     total, 
@@ -58,7 +63,7 @@ def displayFromArrays(
     ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0,1,colorCount)))
     
     # display all rows
-    for sets in range(len(x)-1):
+    for sets in x:
         if(displayFilter(y[sets], total[sets], sets)):
             if(not displayMax):
                 plt.plot(x[sets], y[sets], 'o', linestyle = 'solid', label = namer(sets))
@@ -68,6 +73,7 @@ def displayFromArrays(
                     plt.plot(x[sets], ylow[sets], '2', markersize = 15, color = color)
             else:
                 plt.plot(tOffSet[sets], total[sets], 'o', linestyle = 'dashed', label = str(namer(sets)))
+
 
 def collectDataVsFrameSize(
     rows, 
@@ -79,35 +85,42 @@ def collectDataVsFrameSize(
     displayError
 ):
     
-        # initialize arrays
-    xdata   = [[] for i in range(9)]
-    ydata   = [[] for i in range(9)]
-    yhigh   = [[] for i in range(9)]
-    ylow    = [[] for i in range(9)]
-    ytot    = [[] for i in range(9)]
-    xtot    = [[] for i in range(9)]
+    # initialize dicts
+    xdata   = {}
+    ydata   = {}
+    yhigh   = {}
+    ylow    = {}
+    ytot    = {}
+    xtot    = {}
 
     # collect data
     for rw in rows:
+
+        index = (rw[0], rw[1])
+
         if(collectionFilter(rw)):
+
+            prepDicts(index,[xdata, ydata, yhigh, ylow, ytot, xtot])
+
             if(rw[9] == -1):
-                ytot[rw[0]-1].append(rw[dataIndex])
-                xtot[rw[0]-1].append(math.log2(rw[2]))
+                ytot[index].append(rw[dataIndex])
+                xtot[index].append(math.log2(rw[2]))
+
             elif(dataIndex == 5):
-                xdata[rw[0]-1].append(math.log2(rw[2]))
-                ydata[rw[0]-1].append(calculateBandwidthError(rw[2], rw[4], rw[3]))
+                xdata[index].append(math.log2(rw[2]))
+                ydata[index].append(calculateBandwidthError(rw[2], rw[4], rw[3]))
                 
             else:
-                xdata[rw[0]-1].append(math.log2(rw[2]))
-                ydata[rw[0]-1].append(rw[dataIndex])
+                xdata[index].append(math.log2(rw[2]))
+                ydata[index].append(rw[dataIndex])
                 
-                yhigh[rw[0]-1].append(rw[dataIndex+2])
-                ylow[rw[0]-1].append(rw[dataIndex+4])
+                yhigh[index].append(rw[dataIndex+2])
+                ylow[index].append(rw[dataIndex+4])
                 
                 
 
     # display data            
-    displayFromArrays(xdata, ydata, ytot, xtot, yhigh, ylow, namer, displayFilter, displayMax, displayError, 8) 
+    displayFromDicts(xdata, ydata, ytot, xtot, yhigh, ylow, namer, displayFilter, displayMax, displayError, 8) 
 
     # set x axis label
     plt.xlabel("log2 of frame size") 
@@ -122,29 +135,37 @@ def collectDataVsVc(
     displayError
 ):
     
-    # initialize arrays
-    xdata = [[]*20 for i in range(20)]
-    ydata = [[]*20 for i in range(20)]
-    yhigh = [[]*20 for i in range(20)]
-    ylow = [[]*20 for i in range(20)]
-    tot = [[]*7 for i in range(20)]
-    xtotals = [[1, 2, 3, 4, 5, 6, 7, 8] for i in range(20)]
+    # initialize dicts
+    xdata   = {}
+    ydata   = {}
+    yhigh   = {}
+    ylow    = {}
+    ytot    = {}
+    xtot    = {}
+
 
     # collect data
     for rw in rows:
+
+        index = (int(math.log2(rw[2]))-1)
+
         if(collectionFilter(rw)):
+
+            prepDicts(index,[xdata, ydata, yhigh, ylow, ytot, xtot])
+
             if(rw[9] == -1):
-                tot[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+                ytot[index].append(rw[dataIndex])
+                xtot[index].append(rw[0]*rw[1])
                 
             else:
-                xdata[int(math.log2(rw[2]))-1].append(rw[0])
-                ydata[int(math.log2(rw[2]))-1].append(rw[dataIndex])
+                xdata[index].append(rw[0])
+                ydata[index].append(rw[dataIndex])
                 
-                yhigh[int(math.log2(rw[2]))-1].append(rw[dataIndex+2])
-                ylow[int(math.log2(rw[2]))-1].append(rw[dataIndex+4])
+                yhigh[index].append(rw[dataIndex+2])
+                ylow[index].append(rw[dataIndex+4])
 
     # display data            
-    displayFromArrays(xdata, ydata, tot, xtotals, yhigh, ylow, namer, displayFilter, displayMax, displayError, 20) 
+    displayFromDicts(xdata, ydata, ytot, xtot, yhigh, ylow, namer, displayFilter, displayMax, displayError, 20) 
 
     # set x axis label
     plt.xlabel("Active Channels")
