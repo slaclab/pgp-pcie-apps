@@ -41,7 +41,7 @@ entity Hardware is
       PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "WIDE";
       DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
       AXI_BASE_ADDR_G              : slv(31 downto 0)        := x"0080_0000";
-      COMMON_CLOCK_G        : boolean                 := false);
+      COMMON_CLOCK_G               : boolean                 := false);
    port (
       -- AXI-Lite Interface
       axilClk         : in  sl;
@@ -71,18 +71,18 @@ architecture mapping of Hardware is
 
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(DMA_SIZE_G-1 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G-1 downto 0):= (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
    signal axilReadMasters  : AxiLiteReadMasterArray(DMA_SIZE_G-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G-1 downto 0):= (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
    signal axilReset : slv(DMA_SIZE_G-1 downto 0);
    signal pause     : slv(7 downto 0);
 
-   attribute dont_touch : string;
-   attribute dont_touch of dmaReset : signal is "true";
+   attribute dont_touch              : string;
+   attribute dont_touch of dmaReset  : signal is "true";
    attribute dont_touch of axilReset : signal is "true";
-   
+
 begin
 
    ---------------------
@@ -139,21 +139,21 @@ begin
             axilWriteMaster => axilWriteMasters(i),
             axilWriteSlave  => axilWriteSlaves(i));
 
-      U_dmaRst : entity surf.RstPipeline
+      U_dmaRst : entity surf.RstSync
          generic map (
             TPD_G => TPD_G)
          port map (
-            clk    => dmaClk,
-            rstIn  => dmaRst,
-            rstOut => dmaReset(i));
+            clk      => dmaClk,
+            asyncRst => dmaRst,
+            syncRst  => dmaReset(i));
 
-      U_axilRst : entity surf.RstPipeline
+      U_axilRst : entity surf.RstSync
          generic map (
             TPD_G => TPD_G)
          port map (
-            clk    => axilClk,
-            rstIn  => axilRst,
-            rstOut => axilReset(i));
+            clk      => axilClk,
+            asyncRst => axilRst,
+            syncRst  => axilReset(i));
 
    end generate;
 
