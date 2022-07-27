@@ -41,7 +41,7 @@ entity Hardware is
       PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "WIDE";
       DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
       AXI_BASE_ADDR_G              : slv(31 downto 0)        := x"0080_0000";
-      AXIL_CLK_IS_DMA_CLK_G        : boolean                 := false);
+      COMMON_CLOCK_G        : boolean                 := false);
    port (
       -- AXI-Lite Interface
       axilClk         : in  sl;
@@ -79,24 +79,11 @@ architecture mapping of Hardware is
    signal axilReset : slv(DMA_SIZE_G-1 downto 0);
    signal pause     : slv(7 downto 0);
 
+   attribute dont_touch : string;
+   attribute dont_touch of dmaReset : signal is "true";
+   attribute dont_touch of axilReset : signal is "true";
+   
 begin
-   U_AxiLiteAsync_1 : entity surf.AxiLiteAsync
-      generic map (
-         TPD_G        => TPD_G,
-         COMMON_CLK_G => AXIL_CLK_IS_DMA_CLK_G)
-      port map (
-         sAxiClk         => axilClk,             -- [in]
-         sAxiClkRst      => axilRst,             -- [in]
-         sAxiReadMaster  => axilReadMaster,      -- [in]
-         sAxiReadSlave   => axilReadSlave,       -- [out]
-         sAxiWriteMaster => axilWriteMaster,     -- [in]
-         sAxiWriteSlave  => axilWriteSlave,      -- [out]
-         mAxiClk         => dmaClk,              -- [in]
-         mAxiClkRst      => dmaRst,              -- [in]
-         mAxiReadMaster  => dmaAxilReadMaster,   -- [out]
-         mAxiReadSlave   => dmaAxilReadSlave,    -- [in]
-         mAxiWriteMaster => dmaAxilWriteMaster,  -- [out]
-         mAxiWriteSlave  => dmaAxilWriteSlave);  -- [in]
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -108,12 +95,12 @@ begin
          NUM_MASTER_SLOTS_G => DMA_SIZE_G,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
       port map (
-         axiClk              => dmaClk,
-         axiClkRst           => dmaRst,
-         sAxiWriteMasters(0) => dmaAxilWriteMaster,
-         sAxiWriteSlaves(0)  => dmaAxilWriteSlave,
-         sAxiReadMasters(0)  => dmaAxilReadMaster,
-         sAxiReadSlaves(0)   => dmaAxilReadSlave,
+         axiClk              => axilClk,
+         axiClkRst           => axilRst,
+         sAxiWriteMasters(0) => axilAxilWriteMaster,
+         sAxiWriteSlaves(0)  => axilAxilWriteSlave,
+         sAxiReadMasters(0)  => axilAxilReadMaster,
+         sAxiReadSlaves(0)   => axilAxilReadSlave,
          mAxiWriteMasters    => axilWriteMasters,
          mAxiWriteSlaves     => axilWriteSlaves,
          mAxiReadMasters     => axilReadMasters,
@@ -129,7 +116,7 @@ begin
             TPD_G                        => TPD_G,
             TX_EN_G                      => TX_EN_G,
             RX_EN_G                      => RX_EN_G,
-            COMMON_CLOCK_G               => true,
+            COMMON_CLOCK_G               => COMMON_CLOCK_G,
             NUM_VC_G                     => NUM_VC_G,
             DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_G,
             PRBS_SEED_SIZE_G             => PRBS_SEED_SIZE_G,
@@ -145,8 +132,8 @@ begin
             dmaObMaster     => dmaObMasters(i),
             dmaObSlave      => dmaObSlaves(i),
             -- AXI-Lite Interface
-            axilClk         => dmaClk,
-            axilRst         => dmaReset(i),
+            axilClk         => axilClk,
+            axilRst         => axilReset(i),
             axilReadMaster  => axilReadMasters(i),
             axilReadSlave   => axilReadSlaves(i),
             axilWriteMaster => axilWriteMasters(i),
