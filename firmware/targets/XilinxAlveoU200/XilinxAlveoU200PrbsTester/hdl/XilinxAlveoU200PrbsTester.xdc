@@ -15,4 +15,11 @@ set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_Core/R
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_Core/REAL_PCIE.U_AxiPciePhy/U_AxiPcie/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks -of_objects [get_pins U_Mig/GEN_MIG2.U_Mig2/U_MIG/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0]]
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_Core/REAL_PCIE.U_AxiPciePhy/U_AxiPcie/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks -of_objects [get_pins U_Mig/GEN_MIG3.U_Mig3/U_MIG/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0]]
 
-set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_Hardware}]
+set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_Hardware/GEN_VEC[0].U_PrbsLane}]
+set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_Hardware/GEN_VEC[1].U_PrbsLane}]
+set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_Hardware/GEN_VEC[2].U_PrbsLane}]
+set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_Hardware/GEN_VEC[3].U_PrbsLane}]
+set_property USER_SLR_ASSIGNMENT SLR2 [get_cells {U_Hardware/GEN_VEC[4].U_PrbsLane}]
+set_property USER_SLR_ASSIGNMENT SLR2 [get_cells {U_Hardware/GEN_VEC[5].U_PrbsLane}]
+set_property USER_SLR_ASSIGNMENT SLR2 [get_cells {U_Hardware/GEN_VEC[6].U_PrbsLane}]
+set_property USER_SLR_ASSIGNMENT SLR2 [get_cells {U_Hardware/GEN_VEC[7].U_PrbsLane}]

@@ -37,10 +37,10 @@ entity XilinxAlveoU200PrbsTester is
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 11000;
       TX_EN_G              : boolean                     := true;
-      RX_EN_G              : boolean                     := true;
+      RX_EN_G              : boolean                     := false;
       MIG_EN_G             : boolean                     := false;
       DMA_SIZE_G           : positive                    := 8;
-      NUM_VC_G             : positive                    := 8;
+      NUM_VC_G             : positive                    := 16;
       DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
       DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 16;
       PRBS_SEED_SIZE_G     : natural range 32 to 512     := 32);
