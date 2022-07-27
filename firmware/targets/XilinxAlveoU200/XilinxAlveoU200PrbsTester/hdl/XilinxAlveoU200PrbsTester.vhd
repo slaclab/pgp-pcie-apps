@@ -42,8 +42,8 @@ entity XilinxAlveoU200PrbsTester is
       DMA_SIZE_G           : positive                    := 8;
       NUM_VC_G             : positive                    := 16;
       DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
-      DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 16;
-      PRBS_SEED_SIZE_G     : natural range 32 to 512     := 32);
+      DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 8;
+      PRBS_SEED_SIZE_G     : natural range 32 to 512     := 64);
    port (
       ---------------------
       --  Application Ports
@@ -293,9 +293,29 @@ begin
    ---------------
    -- PRBS Modules
    ---------------
+
+--    U_AxiLiteAsync_1 : entity surf.AxiLiteAsync
+--       generic map (
+--          TPD_G        => TPD_G,
+--          COMMON_CLK_G => AXIL_CLK_IS_DMA_CLK_G)
+--       port map (
+--          sAxiClk         => axilClk,             -- [in]
+--          sAxiClkRst      => axilRst,             -- [in]
+--          sAxiReadMaster  => axilReadMasters,      -- [in]
+--          sAxiReadSlave   => axilReadSlaves,       -- [out]
+--          sAxiWriteMaster => axilWriteMasters,     -- [in]
+--          sAxiWriteSlave  => axilWriteSlaves,      -- [out]
+--          mAxiClk         => dmaClk,              -- [in]
+--          mAxiClkRst      => dmaRst,              -- [in]
+--          mAxiReadMaster  => dmaAxilReadMaster,   -- [out]
+--          mAxiReadSlave   => dmaAxilReadSlave,    -- [in]
+--          mAxiWriteMaster => dmaAxilWriteMaster,  -- [out]
+--          mAxiWriteSlave  => dmaAxilWriteSlave);  -- [in]
+
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G                        => TPD_G,
+         COMMON_CLOCK_G               => false,
          TX_EN_G                      => TX_EN_G,
          RX_EN_G                      => RX_EN_G,
          DMA_SIZE_G                   => DMA_SIZE_G,
