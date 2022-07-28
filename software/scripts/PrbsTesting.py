@@ -140,8 +140,8 @@ with test.PrbsRoot(
         numVc = args.numVc,
         loopback = args.loopback,
         pollEn=args.pollEn,
-        noRx = args.noRx,
-        noTx = args.noTx) as root:
+        no_rx = args.noRx,
+        no_tx = args.noTx) as root:
 
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
     for rx in swRxDevices:

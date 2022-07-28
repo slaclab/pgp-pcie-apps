@@ -215,8 +215,8 @@ with test.PrbsRoot(
     numLanes = args.numLanes, 
     prbsWidth = args.prbsWidth, 
     numVc = args.numVc, 
-    noRx = args.noRx,
-    noTx = args.noTx,
+    no_rx = args.noRx,
+    no_tx = args.noTx,
     loopback = args.loopback) as root:
     
     dbCon = sqlite3.connect(args.fileName)
