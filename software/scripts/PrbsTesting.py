@@ -104,12 +104,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--noTx",
-    type     = bool,
-    required = False,
+    "--initRead",
+    action = 'store_true',
     default  = False,
-    help     = "No Tx's present",
+    help     = "Enable read all variables at start",
 )
+
 # Get the arguments
 args = parser.parse_args()
 
