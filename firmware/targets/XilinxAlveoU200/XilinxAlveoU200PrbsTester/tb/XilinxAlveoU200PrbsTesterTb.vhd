@@ -43,11 +43,11 @@ architecture sim of XilinxAlveoU200PrbsTesterTb is
    constant TX_EN_G              : boolean                     := true;
    constant RX_EN_G              : boolean                     := true;
    constant MIG_EN_G             : boolean                     := false;
-   constant DMA_SIZE_G           : positive                    := 2;
-   constant NUM_VC_G             : positive                    := 8;
+   constant DMA_SIZE_G           : positive                    := 8;
+   constant NUM_VC_G             : positive                    := 16;
    constant DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
-   constant DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 32;
-   constant PRBS_SEED_SIZE_G     : natural range 32 to 512     := 32;
+   constant DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 16;
+   constant PRBS_SEED_SIZE_G     : natural range 32 to 512     := 64;
 
    -- component ports
    signal ddrClkP       : slv(3 downto 0)       := (others => '0');              -- [in]
