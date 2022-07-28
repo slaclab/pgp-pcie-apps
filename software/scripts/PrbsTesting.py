@@ -104,21 +104,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--initRead",
-    action = 'store_true',
-    default  = False,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--noRx",
-    type     = bool,
-    required = False,
-    default  = False,
-    help     = "No Rx's present",
-)
-
-parser.add_argument(
     "--noTx",
     type     = bool,
     required = False,
@@ -139,9 +124,7 @@ with test.PrbsRoot(
         prbsWidth = args.prbsWidth,
         numVc = args.numVc,
         loopback = args.loopback,
-        pollEn=args.pollEn,
-        no_rx = args.noRx,
-        no_tx = args.noTx) as root:
+        pollEn=args.pollEn) as root:
 
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
     for rx in swRxDevices:
