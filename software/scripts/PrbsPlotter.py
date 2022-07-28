@@ -255,7 +255,7 @@ def plotData(
     plt.ylabel(ylabel)
     
     # create legend
-    legend = plt.legend(title = legendTitle, loc = 'upper right')
+    legend = plt.legend(title = legendTitle, loc = 'upper left')
     
 
 
