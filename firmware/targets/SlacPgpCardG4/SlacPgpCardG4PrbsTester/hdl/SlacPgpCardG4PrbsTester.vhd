@@ -38,8 +38,8 @@ entity SlacPgpCardG4PrbsTester is
       DMA_LANES_G          : positive                    := 1;
       DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
       NUM_VC_G             : positive                    := 16;
-      DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 64;
-      PRBS_SEED_SIZE_G     : natural range 32 to 256     := 32);
+      DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 8;
+      PRBS_SEED_SIZE_G     : natural range 32 to 256     := 64);
 
    port (
       --------------
