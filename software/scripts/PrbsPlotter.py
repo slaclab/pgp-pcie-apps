@@ -263,8 +263,8 @@ def collectDataVsVc(
     for rw in rows:
 
         # determine indicies for data
-        indexA = (int(math.log2(rw[2])))
-        indexB = (rw[0], rw[1])
+        indexB = (int(math.log2(rw[2])))
+        indexA = rw[0]*rw[1]
 
         # filter data
         if(collectionFilter(rw)):
