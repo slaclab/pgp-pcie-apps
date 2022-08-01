@@ -28,8 +28,20 @@ import pyrogue.pydm
 import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
 
-
-def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
+##############################
+# reads data from hardware 
+# then saves the data to 
+# SQLite3 database
+##############################
+def readData(
+    root, 
+    dbCon, 
+    iter,  
+    enableLanes, 
+    vcPerLane, 
+    currRate, 
+    currLength
+    ):
     
     # read data from devices
     hwData = readHardwareData(root)
@@ -46,7 +58,13 @@ def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
             dbCon.execute("INSERT INTO raw_data (iteration_num, set_num_lanes, set_num_vc, set_rate, set_packet_length, lane, channel, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                             (iter, enableLanes, vcPerLane, data[2], 2**currLength, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
 
+##############################
+# read all the desired data
+# from the hardware into a list
+##############################
 def readHardwareData(root):
+
+    # initialize variables
     hwData = [[]]
     vcCount = 0
     totalBW = 0
@@ -219,8 +237,10 @@ with test.PrbsRoot(
     no_tx = args.noTx,
     loopback = args.loopback) as root:
     
+    # connect to database file
     dbCon = sqlite3.connect(args.fileName)
 
+    # create statment to generate table
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
                 id INTEGER PRIMARY KEY,
@@ -241,6 +261,7 @@ with test.PrbsRoot(
                 rx_bandwidth FLOAT
                 );
     """
+
     dbCon.executescript(stmt)
     
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
@@ -284,7 +305,14 @@ with test.PrbsRoot(
                 time.sleep(2.0)
 
                 # read and save data
-                readData(root, dbCon, iter, enableLanes, 2**enableChannels, 0, currLength)
+                readData(root = root, 
+                dbCon = dbCon, 
+                iter = iter, 
+                enableLanes = enableLanes, 
+                vcPerLane = 2**enableChannels, 
+                currRate = 0, 
+                currLength = currLength
+                )
 
                 iter += 1
 
