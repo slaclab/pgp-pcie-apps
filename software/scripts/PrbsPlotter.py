@@ -263,23 +263,24 @@ def collectDataVsVc(
     for rw in rows:
 
         # determine indicies for data
-        indexB = (int(math.log2(rw[2])))
-        indexA = rw[0]*rw[1]
+        indexA = (int(math.log2(rw[2])))
+        indexB = (rw[0], rw[1])
+        indexC = rw[0]*rw[1]
 
         # filter data
         if(collectionFilter(rw)):
 
-            prepDicts(indexB,[data, tot])
+            prepDicts(indexA,[data, tot])
             prepDicts(indexA,[barData, barTot])
 
             # check if current row is an aggregate and collect data
             if(rw[9] == -1):
                 barTot[indexA][indexB] = rw[dataIndex]
-                tot[indexB][indexA] = rw[dataIndex]
+                tot[indexA][indexC] = rw[dataIndex]
                 
             else:
                 barData[indexA][indexB] = rw[dataIndex]
-                data[indexB][indexA] = rw[dataIndex]
+                data[indexA][indexC] = rw[dataIndex]
                 
                 #yhigh[index].append(rw[dataIndex+2])
                 #ylow[index].append(rw[dataIndex+4])
