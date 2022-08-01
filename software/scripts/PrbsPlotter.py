@@ -293,7 +293,7 @@ def collectDataVsVc(
         yHigh = yhigh, 
         yLow = ylow, 
         namer = namer, 
-        dispalyMax = displayMax, 
+        displayMax = displayMax, 
         displayError = displayError, 
         graphType = graphType
     )
