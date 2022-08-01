@@ -9,11 +9,6 @@ import math
 import numpy as np
 
 
-# standard collection filters:
-#lambda row: row[1]==19*5000
-
-#standard display filters:
-#
 
 def plot3D(x, y, z):
 
