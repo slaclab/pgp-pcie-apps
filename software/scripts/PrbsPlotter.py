@@ -317,7 +317,8 @@ def plotData(
     namer = lambda num: 2**(num+1), 
     legendTitle = 'Frame size in words',
     displayError = False,
-    graphType = 'scatter'
+    graphType = 'scatter',
+    legendLoc = 'upper right'
 ):
 
     # query sql database
@@ -344,4 +345,4 @@ def plotData(
     plt.ylabel(ylabel)
     
     # create legend
-    legend = plt.legend(title = legendTitle, loc = 'upper left')
+    legend = plt.legend(title = legendTitle, loc = legendLoc)
