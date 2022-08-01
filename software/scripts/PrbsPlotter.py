@@ -71,7 +71,7 @@ def flowSelect(
         
         passedData = aggregate if(displayMax) else data
         displayFromDictsScatter(
-            dat = passedData, 
+            data = passedData, 
             yhigh = yHigh, 
             ylow = yLow, 
             namer = namer, 
