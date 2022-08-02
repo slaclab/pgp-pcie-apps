@@ -274,7 +274,7 @@ with test.PrbsRoot(
     root.SetAllPeriods(0)
 
     # iterate through frame sizes
-    for currLength in range(1,21):
+    for currLength in range(1,22):
 
         print(f"packet length: {2**currLength}")
 
