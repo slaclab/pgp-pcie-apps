@@ -55,12 +55,12 @@ entity XilinxVariumC1100PrbsTester is
       si5394RstL : out   sl;
       -- PCIe Ports
       pciRstL    : in    sl;
-      pciRefClkP : in    slv(1 downto 0);
-      pciRefClkN : in    slv(1 downto 0);
-      pciRxP     : in    slv(15 downto 0);
-      pciRxN     : in    slv(15 downto 0);
-      pciTxP     : out   slv(15 downto 0);
-      pciTxN     : out   slv(15 downto 0));
+      pciRefClkP : in    slv(0 downto 0);
+      pciRefClkN : in    slv(0 downto 0);
+      pciRxP     : in    slv(7 downto 0);
+      pciRxN     : in    slv(7 downto 0);
+      pciTxP     : out   slv(7 downto 0);
+      pciTxN     : out   slv(7 downto 0));
 end XilinxVariumC1100PrbsTester;
 
 architecture top_level of XilinxVariumC1100PrbsTester is
