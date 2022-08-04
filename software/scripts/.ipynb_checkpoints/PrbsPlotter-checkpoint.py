@@ -39,6 +39,10 @@ def queryData(db_con):
 
     # get data from data base
     ret = cur.execute(statement)
+    for rw in ret:
+        r = list(rw)
+        r[1] = math.log2(rw[1])
+        rw = tuple(r)
     return ret
 
 def flowSelect(data, aggregate, barData, barAggregate, yHigh, yLow, namer, displayFilter, displayMax, displayError, graphType):

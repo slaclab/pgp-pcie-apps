@@ -9,132 +9,91 @@ import math
 import numpy as np
 
 
-##############################
-# uses the set packet length
-# to determine the actual
-# bandwidth and compares it to
-# the measured bandwidth
-##############################
+
+def plot3D(x, y, z):
+
+    fig = plt.figure() 
+    ax = plt.axes(projection='3d')
+
+    ax.scatter3D(x, y, z, c=z, cmap='Greens')
+
+    ax.set_xlabel('Rate')
+    ax.set_ylabel('Packet Length')
+    ax.set_zlabel('Bandwidth')
+
 def calculateBandwidthError(packetLength, frameRate, bandwidth):
     return ((packetLength+1)*32*8)*frameRate/(bandwidth*1e6)
 
-##############################
-# takes a list of dicts and 
-# and creates a dict at a given
-# index if non already exists
-############################## 
+def calculateExpectedRate(bandwidth, packetLength):
+    return 0 #channels*lanes/((packetLength+1)4e-9) #not if bandwidth cap is reached
+
 def prepDicts(index, dicts):
-
-    # iterate through dicts
     for d in dicts:
-
-        # check if index is already set
         if index not in d:
             d[index] = {}
 
-##############################
-# query all the data from the
-# SQLite3 database
-##############################
 def queryData(db_con):
-
-    # prep database for query
+    # prep data base for query
     cur = db_con.cursor()
     statement = '''SELECT set_num_lanes, set_num_vc, set_packet_length, tx_bandwidth, tx_frame_rate, tx_bandwidth_max, tx_frame_rate_max, tx_bandwidth_min, tx_frame_rate_min, lane, channel FROM raw_data'''
 
-    # get data from database
+    # get data from data base
     ret = cur.execute(statement)
+    for rw in ret:
+        r = list(rw)
+        r[1] = math.log2(rw[1])
+        rw = tuple(r)
     return ret
 
-##############################
-# determines which display
-# function, and data set to use
-##############################
-def flowSelect(
-    data, 
-    aggregate, 
-    barData, 
-    barAggregate, 
-    yHigh, 
-    yLow, 
-    namer, 
-    displayMax, 
-    displayError, 
-    graphType
-    ):
+def flowSelect(data, aggregate, barData, barAggregate, yHigh, yLow, namer, displayFilter, displayMax, displayError, graphType):
     
-    # select which data set to use
     passedData = aggregate if(displayMax) else data
     
-    # select which display function to use
+    # display data 
     if(graphType == 'scatter'):
         
         passedData = aggregate if(displayMax) else data
-        displayFromDictsScatter(
-            data = passedData, 
-            yhigh = yHigh, 
-            ylow = yLow, 
-            namer = namer, 
-            displayError = displayError, 
-            colorCount = len(passedData)
-            ) 
+        displayFromDictsScatter(passedData, yHigh, yLow, namer, displayError, len(passedData)) 
         
     elif(graphType == 'bar'):
-
         passedData = barAggregate if(displayMax) else barData
-        displayFromDictsBar(
-            data = passedData, 
-            namer = namer, 
-            colorCount = len(passedData)
-            ) 
+        displayFromDictsBar(passedData, namer, len(passedData)) 
         
     else:
         print("invalid graph type")
     
-##############################
-# uses data sets in dicts to
-# generate a bar graph
-##############################
+    
+
 def displayFromDictsBar(
     data, 
     namer, 
     colorCount
 ):
 
-    # create color map
     colormap = plt.get_cmap('gist_rainbow')
-
-    # generate unique colors for all data points
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0,1,colorCount)))
     
-    # initialize spacer and set bar width
     spacer = 0
     width = .05
     
-    # display data points
+    # display all rows
     for sets in data: 
         
-        # arrange data by total number of active channels
         sortedData = dict(sorted(data[sets].items(), key=lambda k: k[0][0]*k[0][1]))
         
-        # prep x-axis for plotting
         xaxis = np.arange(len(sortedData))
                     
-        # plot data with bars side by side and not overlapping
         plt.bar(xaxis+width*(spacer - len(data)/2), list(sortedData.values()), width = width, label = namer(sets))
 
-        # increment spacer
         spacer +=1
     
-        # label x-axis
         plt.xticks(np.arange(len(sortedData)), sortedData.keys())
                 
-##############################
-# uses data sets in dicts to
-# generate a scatter plot
-##############################    
+        
+    
+                
 def displayFromDictsScatter(
     data, 
     yhigh,
@@ -144,34 +103,27 @@ def displayFromDictsScatter(
     colorCount
 ):
 
-    # create color map
     colormap = plt.get_cmap('gist_rainbow')
-
-    # generate unique colors for all data points
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0,1,colorCount)))
     
-    # display all data points
-    for sets in data: 
+    # display all rows
+    for sets in data:            
         plt.plot(list(data[sets].keys()), list(data[sets].values()), 'o', linestyle = 'solid', label = namer(sets))
 
-        # check if error needs to be displayed
         if(displayError):
             color = next(ax._get_lines.prop_cycler)['color']
             plt.plot(list(data[sets].keys()), list(yhigh[sets].values()), '1', markersize = 15, color = color)
             plt.plot(list(data[sets].keys()), list(ylow[sets].values()), '2', markersize = 15, color = color)
                     
-##############################
-# collects and prepares data
-# from a SQLite3 database.
-# X-axis is the log2(frameSize)
-##############################
+
 def collectDataVsFrameSize(
     rows, 
     dataIndex, 
     collectionFilter, 
     namer, 
+    displayFilter, 
     displayMax, 
     displayError,
     graphType
@@ -189,60 +141,39 @@ def collectDataVsFrameSize(
     # collect data
     for rw in rows:
 
-        # determine indicies for data
-        indexA = (rw[0], rw[1])
-        indexB = math.log2(rw[2])
+        indexA = math.log2(rw[2])
+        indexB = (rw[0], rw[1])
 
-        # filter data
         if(collectionFilter(rw)):
 
-            prepDicts(indexA,[data, tot, yhigh, ylow])
+            prepDicts(indexB,[data, tot, yhigh, ylow])
             
-            # check if current row is an aggregate
             if(rw[9] == -1):
-                tot[indexA][indexB] = rw[dataIndex]
+                tot[indexB][indexA] = rw[dataIndex]
 
             elif(dataIndex == 5):
-                # store special error
-                data[indexA][indexB] = calculateBandwidthError(rw[2], rw[4], rw[3])
+                data[indexB][indexA] = calculateBandwidthError(rw[2], rw[4], rw[3])
                 
             else:
-                # store data
-                data[indexA][indexB] = rw[dataIndex]
+                data[indexB][indexA] = rw[dataIndex]
                 
-                yhigh[indexA][indexB] = rw[dataIndex+2]
-                ylow[indexA][indexB] = rw[dataIndex+4]
+                yhigh[indexB][indexA] = rw[dataIndex+2]
+                ylow[indexB][indexA] = rw[dataIndex+4]
                 
                 
 
     # display data 
-    flowSelect(
-        data = data, 
-        aggregate = tot, 
-        barData =barData, 
-        barAggregate = barTot, 
-        yHigh = yhigh, 
-        yLow = ylow, 
-        namer = namer, 
-        displayMax = displayMax, 
-        displayError= displayError, 
-        graphType = graphType
-        )
+    flowSelect(data, tot, barData, barTot, yhigh, ylow, namer, displayFilter, displayMax, displayError, graphType)
 
     # set x axis label
     plt.xlabel("log2 of frame size") 
 
-##############################
-# collects and prepares data
-# from a SQLite3 database.
-# X-axis is the number of
-# active channels
-##############################
 def collectDataVsVc(
     rows, 
     dataIndex, 
     collectionFilter, 
     namer, 
+    displayFilter, 
     displayMax, 
     displayError,
     graphType
@@ -262,73 +193,51 @@ def collectDataVsVc(
     # collect data
     for rw in rows:
 
-        # determine indicies for data
         indexA = (int(math.log2(rw[2])))
         indexB = (rw[0], rw[1])
-        indexC = rw[0]*rw[1]
 
-        # filter data
         if(collectionFilter(rw)):
 
-            prepDicts(indexA,[data, tot])
+            prepDicts(indexB,[data, tot])
             prepDicts(indexA,[barData, barTot])
 
-            # check if current row is an aggregate and collect data
             if(rw[9] == -1):
                 barTot[indexA][indexB] = rw[dataIndex]
-                tot[indexA][indexC] = rw[dataIndex]
+                tot[indexB][indexA] = rw[dataIndex]
                 
             else:
                 barData[indexA][indexB] = rw[dataIndex]
-                data[indexA][indexC] = rw[dataIndex]
+                data[indexB][indexA] = rw[dataIndex]
                 
                 #yhigh[index].append(rw[dataIndex+2])
                 #ylow[index].append(rw[dataIndex+4])
 
-    # display data
-    flowSelect(
-        data = data, 
-        aggregate = tot, 
-        barData = barData, 
-        barAggregate = barTot, 
-        yHigh = yhigh, 
-        yLow = ylow, 
-        namer = namer, 
-        displayMax = displayMax, 
-        displayError = displayError, 
-        graphType = graphType
-    )
+    flowSelect(data, tot, barData, barTot, yhigh, ylow, namer, displayFilter, displayMax, displayError, graphType)
 
     # set x axis label
     plt.xlabel("Active Channels")
 
-##############################
-# reads data from SQLite3 data
-# base file, plots the data,
-# and prepares the plots for
-# being displayed
-##############################
 def plotData(
     db_con, 
     funcSelect, 
     dataIndex, 
     displayAggregate, 
     collectionFilter = lambda row: True, 
+    displayFilter = lambda val, maxi, index: True, 
     namer = lambda num: 2**(num+1), 
     legendTitle = 'Frame size in words',
     displayError = False,
-    graphType = 'scatter',
-    legendLoc = 'upper right'
+    graphType = 'scatter'
 ):
 
-    # query sql database
+    # query sql data base
     rows = queryData(db_con)
 
     # collect and display data
     if(funcSelect == 1):
-        collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayAggregate, displayError, graphType)
+        collectDataVsVc(rows, dataIndex, collectionFilter, namer, displayFilter, displayAggregate, displayError, graphType)
     elif(funcSelect == 2):
-        collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayAggregate, displayError, graphType)
+        collectDataVsFrameSize(rows, dataIndex, collectionFilter, namer, displayFilter, displayAggregate, displayError, graphType)
     else:
         print("invalid function selection")
     
@@ -345,4 +254,51 @@ def plotData(
     plt.ylabel(ylabel)
     
     # create legend
-    legend = plt.legend(title = legendTitle, loc = legendLoc)
+    legend = plt.legend(title = legendTitle, loc = 'upper left')
+    
+
+
+# Set the argument parser
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--lowerBound",
+    "-l",
+    type     = int,
+    required = False,
+    default  = 0,
+    help     = "lower bound for plot range",
+)
+
+parser.add_argument(
+    "--upperBound",
+    "-u",
+    type     = int,
+    required = False,
+    default  = 1,
+    help     = "upper bound for number of plots",
+)
+
+parser.add_argument(
+    "--dataIndex",
+    "-i",
+    type     = int,
+    required = False,
+    default  = 4,
+    help     = "3 for bandwidth, 4 for frame rate",
+)
+
+
+# Get the arguments
+args = parser.parse_args()
+
+# connect to data base
+db_con = sqlite3.connect("test7")
+
+# collect and plot data
+#plotBwVsNumVc(db_con, args.dataIndex, True)
+
+
+
+# show plot
+#plt.show()
