@@ -287,13 +287,13 @@ with test.PrbsRoot(
             print(f"lanes enabled: {enableLanes}")
 
             #   loop through channels
-            for enableChannels in range(0, args.numVc+1):
+            for enableChannels in range(0, int(math.log2(args.numVc)+1)):
 
 
-                print(f"channels enabled: {enableChannels}")
+                print(f"channels enabled: {2**enableChannels}")
 
                 # enable channels
-                root.EnableChannels([enableLanes, enableChannels])
+                root.EnableChannels([enableLanes,2**enableChannels])
 
                 # let data settle
                 time.sleep(2.0)
