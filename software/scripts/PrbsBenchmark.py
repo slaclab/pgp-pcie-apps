@@ -288,7 +288,8 @@ with test.PrbsRoot(
 
     iter = 0
 
-    root.DataWriter.DataFile.set('/u1/sethk/PrbsTestDump') # set the file name
+    if(args.writeToDisk == True):
+        root.DataWriter.DataFile.set('/u1/sethk/PrbsTestDump') # set the file name
 
     # set rate to maximum
     root.SetAllPeriods(0)
@@ -296,7 +297,7 @@ with test.PrbsRoot(
     # iterate through frame sizes
     for currLength in range(1,22):
 
-        print(f"packet length: {2**currLength}")
+        print(f"packet length: {2**currLength+args.packetInc}")
 
         # adjust lengths
         root.SetAllPacketLengths(2**currLength+args.packetInc)
