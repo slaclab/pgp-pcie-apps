@@ -315,7 +315,9 @@ with test.PrbsRoot(
                 # enable channels
                 root.EnableChannels([enableLanes,2**enableChannels])
 
-                root.DataWriter.Open() # open the file
+                if(args.writeToDisk == True):
+                    print("opening file")
+                    root.DataWriter.Open() # open the file
 
                 # let data settle
                 time.sleep(2.0)
@@ -326,8 +328,10 @@ with test.PrbsRoot(
                 # allow time for data to be collected
                 time.sleep(2.0)
 
-                root.DataWriter.Close() # close the file
-                os.remove('/u1/sethk/PrbsTestDump')
+                if(args.writeToDisk == True):
+                    print("closing file")
+                    root.DataWriter.Close() # close the file
+                    os.remove('/u1/sethk/PrbsTestDump')
 
                 # read and save data
                 readData(

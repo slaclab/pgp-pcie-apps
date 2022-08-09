@@ -48,7 +48,7 @@ class PrbsRoot(pr.Root):
             **kwargs):
         super().__init__(**kwargs)
 
-        if writeToDisk:
+        if  writeToDisk == True:
             self.add(pyrogue.utilities.fileio.StreamWriter(name='DataWriter'))
 
 
@@ -97,7 +97,7 @@ class PrbsRoot(pr.Root):
                 else:
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(dev,(0x100*lane)+vc,1)
 
-                    if writeToDisk:
+                    if writeToDisk == True:
                         self.dmaStream[lane][vc] >> self.DataWriter.getChannel((0x10*lane)+vc)
 
                 self.addInterface(self.dmaStream[lane][vc])
