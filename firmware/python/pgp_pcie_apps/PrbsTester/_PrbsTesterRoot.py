@@ -98,7 +98,7 @@ class PrbsRoot(pr.Root):
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(dev,(0x100*lane)+vc,1)
 
                     if writeToDisk:
-                        self.dmaStream[lane][vc] >> self.DataWriter.getChannel(0x100*lane+vc)
+                        self.dmaStream[lane][vc] >> self.DataWriter.getChannel((0x10*lane)+vc)
 
                 self.addInterface(self.dmaStream[lane][vc])
 
