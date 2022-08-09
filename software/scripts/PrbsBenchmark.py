@@ -223,6 +223,22 @@ parser.add_argument(
     help     = "No Tx's present",
 )
 
+parser.add_argument(
+    "--packetInc",
+    type     = int,
+    required = False,
+    default  = 0,
+    help     = "value to be added to packet size",
+)
+
+parser.add_argument(
+    "--writeToDisk",
+    type     = bool,
+    required = False,
+    default  = False,
+    help     = "whether to write to a disk",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -236,7 +252,8 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     no_rx = args.noRx,
     no_tx = args.noTx,
-    loopback = args.loopback) as root:
+    loopback = args.loopback,
+    writeToDisk = args.writeToDisk) as root:
     
     # connect to database file
     dbCon = sqlite3.connect(args.fileName)
@@ -282,7 +299,7 @@ with test.PrbsRoot(
         print(f"packet length: {2**currLength}")
 
         # adjust lengths
-        root.SetAllPacketLengths(2**currLength)
+        root.SetAllPacketLengths(2**currLength+args.packetInc)
 
         #   loop through lanes
         for enableLanes in range(1, args.numLanes+1):
