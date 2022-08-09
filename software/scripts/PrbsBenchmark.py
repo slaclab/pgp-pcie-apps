@@ -288,7 +288,7 @@ with test.PrbsRoot(
 
     iter = 0
 
-    root.DataWriter.DataFile.set('u1/sethk/PrbsTestDump') # set the file name
+    root.DataWriter.DataFile.set('/u1/sethk/PrbsTestDump') # set the file name
 
     # set rate to maximum
     root.SetAllPeriods(0)
@@ -327,7 +327,7 @@ with test.PrbsRoot(
                 time.sleep(2.0)
 
                 root.DataWriter.Close() # close the file
-                os.remove('u1/sethk/PrbsTestDump')
+                os.remove('/u1/sethk/PrbsTestDump')
 
                 # read and save data
                 readData(
