@@ -20,6 +20,7 @@ import rogue.interfaces.stream
 import pyrogue as pr
 import pyrogue.pydm
 import pyrogue.utilities.prbs
+import pyrogue.utilities.fileio
 import pyrogue.interfaces.simulation
 
 import axipcie            as pcie
