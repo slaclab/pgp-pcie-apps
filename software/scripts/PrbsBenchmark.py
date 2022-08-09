@@ -15,6 +15,7 @@ import setupLibPaths
 import sys
 import argparse
 import math
+import os
 
 import pgp_pcie_apps.PrbsTester as test
 import surf.protocols.ssi as ssi
@@ -270,6 +271,8 @@ with test.PrbsRoot(
 
     iter = 0
 
+    root.DataWriter.DataFile.set('u1/sethk/PrbsTestDump') # set the file name
+
     # set rate to maximum
     root.SetAllPeriods(0)
 
@@ -295,6 +298,8 @@ with test.PrbsRoot(
                 # enable channels
                 root.EnableChannels([enableLanes,2**enableChannels])
 
+                root.DataWriter.Open() # open the file
+
                 # let data settle
                 time.sleep(2.0)
 
@@ -304,14 +309,18 @@ with test.PrbsRoot(
                 # allow time for data to be collected
                 time.sleep(2.0)
 
+                root.DataWriter.Close() # close the file
+                os.remove('u1/sethk/PrbsTestDump')
+
                 # read and save data
-                readData(root = root, 
-                dbCon = dbCon, 
-                iter = iter, 
-                enableLanes = enableLanes, 
-                vcPerLane = 2**enableChannels, 
-                currRate = 0, 
-                currLength = currLength
+                readData(
+                    root = root, 
+                    dbCon = dbCon, 
+                    iter = iter, 
+                    enableLanes = enableLanes, 
+                    vcPerLane = 2**enableChannels, 
+                    currRate = 0, 
+                    currLength = currLength
                 )
 
                 iter += 1

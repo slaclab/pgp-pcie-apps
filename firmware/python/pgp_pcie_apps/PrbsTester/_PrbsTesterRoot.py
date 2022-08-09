@@ -46,6 +46,10 @@ class PrbsRoot(pr.Root):
             **kwargs):
         super().__init__(**kwargs)
 
+
+        self.add(pyrogue.utilities.fileio.StreamWriter(name='DataWriter'))
+
+
         # Create an arrays to be filled
         self.dmaStream = [[None for x in range(numVc)] for y in range(numLanes)]
         self.prbsRx    = [[None for x in range(numVc)] for y in range(numLanes)]
@@ -90,6 +94,7 @@ class PrbsRoot(pr.Root):
                     self.dmaStream[lane][vc] = rogue.interfaces.stream.TcpClient('localhost', 11002 + (512*lane) + (vc*2))
                 else:
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(dev,(0x100*lane)+vc,1)
+                    self.dmaStream[lane][vc] >> self.DataWriter.getChannel1(0x100*lane+vc)
 
                 self.addInterface(self.dmaStream[lane][vc])
 
