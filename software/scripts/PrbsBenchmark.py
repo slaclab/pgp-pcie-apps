@@ -239,6 +239,14 @@ parser.add_argument(
     help     = "whether to write to a disk",
 )
 
+parser.add_argument(
+    "--writeLocation",
+    type     = str,
+    required = True,
+    default  = '/u1/sethk/PrbsTestDump',
+    help     = "file name for output file",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -289,7 +297,7 @@ with test.PrbsRoot(
     iter = 0
 
     if(args.writeToDisk == True):
-        root.DataWriter.DataFile.set('/u1/sethk/PrbsTestDump') # set the file name
+        root.DataWriter.DataFile.set(args.writeLocation) # set the file name
 
     # set rate to maximum
     root.SetAllPeriods(0)
@@ -332,7 +340,7 @@ with test.PrbsRoot(
                 if(args.writeToDisk == True):
                     print("closing file")
                     root.DataWriter.Close() # close the file
-                    os.remove('/u1/sethk/PrbsTestDump')
+                    os.remove(args.writeLocation)
 
                 # read and save data
                 readData(
