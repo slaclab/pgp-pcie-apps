@@ -337,11 +337,6 @@ with test.PrbsRoot(
                 # allow time for data to be collected
                 time.sleep(2.0)
 
-                if(args.writeToDisk == True):
-                    print("closing file")
-                    root.DataWriter.Close() # close the file
-                    os.remove(args.writeLocation)
-
                 # read and save data
                 readData(
                     root = root, 
@@ -352,6 +347,11 @@ with test.PrbsRoot(
                     currRate = 0, 
                     currLength = currLength
                 )
+
+                if(args.writeToDisk == True):
+                    print("closing file")
+                    root.DataWriter.Close() # close the file
+                    os.remove(args.writeLocation)
 
                 iter += 1
 
