@@ -57,7 +57,7 @@ def readData(
 
         for data in hwData:
             dbCon.execute("INSERT INTO raw_data (iteration_num, set_num_lanes, set_num_vc, set_rate, set_packet_length, lane, channel, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                            (iter, enableLanes, vcPerLane, data[2], 2**currLength+args.packetInc, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
+                                            (iter, enableLanes, vcPerLane, data[2], (2**currLength)+args.packetInc, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
 
 ##############################
 # read all the desired data
@@ -303,12 +303,12 @@ with test.PrbsRoot(
     root.SetAllPeriods(0)
 
     # iterate through frame sizes
-    for currLength in range(1,22):
+    for currLength in range(1,23):
 
-        print(f"packet length: {2**currLength+args.packetInc}")
+        print(f"packet length: {(2**currLength)+args.packetInc}")
 
         # adjust lengths
-        root.SetAllPacketLengths(2**currLength+args.packetInc)
+        root.SetAllPacketLengths((2**currLength)+args.packetInc)
 
         #   loop through lanes
         for enableLanes in range(1, args.numLanes+1):
