@@ -303,7 +303,7 @@ with test.PrbsRoot(
     root.SetAllPeriods(0)
 
     # iterate through frame sizes
-    for currLength in range(1,22):
+    for currLength in range(1,23):
 
         print(f"packet length: {(2**currLength)+args.packetInc}")
 
@@ -329,7 +329,7 @@ with test.PrbsRoot(
                     root.DataWriter.Open() # open the file
 
                 # let data settle
-                time.sleep(2.0)
+                time.sleep(1.0)
 
                 # reset data
                 root.PurgeData()
@@ -352,6 +352,11 @@ with test.PrbsRoot(
                     print("closing file")
                     root.DataWriter.Close() # close the file
                     os.remove(args.writeLocation)
+
+
+                root.EnableChannels([0,0])
+
+                time.sleep(1.0)
 
                 iter += 1
 
