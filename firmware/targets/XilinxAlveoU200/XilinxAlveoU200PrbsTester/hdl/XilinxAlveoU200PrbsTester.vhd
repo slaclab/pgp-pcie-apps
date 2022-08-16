@@ -49,6 +49,9 @@ entity XilinxAlveoU200PrbsTester is
       -- System Ports
       userClkP      : in    sl;
       userClkN      : in    sl;
+      i2cRstL       : out   sl;
+      i2cScl        : inout sl;
+      i2cSda        : inout sl;
       -- QSFP[1:0] Ports
       qsfpFs        : out   Slv2Array(1 downto 0);
       qsfpRefClkRst : out   slv(1 downto 0);
@@ -187,6 +190,9 @@ begin
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,
+         i2cRstL         => i2cRstL,
+         i2cScl          => i2cScl,
+         i2cSda          => i2cSda,
          -- QSFP[1:0] Ports
          qsfpFs          => qsfpFs,
          qsfpRefClkRst   => qsfpRefClkRst,

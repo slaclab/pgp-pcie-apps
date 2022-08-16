@@ -35,40 +35,43 @@ entity XilinxAlveoU200Htsp_PerfTester is
       --  Application Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP  : in  slv(1 downto 0);
-      qsfp0RefClkN  : in  slv(1 downto 0);
-      qsfp0RxP      : in  slv(3 downto 0);
-      qsfp0RxN      : in  slv(3 downto 0);
-      qsfp0TxP      : out slv(3 downto 0);
-      qsfp0TxN      : out slv(3 downto 0);
+      qsfp0RefClkP  : in    slv(1 downto 0);
+      qsfp0RefClkN  : in    slv(1 downto 0);
+      qsfp0RxP      : in    slv(3 downto 0);
+      qsfp0RxN      : in    slv(3 downto 0);
+      qsfp0TxP      : out   slv(3 downto 0);
+      qsfp0TxN      : out   slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP  : in  slv(1 downto 0);
-      qsfp1RefClkN  : in  slv(1 downto 0);
-      qsfp1RxP      : in  slv(3 downto 0);
-      qsfp1RxN      : in  slv(3 downto 0);
-      qsfp1TxP      : out slv(3 downto 0);
-      qsfp1TxN      : out slv(3 downto 0);
+      qsfp1RefClkP  : in    slv(1 downto 0);
+      qsfp1RefClkN  : in    slv(1 downto 0);
+      qsfp1RxP      : in    slv(3 downto 0);
+      qsfp1RxN      : in    slv(3 downto 0);
+      qsfp1TxP      : out   slv(3 downto 0);
+      qsfp1TxN      : out   slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
       -- System Ports
-      userClkP      : in  sl;
-      userClkN      : in  sl;
+      userClkP      : in    sl;
+      userClkN      : in    sl;
+      i2cRstL       : out   sl;
+      i2cScl        : inout sl;
+      i2cSda        : inout sl;
       -- QSFP[1:0] Ports
-      qsfpFs        : out Slv2Array(1 downto 0);
-      qsfpRefClkRst : out slv(1 downto 0);
-      qsfpRstL      : out slv(1 downto 0);
-      qsfpLpMode    : out slv(1 downto 0);
-      qsfpModSelL   : out slv(1 downto 0);
-      qsfpModPrsL   : in  slv(1 downto 0);
+      qsfpFs        : out   Slv2Array(1 downto 0);
+      qsfpRefClkRst : out   slv(1 downto 0);
+      qsfpRstL      : out   slv(1 downto 0);
+      qsfpLpMode    : out   slv(1 downto 0);
+      qsfpModSelL   : out   slv(1 downto 0);
+      qsfpModPrsL   : in    slv(1 downto 0);
       -- PCIe Ports
-      pciRstL       : in  sl;
-      pciRefClkP    : in  sl;
-      pciRefClkN    : in  sl;
-      pciRxP        : in  slv(15 downto 0);
-      pciRxN        : in  slv(15 downto 0);
-      pciTxP        : out slv(15 downto 0);
-      pciTxN        : out slv(15 downto 0));
+      pciRstL       : in    sl;
+      pciRefClkP    : in    sl;
+      pciRefClkN    : in    sl;
+      pciRxP        : in    slv(15 downto 0);
+      pciRxN        : in    slv(15 downto 0);
+      pciTxP        : out   slv(15 downto 0);
+      pciTxN        : out   slv(15 downto 0));
 end XilinxAlveoU200Htsp_PerfTester;
 
 architecture top_level of XilinxAlveoU200Htsp_PerfTester is
@@ -118,10 +121,10 @@ architecture top_level of XilinxAlveoU200Htsp_PerfTester is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(1 downto 0) := (others=>AXI_STREAM_MASTER_INIT_C);
-   signal dmaObSlaves     : AxiStreamSlaveArray(1 downto 0) := (others=>AXI_STREAM_SLAVE_FORCE_C);
-   signal dmaIbMasters    : AxiStreamMasterArray(1 downto 0) := (others=>AXI_STREAM_MASTER_INIT_C);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(1 downto 0) := (others=>AXI_STREAM_SLAVE_FORCE_C);
+   signal dmaObMasters    : AxiStreamMasterArray(1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
+   signal dmaObSlaves     : AxiStreamSlaveArray(1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
+   signal dmaIbMasters    : AxiStreamMasterArray(1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
 
 begin
 
@@ -166,8 +169,8 @@ begin
          dmaRst          => dmaRst,
          dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => open,
-         dmaObSlaves     => (others=>AXI_STREAM_SLAVE_FORCE_C),
-         dmaIbMasters    => (others=>AXI_STREAM_MASTER_INIT_C),
+         dmaObSlaves     => (others => AXI_STREAM_SLAVE_FORCE_C),
+         dmaIbMasters    => (others => AXI_STREAM_MASTER_INIT_C),
          dmaIbSlaves     => open,
          -- AXI-Lite Interface
          appClk          => axilClk,
@@ -182,6 +185,9 @@ begin
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,
+         i2cRstL         => i2cRstL,
+         i2cScl          => i2cScl,
+         i2cSda          => i2cSda,
          -- QSFP[1:0] Ports
          qsfpFs          => qsfpFs,
          qsfpRefClkRst   => qsfpRefClkRst,
