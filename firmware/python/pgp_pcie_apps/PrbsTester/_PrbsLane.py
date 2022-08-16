@@ -18,7 +18,7 @@ import surf.axi as axi
 #################################################################
 
 class PrbsLane(pr.Device):
-    def __init__(self, numvc, no_rx=False, no_tx=False, **kwargs):
+    def __init__(self, numvc, no_rx=False, no_tx=False, clock_freq=156.25e6, **kwargs):
         super().__init__(**kwargs)
 
         # Loop through the virtual channels
@@ -29,7 +29,7 @@ class PrbsLane(pr.Device):
                 self.add(ssi.SsiPrbsTx(
                     name    = f'PrbsTx[{vc}]',
                     offset  = (0x1000*(2*vc+0)),
-                    clock_freq = 250.0e6,
+                    clock_freq = clock_freq,
                     expand  = False,
                 ))
 
@@ -39,7 +39,7 @@ class PrbsLane(pr.Device):
                 self.add(ssi.SsiPrbsRx(
                     name    = f'PrbsRx[{vc}]',
                     offset  = (0x1000*(2*vc+1)),
-                    rxClkPeriod = 250.0e6,
+                    rxClkPeriod = clock_freq,
                     expand  = False,
                 ))
 
