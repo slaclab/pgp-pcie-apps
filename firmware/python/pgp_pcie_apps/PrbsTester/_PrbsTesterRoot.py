@@ -20,6 +20,7 @@ import rogue.interfaces.stream
 import pyrogue as pr
 import pyrogue.pydm
 import pyrogue.utilities.prbs
+import pyrogue.utilities.fileio
 import pyrogue.interfaces.simulation
 
 import axipcie            as pcie
@@ -43,8 +44,13 @@ class PrbsRoot(pr.Root):
                     loopback,
                     no_tx=False,
                     no_rx=False,
+                    writeToDisk = False,
             **kwargs):
         super().__init__(**kwargs)
+
+        if  writeToDisk == True:
+            self.add(pyrogue.utilities.fileio.StreamWriter(name='DataWriter'))
+
 
         # Create an arrays to be filled
         self.dmaStream = [[None for x in range(numVc)] for y in range(numLanes)]
@@ -90,6 +96,9 @@ class PrbsRoot(pr.Root):
                     self.dmaStream[lane][vc] = rogue.interfaces.stream.TcpClient('localhost', 11002 + (512*lane) + (vc*2))
                 else:
                     self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(dev,(0x100*lane)+vc,1)
+
+                    if writeToDisk == True:
+                        self.dmaStream[lane][vc] >> self.DataWriter.getChannel((0x10*lane)+vc)
 
                 self.addInterface(self.dmaStream[lane][vc])
 

@@ -15,6 +15,7 @@ import setupLibPaths
 import sys
 import argparse
 import math
+import os
 
 import pgp_pcie_apps.PrbsTester as test
 import surf.protocols.ssi as ssi
@@ -28,8 +29,20 @@ import pyrogue.pydm
 import pyrogue.utilities.prbs
 import pyrogue.interfaces.simulation
 
-
-def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
+##############################
+# reads data from hardware 
+# then saves the data to 
+# SQLite3 database
+##############################
+def readData(
+    root, 
+    dbCon, 
+    iter,  
+    enableLanes, 
+    vcPerLane, 
+    currRate, 
+    currLength
+    ):
     
     # read data from devices
     hwData = readHardwareData(root)
@@ -44,9 +57,15 @@ def readData(root, dbCon, iter,  enableLanes, vcPerLane, currRate, currLength):
 
         for data in hwData:
             dbCon.execute("INSERT INTO raw_data (iteration_num, set_num_lanes, set_num_vc, set_rate, set_packet_length, lane, channel, tx_frame_rate, tx_frame_rate_max, tx_frame_rate_min, tx_bandwidth, tx_bandwidth_max, tx_bandwidth_min, rx_frame_rate, rx_bandwidth) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                            (iter, enableLanes, vcPerLane, data[2], 2**currLength, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
+                                            (iter, enableLanes, vcPerLane, data[2], (2**currLength)+args.packetInc, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]))
 
+##############################
+# read all the desired data
+# from the hardware into a list
+##############################
 def readHardwareData(root):
+
+    # initialize variables
     hwData = [[]]
     vcCount = 0
     totalBW = 0
@@ -204,6 +223,30 @@ parser.add_argument(
     help     = "No Tx's present",
 )
 
+parser.add_argument(
+    "--packetInc",
+    type     = int,
+    required = False,
+    default  = 0,
+    help     = "value to be added to packet size",
+)
+
+parser.add_argument(
+    "--writeToDisk",
+    type     = bool,
+    required = False,
+    default  = False,
+    help     = "whether to write to a disk",
+)
+
+parser.add_argument(
+    "--writeLocation",
+    type     = str,
+    required = True,
+    default  = '/u1/sethk/PrbsTestDump',
+    help     = "file name for output file",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -217,10 +260,13 @@ with test.PrbsRoot(
     numVc = args.numVc, 
     no_rx = args.noRx,
     no_tx = args.noTx,
-    loopback = args.loopback) as root:
+    loopback = args.loopback,
+    writeToDisk = args.writeToDisk) as root:
     
+    # connect to database file
     dbCon = sqlite3.connect(args.fileName)
 
+    # create statment to generate table
     stmt = """
     CREATE TABLE IF NOT EXISTS raw_data (
                 id INTEGER PRIMARY KEY,
@@ -241,6 +287,7 @@ with test.PrbsRoot(
                 rx_bandwidth FLOAT
                 );
     """
+
     dbCon.executescript(stmt)
     
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
@@ -249,16 +296,19 @@ with test.PrbsRoot(
 
     iter = 0
 
+    if(args.writeToDisk == True):
+        root.DataWriter.DataFile.set(args.writeLocation) # set the file name
+
     # set rate to maximum
     root.SetAllPeriods(0)
 
     # iterate through frame sizes
-    for currLength in range(1,21):
+    for currLength in range(1,22):
 
-        print(f"packet length: {2**currLength}")
+        print(f"packet length: {(2**currLength)+args.packetInc}")
 
         # adjust lengths
-        root.SetAllPacketLengths(2**currLength)
+        root.SetAllPacketLengths((2**currLength)+args.packetInc)
 
         #   loop through lanes
         for enableLanes in range(1, args.numLanes+1):
@@ -274,8 +324,12 @@ with test.PrbsRoot(
                 # enable channels
                 root.EnableChannels([enableLanes,2**enableChannels])
 
+                if(args.writeToDisk == True):
+                    print("opening file")
+                    root.DataWriter.Open() # open the file
+
                 # let data settle
-                time.sleep(2.0)
+                time.sleep(1.0)
 
                 # reset data
                 root.PurgeData()
@@ -284,7 +338,25 @@ with test.PrbsRoot(
                 time.sleep(2.0)
 
                 # read and save data
-                readData(root, dbCon, iter, enableLanes, 2**enableChannels, 0, currLength)
+                readData(
+                    root = root, 
+                    dbCon = dbCon, 
+                    iter = iter, 
+                    enableLanes = enableLanes, 
+                    vcPerLane = 2**enableChannels, 
+                    currRate = 0, 
+                    currLength = currLength
+                )
+
+                if(args.writeToDisk == True):
+                    print("closing file")
+                    root.DataWriter.Close() # close the file
+                    os.remove(args.writeLocation)
+
+
+                root.EnableChannels([0,0])
+
+                time.sleep(1.0)
 
                 iter += 1
 
