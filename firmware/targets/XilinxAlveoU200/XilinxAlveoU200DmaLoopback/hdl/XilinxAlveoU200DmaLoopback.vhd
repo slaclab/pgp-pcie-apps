@@ -111,12 +111,12 @@ begin
          NUM_CLOCKS_G      => 1,
          -- MMCM attributes
          BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 6.4,      -- 156.25 MHz
-         CLKFBOUT_MULT_G   => 8,        -- 1.25GHz = 8 x 156.25 MHz
-         CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
+         CLKIN_PERIOD_G    => 4.0,      -- 250 Mhz
+         CLKFBOUT_MULT_G   => 5,        -- 1.25GHz = 5 x 250 MHz
+         CLKOUT0_DIVIDE_G  => 10)        -- 125MHz = 1.25GHz/10
       port map(
          -- Clock Input
-         clkIn     => userClk156,
+         clkIn     => dmaClk,
          rstIn     => dmaRst,
          -- Clock Outputs
          clkOut(0) => axilClk,
@@ -175,7 +175,8 @@ begin
 
    U_UnusedQsfp : entity axi_pcie_core.TerminateQsfp
       generic map (
-         TPD_G => TPD_G)
+         TPD_G => TPD_G;
+         AXIL_CLK_FREQ_G => 125.0e6)
       port map (
          -- AXI-Lite Interface
          axilClk         => axilClk,
