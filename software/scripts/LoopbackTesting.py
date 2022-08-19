@@ -153,7 +153,7 @@ class MyRoot(pr.Root):
             name         = 'GtRefClockMon',
             memBase      = self.memMap,
             offset       = 0x00800000,
-            numRefClk    = 2,
+            numRefClk    = 4,
             expand       = True,
         ))
 
