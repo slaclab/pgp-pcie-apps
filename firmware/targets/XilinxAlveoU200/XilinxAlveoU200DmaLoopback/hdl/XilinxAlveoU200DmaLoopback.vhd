@@ -37,6 +37,9 @@ entity XilinxAlveoU200DmaLoopback is
       ---------------------
       --  Application Ports
       ---------------------
+      -- DDR Ports
+      ddrClkP       : in    slv(3 downto 0);
+      ddrClkN       : in    slv(3 downto 0);
       -- QSFP[0] Ports
       qsfp0RefClkP  : in    slv(1 downto 0);
       qsfp0RefClkN  : in    slv(1 downto 0);
@@ -81,7 +84,7 @@ architecture top_level of XilinxAlveoU200DmaLoopback is
 
    constant DMA_SIZE_C : positive := 1;
 
-    constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);   -- 8  Byte (64-bit)  tData interface
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  -- 8  Byte (64-bit)  tData interface
    --  constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
@@ -99,7 +102,15 @@ architecture top_level of XilinxAlveoU200DmaLoopback is
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
+   signal ddrClk : sl;
+
 begin
+
+   U_CLK : IBUFDS
+      port map (
+         i  => ddrClkP(0),
+         ib => ddrClkN(0),
+         o  => ddrClk);
 
    U_axilClk : entity surf.ClockManagerUltraScale
       generic map(
@@ -111,13 +122,14 @@ begin
          NUM_CLOCKS_G      => 1,
          -- MMCM attributes
          BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 4.0,      -- 250 Mhz
-         CLKFBOUT_MULT_G   => 5,        -- 1.25GHz = 5 x 250 MHz
-         CLKOUT0_DIVIDE_G  => 10)        -- 125MHz = 1.25GHz/10
+         CLKIN_PERIOD_G    => 3.332,     -- 300 Mhz
+         DIVCLK_DIVIDE_G   => 2,
+         CLKFBOUT_MULT_G   => 5,        
+         CLKOUT0_DIVIDE_G  => 6)        -- 125MHz 
       port map(
          -- Clock Input
-         clkIn     => dmaClk,
-         rstIn     => dmaRst,
+         clkIn     => ddrClk,
+         rstIn     => '0',
          -- Clock Outputs
          clkOut(0) => axilClk,
          -- Reset Outputs
@@ -175,7 +187,7 @@ begin
 
    U_UnusedQsfp : entity axi_pcie_core.TerminateQsfp
       generic map (
-         TPD_G => TPD_G,
+         TPD_G           => TPD_G,
          AXIL_CLK_FREQ_G => 125.0e6)
       port map (
          -- AXI-Lite Interface
