@@ -28,6 +28,9 @@ import surf.protocols.ssi as ssi
 
 # rogue.Logging.setLevel(rogue.Logging.Warning)
 # rogue.Logging.setLevel(rogue.Logging.Debug)
+rogue.Logging.setFilter('pyrogue.memory.block.pciServer.AxiPcieCore.Si570', rogue.Logging.Debug)
+#rogue.Logging.setFilter('pyrogue.memory.Transaction', rogue.Logging.Debug)
+#rogue.Logging.setFilter('pyrogue.memory.Block', rogue.Logging.Debug)
 
 #################################################################
 
