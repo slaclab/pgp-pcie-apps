@@ -175,7 +175,7 @@ begin
 
    U_UnusedQsfp : entity axi_pcie_core.TerminateQsfp
       generic map (
-         TPD_G => TPD_G;
+         TPD_G => TPD_G,
          AXIL_CLK_FREQ_G => 125.0e6)
       port map (
          -- AXI-Lite Interface
