@@ -48,6 +48,15 @@ entity PgpLane is
       pgpRxP          : in  sl;
       pgpRxN          : in  sl;
       pgpRefClk       : in  sl;
+      -- Non-VC Interface
+      pgpRxClkOut     : out sl;
+      pgpRxRstOut     : out sl;
+      pgpRxIn         : in  Pgp2bRxInType := PGP2B_RX_IN_INIT_C;
+      pgpRxOut        : out Pgp2bRxOutType;
+      pgpTxClkOut     : out sl;
+      pgpTxRstOut     : out sl;
+      pgpTxIn         : in  Pgp2bTxInType := PGP2B_TX_IN_INIT_C;
+      pgpTxOut        : out Pgp2bTxOutType;
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
@@ -82,11 +91,11 @@ architecture mapping of PgpLane is
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_OK_C);
 
-   signal pgpTxIn  : Pgp2bTxInType;
-   signal pgpTxOut : Pgp2bTxOutType;
+   signal pgpTxIn_s  : Pgp2bTxInType;
+   signal pgpTxOut_s : Pgp2bTxOutType;
 
-   signal pgpRxIn  : Pgp2bRxInType;
-   signal pgpRxOut : Pgp2bRxOutType;
+   signal pgpRxIn_s  : Pgp2bRxInType;
+   signal pgpRxOut_s : Pgp2bRxOutType;
 
    signal pgpTxMasters : AxiStreamMasterArray(3 downto 0);
    signal pgpTxSlaves  : AxiStreamSlaveArray(3 downto 0);
@@ -105,6 +114,14 @@ architecture mapping of PgpLane is
    signal config : ConfigType;
 
 begin
+
+   pgpTxClkOut <= pgpTxClk;
+   pgpTxRstOut <= pgpTxRst;
+   pgpTxOut    <= pgpTxOut_s;
+
+   pgpRxClkOut <= pgpRxClk;
+   pgpRxRstOut <= pgpRxRst;
+   pgpRxOut    <= pgpRxOut_s;
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -155,11 +172,11 @@ begin
          pgpRxClk        => pgpRxClk,
          pgpRxMmcmLocked => '1',
          -- Non VC Rx Signals
-         pgpRxIn         => pgpRxIn,
-         pgpRxOut        => pgpRxOut,
+         pgpRxIn         => pgpRxIn_s,
+         pgpRxOut        => pgpRxOut_s,
          -- Non VC Tx Signals
-         pgpTxIn         => pgpTxIn,
-         pgpTxOut        => pgpTxOut,
+         pgpTxIn         => pgpTxIn_s,
+         pgpTxOut        => pgpTxOut_s,
          -- Frame Transmit Interface
          pgpTxMasters    => pgpTxMasters,
          pgpTxSlaves     => pgpTxSlaves,
@@ -210,13 +227,15 @@ begin
          -- TX PGP Interface (pgpTxClk)
          pgpTxClk        => pgpTxClk,
          pgpTxClkRst     => pgpTxRst,
-         pgpTxIn         => pgpTxIn,
-         pgpTxOut        => pgpTxOut,
+         locTxIn         => pgpTxIn,
+         pgpTxIn         => pgpTxIn_s,
+         pgpTxOut        => pgpTxOut_s,
          -- RX PGP Interface (pgpRxClk)
          pgpRxClk        => pgpRxClk,
          pgpRxClkRst     => pgpRxRst,
-         pgpRxIn         => pgpRxIn,
-         pgpRxOut        => pgpRxOut,
+         locRxIn         => pgpRxIn,
+         pgpRxIn         => pgpRxIn_s,
+         pgpRxOut        => pgpRxOut_s,
          -- AXI-Lite Register Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
@@ -260,8 +279,8 @@ begin
          -- PGP Interface
          pgpTxClk     => pgpTxClk,
          pgpTxRst     => pgpTxRst,
-         pgpRxOut     => pgpRxOut,
-         pgpTxOut     => pgpTxOut,
+         pgpRxOut     => pgpRxOut_s,
+         pgpTxOut     => pgpTxOut_s,
          pgpTxMasters => pgpTxMasters,
          pgpTxSlaves  => pgpTxSlaves);
 
@@ -283,7 +302,7 @@ begin
          -- PGP RX Interface (pgpRxClk domain)
          pgpRxClk        => pgpRxClk,
          pgpRxRst        => pgpRxRst,
-         pgpRxOut        => pgpRxOut,
+         pgpRxOut        => pgpRxOut_s,
          pgpRxMasters    => pgpRxMasters,
          pgpRxCtrl       => pgpRxCtrl);
 

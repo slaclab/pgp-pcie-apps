@@ -261,6 +261,26 @@ begin
       dmaObMasters(i+4) <= dmaIbMasters(i+0);
       dmaIbSlaves(i+0)  <= dmaObSlaves(i+4);
 
+      U_NonVcData_0 : entity surf.SynchronizerFifo
+         generic map (
+            TPD_G        => TPD_G,
+            DATA_WIDTH_G => 48)
+         port map (
+            wr_clk => pgpClkOut(i+4),
+            din    => pgpRxOut(i+4).remLinkData,
+            rd_clk => pgpClkOut(i+0),
+            dout   => pgpTxIn(i+0).locData);
+
+      U_NonVcData_4 : entity surf.SynchronizerFifo
+         generic map (
+            TPD_G        => TPD_G,
+            DATA_WIDTH_G => 48)
+         port map (
+            wr_clk => pgpClkOut(i+0),
+            din    => pgpRxOut(i+0).remLinkData,
+            rd_clk => pgpClkOut(i+4),
+            dout   => pgpTxIn(i+4).locData);
+
       U_opCodeEn_0 : entity surf.SynchronizerOneShot
          generic map (
             TPD_G => TPD_G)

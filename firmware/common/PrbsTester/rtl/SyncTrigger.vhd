@@ -103,11 +103,11 @@ begin
          v.timer := r.timerSize;
 
       end if;
-      
+
       -- Prevent the zero case
       if (v.timerSize = 0) then
          v.timerSize := r.timerSize;
-      end if;      
+      end if;
 
       -- Check for change in timer config
       if (r.timerSize /= v.timerSize) then

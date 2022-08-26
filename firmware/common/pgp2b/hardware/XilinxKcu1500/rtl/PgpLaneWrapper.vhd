@@ -22,6 +22,7 @@ library surf;
 use surf.StdRtlPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
+use surf.Pgp2bPkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -58,6 +59,15 @@ entity PgpLaneWrapper is
       dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
       dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpRxClkOut     : out slv(7 downto 0);
+      pgpRxRstOut     : out slv(7 downto 0);
+      pgpRxIn         : in  Pgp2bRxInArray(7 downto 0) := (others => PGP2B_RX_IN_INIT_C);
+      pgpRxOut        : out Pgp2bRxOutArray(7 downto 0);
+      pgpTxClkOut     : out slv(7 downto 0);
+      pgpTxRstOut     : out slv(7 downto 0);
+      pgpTxIn         : in  Pgp2bTxInArray(7 downto 0) := (others => PGP2B_TX_IN_INIT_C);
+      pgpTxOut        : out Pgp2bTxOutArray(7 downto 0);
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -211,6 +221,15 @@ begin
             pgpTxP          => pgpTxP(i),
             pgpTxN          => pgpTxN(i),
             pgpRefClk       => pgpRefClk(i),
+            -- Non-VC Interface (pgpClkOut domain)
+            pgpRxClkOut     => pgpRxClkOut(i),
+            pgpRxRstOut     => pgpRxRstOut(i),
+            pgpRxIn         => pgpRxIn(i),
+            pgpRxOut        => pgpRxOut(i),
+            pgpTxClkOut     => pgpTxClkOut(i),
+            pgpTxRstOut     => pgpTxRstOut(i),
+            pgpTxIn         => pgpTxIn(i),
+            pgpTxOut        => pgpTxOut(i),
             -- DMA Interface (dmaClk domain)
             dmaClk          => dmaClk,
             dmaRst          => dmaRst,

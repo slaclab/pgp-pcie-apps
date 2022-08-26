@@ -21,6 +21,7 @@ use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
 use surf.SsiPkg.all;
+use surf.Pgp4Pkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -139,6 +140,10 @@ architecture top_level of XilinxAlveoU200Pgp4_6Gbps is
    signal ddrWriteSlaves  : AxiWriteSlaveArray(3 downto 0);
    signal ddrReadMasters  : AxiReadMasterArray(3 downto 0);
    signal ddrReadSlaves   : AxiReadSlaveArray(3 downto 0);
+
+   signal eventTrigMsgCtrl : AxiStreamCtrlArray(7 downto 0) := (others => AXI_STREAM_CTRL_UNUSED_C);
+   signal pgpClkOut        : slv(7 downto 0);
+   signal pgpTxIn          : Pgp4TxInArray(7 downto 0)      := (others => PGP4_TX_IN_INIT_C);
 
 begin
 
@@ -279,7 +284,7 @@ begin
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
          eventClk         => axilClk,
-         eventTrigMsgCtrl => open,
+         eventTrigMsgCtrl => eventTrigMsgCtrl,
          -- AXI Stream Interface (axisClk domain)
          axisClk          => dmaClk,
          axisRst          => dmaRst,
@@ -295,6 +300,16 @@ begin
          ddrWriteSlaves   => ddrWriteSlaves,
          ddrReadMasters   => ddrReadMasters,
          ddrReadSlaves    => ddrReadSlaves);
+
+   GEN_LANE : for i in 7 downto 0 generate
+      U_remoteDmaPause : entity surf.Synchronizer
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            clk     => pgpClkOut(i),
+            dataIn  => eventTrigMsgCtrl(i).pause,
+            dataOut => pgpTxIn(i).locData(0));
+   end generate;
 
    U_Hardware : entity work.Hardware
       generic map (
@@ -320,6 +335,9 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => buffIbMasters,
          dmaIbSlaves     => buffIbSlaves,
+         -- Non-VC Interface (pgpClkOut domain)
+         pgpClkOut       => pgpClkOut,
+         pgpTxIn         => pgpTxIn,
          ------------------
          --  Hardware Ports
          ------------------
