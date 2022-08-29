@@ -231,7 +231,7 @@ def collectDataVsFrameSize(
         )
 
     # set x axis label
-    plt.xlabel("log2 of frame size") 
+    plt.xlabel("log2 of frame size in words") 
 
 ##############################
 # collects and prepares data
