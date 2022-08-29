@@ -306,7 +306,7 @@ def collectDataVsVc(
     )
 
     # set x axis label
-    plt.xlabel("Active Channels")
+    plt.xlabel("(Active Lanes, Active Channels)")
 
 ##############################
 # reads data from SQLite3 data
