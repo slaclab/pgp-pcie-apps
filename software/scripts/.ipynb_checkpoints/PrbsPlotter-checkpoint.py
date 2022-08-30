@@ -231,7 +231,7 @@ def collectDataVsFrameSize(
         )
 
     # set x axis label
-    plt.xlabel("frame size in bytes") 
+    plt.xlabel("frame size in words") 
 
 ##############################
 # collects and prepares data
@@ -346,9 +346,9 @@ def plotData(
     
     # set y axis label
     if(dataIndex == 3):
-        ylabel = "Bandwidth"
+        ylabel = "Bandwidth (Mbps)"
     elif(dataIndex == 4):
-        ylabel = "Frame Rate"
+        ylabel = "Frame Rate (Hz)"
     else:
         ylabel = "Unknown"
 
