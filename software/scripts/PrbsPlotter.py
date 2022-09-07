@@ -160,7 +160,7 @@ def displayFromDictsScatter(
         # check if error needs to be displayed
         if(displayError):
             color = next(ax._get_lines.prop_cycler)['color']
-            plt.plot(list(data[sets].keys()), list(yhigh[sets].values()), '1', markersize = 15, color = color)
+            plt.plot(list(data[sets].keys()), list(yhigh[sets].values()), '1', markersize = 15, color = 'red')
             plt.plot(list(data[sets].keys()), list(ylow[sets].values()), '2', markersize = 15, color = color)
                     
 ##############################
@@ -231,7 +231,7 @@ def collectDataVsFrameSize(
         )
 
     # set x axis label
-    plt.xlabel("frame size in words") 
+    plt.xlabel("frame size in 64 bit words") 
 
 ##############################
 # collects and prepares data
@@ -306,7 +306,7 @@ def collectDataVsVc(
     )
 
     # set x axis label
-    plt.xlabel("(Active Lanes, Active Channels)")
+    plt.xlabel("Total Channels")
 
 ##############################
 # reads data from SQLite3 data
@@ -321,7 +321,7 @@ def plotData(
     displayAggregate, 
     collectionFilter = lambda row: True, 
     namer = lambda num: 2**(num+1), 
-    legendTitle = 'Frame size in words',
+    legendTitle = 'Frame size in 64 bit words',
     displayError = False,
     graphType = 'scatter',
     legendLoc = 'upper right'
@@ -348,7 +348,7 @@ def plotData(
     if(dataIndex == 3):
         ylabel = "Bandwidth (Mbps)"
     elif(dataIndex == 4):
-        ylabel = "Frame Rate (Hz)"
+        ylabel = "Frame Rate (MHz)"
     else:
         ylabel = "Unknown"
 
