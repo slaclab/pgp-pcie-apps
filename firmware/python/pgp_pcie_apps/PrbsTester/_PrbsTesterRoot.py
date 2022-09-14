@@ -141,6 +141,7 @@ class PrbsRoot(pr.Root):
             dependencies = [rx.Bandwidth for lane in self.Hardware.Lane.values() for rx in lane.TxMon.Ch.values()],
             mode = 'RO',
             units = 'Mbps',
+            disp = '{:0.03f}',
             linkedGet = lambda var, read: sum([x.get(read=read) for x in var.dependencies])))
 
         self.add(pr.LinkVariable(
@@ -148,6 +149,7 @@ class PrbsRoot(pr.Root):
             dependencies = [rx.FrameRate for lane in self.Hardware.Lane.values() for rx in lane.TxMon.Ch.values()],
             mode = 'RO',
             units = 'Hz',
+            disp = '{:0.03f}',            
             linkedGet = lambda var, read: sum([x.get(read=read) for x in var.dependencies])))
 
         @self.command()
@@ -155,6 +157,7 @@ class PrbsRoot(pr.Root):
             fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
                 val = rg.TxEn.get()
+                rg.AxiEn.set(True)
                 rg.TxEn.set(False)
                 rg.TrigDly.set(arg)
                 rg.TxEn.set(val)
@@ -163,6 +166,7 @@ class PrbsRoot(pr.Root):
         def SetAllRates(arg):
             fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
+                rg.AxiEn.set(True)
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
                 rg.TrigRate.set(arg)
@@ -172,6 +176,7 @@ class PrbsRoot(pr.Root):
         def SetAllPacketLengths(arg):
             fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
+                rg.AxiEn.set(True)
                 val = rg.TxEn.get()
                 rg.TxEn.set(False)
                 rg.PacketLength.set(arg)
@@ -183,6 +188,7 @@ class PrbsRoot(pr.Root):
             for ln in range(numLanes):
                 channels = arg[1]
                 for vc in range(numVc):
+                    self.Hardware.Lane[ln].PrbsTx[vc].AxiEn.set(True)
                     self.Hardware.Lane[ln].PrbsTx[vc].TxEn.set(channels > 0 and lanes > 0)
                     channels -= 1
                 lanes -= 1
@@ -191,12 +197,14 @@ class PrbsRoot(pr.Root):
         def EnableAllChannels():
             fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
+                rg.AxiEn.set(True)
                 rg.TxEn.set(True)
-        
+
         @self.command()
         def DisableAllChannels():
             fwRgDevices = self.find(typ=ssi.SsiPrbsTx)
             for rg in fwRgDevices:
+                rg.AxiEn.set(True)
                 rg.TxEn.set(False)
 
         @self.command()
@@ -212,4 +220,3 @@ class PrbsRoot(pr.Root):
             fwRgDevices = self.find(typ=axi.AxiStreamMonAxiL)
             for rg in fwRgDevices:
                 rg.CntRst()
-                
