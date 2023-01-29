@@ -125,8 +125,6 @@ architecture top_level of XilinxKcu1500PrbsTester is
          connectivity => x"FFFF"));
 
    signal userClk156      : sl;
-   signal axilClk         : sl;
-   signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
@@ -157,28 +155,6 @@ architecture top_level of XilinxKcu1500PrbsTester is
 
 begin
 
-   U_axilClk : entity surf.ClockManagerUltraScale
-      generic map(
-         TPD_G             => TPD_G,
-         TYPE_G            => "PLL",
-         INPUT_BUFG_G      => true,
-         FB_BUFG_G         => true,
-         RST_IN_POLARITY_G => '1',
-         NUM_CLOCKS_G      => 1,
-         -- MMCM attributes
-         BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 6.4,      -- 156.25 MHz
-         CLKFBOUT_MULT_G   => 8,        -- 1.25GHz = 8 x 156.25 MHz
-         CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
-      port map(
-         -- Clock Input
-         clkIn     => userClk156,
-         rstIn     => dmaRst,
-         -- Clock Outputs
-         clkOut(0) => axilClk,
-         -- Reset Outputs
-         rstOut(0) => axilRst);
-
    -----------------------
    -- axi-pcie-core module
    -----------------------
@@ -202,8 +178,8 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => axilClk,
-         appRst          => axilRst,
+         appClk          => dmaClk,
+         appRst          => dmaRst,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
@@ -250,8 +226,8 @@ begin
       generic map (
          TPD_G => TPD_G)
       port map (
-         axilClk      => axilClk,
-         axilRst      => axilRst,
+         axilClk      => dmaClk,
+         axilRst      => dmaRst,
          ---------------------
          --  Application Ports
          ---------------------
@@ -302,8 +278,8 @@ begin
          NUM_MASTER_SLOTS_G => 5,
          MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
+         axiClk              => dmaClk,
+         axiClkRst           => dmaRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -324,14 +300,14 @@ begin
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
          -- AXI-Lite Interface (axilClk domain)
-         axilClk          => axilClk,
-         axilRst          => axilRst,
+         axilClk          => dmaClk,
+         axilRst          => dmaRst,
          axilReadMaster   => axilReadMasters(0),
          axilReadSlave    => axilReadSlaves(0),
          axilWriteMaster  => axilWriteMasters(0),
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
-         eventClk         => axilClk,
+         eventClk         => dmaClk,
          eventTrigMsgCtrl => open,
          -- AXI Stream Interface (axisClk domain)
          axisClk          => dmaClk,
@@ -361,8 +337,6 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
          -- AXI-Lite Interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
          axilReadMaster  => axilReadMasters(4),
          axilReadSlave   => axilReadSlaves(4),
          axilWriteMaster => axilWriteMasters(4),
