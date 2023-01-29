@@ -48,8 +48,6 @@ entity PrbsLane is
       dmaIbMaster     : out AxiStreamMasterType;
       dmaIbSlave      : in  AxiStreamSlaveType;
       -- AXI-Lite Interface
-      axilClk         : in  sl;
-      axilRst         : in  sl;
       axilReadMaster  : in  AxiLiteReadMasterType;
       axilReadSlave   : out AxiLiteReadSlaveType;
       axilWriteMaster : in  AxiLiteWriteMasterType;
@@ -80,9 +78,9 @@ architecture mapping of PrbsLane is
 begin
 
    -- Help with timing
-   process(axilClk)
+   process(dmaClk)
    begin
-      if rising_edge(axilClk) then
+      if rising_edge(dmaClk) then
          busy <= uOr(busyVec) after TPD_G;
       end if;
    end process;
@@ -97,8 +95,8 @@ begin
          NUM_MASTER_SLOTS_G => NUM_AXI_MASTERS_C,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
+         axiClk              => dmaClk,
+         axiClkRst           => dmaRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -118,7 +116,7 @@ begin
          generic map (
             TPD_G                      => TPD_G,
             PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
-            VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
+            VALID_THOLD_G              => ite(NUM_VC_G = 1, 1, ILEAVE_REARB_C),  -- Hold until enough to burst into the interleaving MUX
             VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
             MASTER_AXI_PIPE_STAGES_G   => 1,
             MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
@@ -129,8 +127,8 @@ begin
             mAxisMaster     => dmaIbMasters(i),
             mAxisSlave      => dmaIbSlaves(i),
             -- Trigger Signal (locClk domain)
-            locClk          => axilClk,
-            locRst          => axilRst,
+            locClk          => dmaClk,
+            locRst          => dmaRst,
             trig            => trig,
             packetLength    => packetLength,
             busy            => busyVec(i),
@@ -151,8 +149,8 @@ begin
             sAxisRst       => dmaRst,
             sAxisMaster    => dmaObMasters(i),
             sAxisSlave     => dmaObSlaves(i),
-            axiClk         => axilClk,
-            axiRst         => axilRst,
+            axiClk         => dmaClk,
+            axiRst         => dmaRst,
             axiReadMaster  => axilReadMasters(2*i+1),
             axiReadSlave   => axilReadSlaves(2*i+1),
             axiWriteMaster => axilWriteMasters(2*i+1),
