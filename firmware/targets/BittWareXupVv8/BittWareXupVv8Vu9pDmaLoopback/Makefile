@@ -1,5 +1,5 @@
 # Define target part
-export PRJ_PART = xcvu13p-figd2104-2-e
+export PRJ_PART = xcvu9p-fsgd2104-2-e
 
 # Define target output
 target: prom
