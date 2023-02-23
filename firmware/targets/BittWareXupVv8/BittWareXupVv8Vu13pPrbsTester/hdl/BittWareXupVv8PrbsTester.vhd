@@ -36,15 +36,16 @@ entity BittWareXupVv8PrbsTester is
       BUILD_INFO_G         : BuildInfoType;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 11000;
-      NUM_DIMM_G           : positive                    := 4;
-      TX_EN_G              : boolean                     := true;
-      RX_EN_G              : boolean                     := true;
-      MIG_EN_G             : boolean                     := false;
-      DMA_SIZE_G           : positive                    := 8;
-      NUM_VC_G             : positive                    := 16;
-      DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
-      DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 8;
-      PRBS_SEED_SIZE_G     : natural range 32 to 512     := 64);
+
+      TX_EN_G           : boolean                   := true;
+      RX_EN_G           : boolean                   := true;
+--      MIG_EN_G             : boolean                     := false;
+      NUM_DIMM_G        : natural range 0 to 4      := 0;
+      DMA_SIZE_G        : positive                  := 8;
+      NUM_VC_G          : positive                  := 16;
+      DMA_BURST_BYTES_G : integer range 256 to 4096 := 4096;
+      DMA_BYTE_WIDTH_G  : integer range 8 to 64     := 8;
+      PRBS_SEED_SIZE_G  : natural range 32 to 512   := 32);
    port (
       ---------------------
       --  Application Ports
@@ -233,55 +234,55 @@ begin
    -------------------------------
    -- MIG[NUM_DIMM_G-1:0] IP Cores
    -------------------------------
-   GEN_MIG : if (MIG_EN_G) generate
-      U_Mig : entity axi_pcie_core.MigAll
-         generic map (
-            TPD_G      => TPD_G,
-            NUM_DIMM_G => NUM_DIMM_G)
-         port map (
-            extRst          => dmaRst,
-            -- AXI MEM Interface
-            axiClk          => ddrClk,
-            axiRst          => ddrRst,
-            axiReady        => ddrReady,
-            axiWriteMasters => ddrWriteMasters,
-            axiWriteSlaves  => ddrWriteSlaves,
-            axiReadMasters  => ddrReadMasters,
-            axiReadSlaves   => ddrReadSlaves,
-            -- DDR Ports
-            ddrClkP         => ddrClkP,
-            ddrClkN         => ddrClkN,
-            ddrOut          => ddrOut,
-            ddrInOut        => ddrInOut);
+--   GEN_MIG : if (MIG_EN_G) generate
+   U_Mig : entity axi_pcie_core.MigAll
+      generic map (
+         TPD_G      => TPD_G,
+         NUM_DIMM_G => NUM_DIMM_G)
+      port map (
+         extRst          => dmaRst,
+         -- AXI MEM Interface
+         axiClk          => ddrClk,
+         axiRst          => ddrRst,
+         axiReady        => ddrReady,
+         axiWriteMasters => ddrWriteMasters,
+         axiWriteSlaves  => ddrWriteSlaves,
+         axiReadMasters  => ddrReadMasters,
+         axiReadSlaves   => ddrReadSlaves,
+         -- DDR Ports
+         ddrClkP         => ddrClkP,
+         ddrClkN         => ddrClkN,
+         ddrOut          => ddrOut,
+         ddrInOut        => ddrInOut);
 
-      ------------------------
-      -- Memory Tester Modules
-      ------------------------
-      GEN_VEC : for i in NUM_DIMM_G-1 downto 0 generate
-         U_AxiMemTester : entity surf.AxiMemTester
-            generic map (
-               TPD_G        => TPD_G,
-               START_ADDR_G => START_ADDR_C,
-               STOP_ADDR_G  => STOP_ADDR_C,
-               AXI_CONFIG_G => MEM_AXI_CONFIG_C)
-            port map (
-               -- AXI-Lite Interface
-               axilClk         => axilClk,
-               axilRst         => axilRst,
-               axilReadMaster  => axilReadMasters(i),
-               axilReadSlave   => axilReadSlaves(i),
-               axilWriteMaster => axilWriteMasters(i),
-               axilWriteSlave  => axilWriteSlaves(i),
-               -- DDR Memory Interface
-               axiClk          => ddrClk(i),
-               axiRst          => ddrRst(i),
-               start           => ddrReady(i),
-               axiWriteMaster  => ddrWriteMasters(i),
-               axiWriteSlave   => ddrWriteSlaves(i),
-               axiReadMaster   => ddrReadMasters(i),
-               axiReadSlave    => ddrReadSlaves(i));
-      end generate GEN_VEC;
-   end generate GEN_MIG;
+   ------------------------
+   -- Memory Tester Modules
+   ------------------------
+   GEN_VEC : for i in NUM_DIMM_G-1 downto 0 generate
+      U_AxiMemTester : entity surf.AxiMemTester
+         generic map (
+            TPD_G        => TPD_G,
+            START_ADDR_G => START_ADDR_C,
+            STOP_ADDR_G  => STOP_ADDR_C,
+            AXI_CONFIG_G => MEM_AXI_CONFIG_C)
+         port map (
+            -- AXI-Lite Interface
+            axilClk         => axilClk,
+            axilRst         => axilRst,
+            axilReadMaster  => axilReadMasters(i),
+            axilReadSlave   => axilReadSlaves(i),
+            axilWriteMaster => axilWriteMasters(i),
+            axilWriteSlave  => axilWriteSlaves(i),
+            -- DDR Memory Interface
+            axiClk          => ddrClk(i),
+            axiRst          => ddrRst(i),
+            start           => ddrReady(i),
+            axiWriteMaster  => ddrWriteMasters(i),
+            axiWriteSlave   => ddrWriteSlaves(i),
+            axiReadMaster   => ddrReadMasters(i),
+            axiReadSlave    => ddrReadSlaves(i));
+   end generate GEN_VEC;
+--   end generate GEN_MIG;
 
    ---------------
    -- PRBS Modules

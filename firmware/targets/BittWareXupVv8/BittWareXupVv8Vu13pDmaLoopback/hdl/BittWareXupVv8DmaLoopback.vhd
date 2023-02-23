@@ -32,7 +32,9 @@ use unisim.vcomponents.all;
 entity BittWareXupVv8DmaLoopback is
    generic (
       TPD_G        : time := 1 ns;
-      BUILD_INFO_G : BuildInfoType);
+      BUILD_INFO_G : BuildInfoType;
+      DMA_SIZE_G : positive := 8;
+      DMA_BYTE_WIDTH_G : integer range 8 to 64 := 64);
    port (
       ---------------------
       --  Application Ports
@@ -64,17 +66,15 @@ end BittWareXupVv8DmaLoopback;
 
 architecture top_level of BittWareXupVv8DmaLoopback is
 
-   constant DMA_SIZE_C : positive := 1;
-
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);   -- 8  Byte (64-bit)  tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
 
    signal dmaClk     : sl;
    signal dmaRst     : sl;
-   signal dmaMasters : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaSlaves  : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaMasters : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
+   signal dmaSlaves  : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
 
    signal userClk100      : sl;
    signal axilClk         : sl;
@@ -108,12 +108,12 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-   U_Core : entity axi_pcie_core.BittWareXupVv8Core
+    U_Core : entity axi_pcie_core.BittWareXupVv8Core
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G        => DMA_SIZE_C)
+         DMA_SIZE_G        => DMA_SIZE_G)
       port map (
          ------------------------
          --  Top Level Interfaces
