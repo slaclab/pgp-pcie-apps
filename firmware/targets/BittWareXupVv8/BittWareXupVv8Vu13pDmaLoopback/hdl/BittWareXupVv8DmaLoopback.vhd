@@ -31,9 +31,9 @@ use unisim.vcomponents.all;
 
 entity BittWareXupVv8DmaLoopback is
    generic (
-      TPD_G        : time := 1 ns;
-      BUILD_INFO_G : BuildInfoType;
-      DMA_SIZE_G : positive := 8;
+      TPD_G            : time                  := 1 ns;
+      BUILD_INFO_G     : BuildInfoType;
+      DMA_SIZE_G       : positive              := 8;
       DMA_BYTE_WIDTH_G : integer range 8 to 64 := 64);
    port (
       ---------------------
@@ -108,7 +108,7 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
-    U_Core : entity axi_pcie_core.BittWareXupVv8Core
+   U_Core : entity axi_pcie_core.BittWareXupVv8Core
       generic map (
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
