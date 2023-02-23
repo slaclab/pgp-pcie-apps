@@ -6,7 +6,7 @@ loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/surf
 loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/BittWareXupVv8
 
 # Load local source Code and constraints
-loadSource      -dir "$::DIR_PATH/../BittWareXupVv8DmaLoopback/hdl"
-loadConstraints -dir "$::DIR_PATH/xdc"
+loadSource      -dir "$::DIR_PATH/../BittWareXupVv8Vu13pDmaLoopback/hdl"
+loadConstraints -dir "$::DIR_PATH/../BittWareXupVv8Vu13pDmaLoopback/hdl"
 
 set_property top {BittWareXupVv8DmaLoopback} [get_filesets {sources_1}]
