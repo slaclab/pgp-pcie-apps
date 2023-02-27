@@ -93,8 +93,6 @@ architecture top_level of XilinxVariumC1100PrbsTester is
          addrBits     => 23,
          connectivity => x"FFFF"));
 
-   signal axilClk         : sl;
-   signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
@@ -120,29 +118,6 @@ architecture top_level of XilinxVariumC1100PrbsTester is
 
 begin
 
-   U_axilClk : entity surf.ClockManagerUltraScale
-      generic map(
-         TPD_G              => TPD_G,
-         TYPE_G             => "MMCM",
-         INPUT_BUFG_G       => true,
-         FB_BUFG_G          => true,
-         RST_IN_POLARITY_G  => '1',
-         NUM_CLOCKS_G       => 1,
-         -- MMCM attributes
-         BANDWIDTH_G        => "OPTIMIZED",
-         CLKIN_PERIOD_G     => 10.0,    -- 100MHz
-         DIVCLK_DIVIDE_G    => 8,       -- 12.5MHz = 100MHz/8
-         CLKFBOUT_MULT_F_G  => 96.875,  -- 1210.9375MHz = 96.875 x 12.5MHz
-         CLKOUT0_DIVIDE_F_G => 7.75)    -- 156.25MHz = 1210.9375MHz/7.75
-      port map(
-         -- Clock Input
-         clkIn     => userClk,
-         rstIn     => dmaRst,
-         -- Clock Outputs
-         clkOut(0) => axilClk,
-         -- Reset Outputs
-         rstOut(0) => axilRst);
-
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
@@ -164,8 +139,8 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => axilClk,
-         appRst          => axilRst,
+         appClk          => dmaClk,
+         appRst          => dmaRst,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
@@ -204,8 +179,8 @@ begin
          NUM_MASTER_SLOTS_G => 5,
          MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
+         axiClk              => dmaClk,
+         axiClkRst           => dmaRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -229,14 +204,14 @@ begin
          hbmRefClk        => hbmRefClk,
          hbmCatTrip       => hbmCatTrip,
          -- AXI-Lite Interface (axilClk domain)
-         axilClk          => axilClk,
-         axilRst          => axilRst,
+         axilClk          => dmaClk,
+         axilRst          => dmaRst,
          axilReadMaster   => axilReadMasters(0),
          axilReadSlave    => axilReadSlaves(0),
          axilWriteMaster  => axilWriteMasters(0),
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
-         eventClk         => axilClk,
+         eventClk         => dmaClk,
          eventTrigMsgCtrl => open,
          -- AXI Stream Interface (axisClk domain)
          axisClk          => dmaClk,
@@ -258,8 +233,6 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
          -- AXI-Lite Interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
          axilReadMaster  => axilReadMasters(4),
          axilReadSlave   => axilReadSlaves(4),
          axilWriteMaster => axilWriteMasters(4),

@@ -84,8 +84,6 @@ end AlphaDataKu3PrbsTester;
 
 architecture top_level of AlphaDataKu3PrbsTester is
 
-   signal axilClk         : sl;
-   signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
@@ -101,23 +99,6 @@ architecture top_level of AlphaDataKu3PrbsTester is
 
 
 begin
-
-   U_axilClk : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 2)
-      port map (
-         I   => dmaClk,                 -- 250 MHz
-         CE  => '1',
-         CLR => '0',
-         O   => axilClk);               -- 125 MHz
-
-   U_axilRst : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => axilClk,
-         asyncRst => dmaRst,
-         syncRst  => axilRst);
 
    -----------------------
    -- axi-pcie-core module
@@ -143,8 +124,8 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => axilClk,
-         appRst          => axilRst,
+         appClk          => dmaClk,
+         appRst          => dmaRst,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
@@ -174,8 +155,8 @@ begin
       generic map (
          TPD_G => TPD_G)
       port map (
-         axilClk      => axilClk,
-         axilRst      => axilRst,
+         axilClk      => dmaClk,
+         axilRst      => dmaRst,
          ---------------------
          --  Application Ports
          ---------------------
@@ -206,8 +187,6 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          -- AXI-Lite Interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
          axilReadMaster  => axilReadMaster,
          axilReadSlave   => axilReadSlave,
          axilWriteMaster => axilWriteMaster,

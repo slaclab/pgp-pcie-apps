@@ -46,6 +46,13 @@ entity PgpGtyLane is
       pgpTxN          : out sl;
       pgpRxP          : in  sl;
       pgpRxN          : in  sl;
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpClkOut       : out sl;
+      pgpRstOut       : out sl;
+      pgpRxIn         : in  Pgp4RxInType := PGP4_RX_IN_INIT_C;
+      pgpRxOut        : out Pgp4RxOutType;
+      pgpTxIn         : in  Pgp4TxInType := PGP4_TX_IN_INIT_C;
+      pgpTxOut        : out Pgp4TxOutType;
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
@@ -89,15 +96,20 @@ architecture mapping of PgpGtyLane is
    signal pgpClk : sl;
    signal pgpRst : sl;
 
-   signal pgpTxOut     : Pgp4TxOutType;
+   signal pgpTxOut_s   : Pgp4TxOutType;
    signal pgpTxMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal pgpTxSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
 
-   signal pgpRxOut     : Pgp4RxOutType;
+   signal pgpRxOut_s   : Pgp4RxOutType;
    signal pgpRxMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal pgpRxCtrl    : AxiStreamCtrlArray(NUM_VC_G-1 downto 0);
 
 begin
+
+   pgpClkOut <= pgpClk;
+   pgpRstOut <= pgpRst;
+   pgpRxOut  <= pgpRxOut_s;
+   pgpTxOut  <= pgpTxOut_s;
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -150,11 +162,11 @@ begin
          pgpClk          => pgpClk,
          pgpClkRst       => pgpRst,
          -- Non VC Rx Signals
-         pgpRxIn         => PGP4_RX_IN_INIT_C,
-         pgpRxOut        => pgpRxOut,
+         pgpRxIn         => pgpRxIn,
+         pgpRxOut        => pgpRxOut_s,
          -- Non VC Tx Signals
-         pgpTxIn         => PGP4_TX_IN_INIT_C,
-         pgpTxOut        => pgpTxOut,
+         pgpTxIn         => pgpTxIn,
+         pgpTxOut        => pgpTxOut_s,
          -- Frame Transmit Interface
          pgpTxMasters    => pgpTxMasters,
          pgpTxSlaves     => pgpTxSlaves,
@@ -186,8 +198,8 @@ begin
          -- PGP Interface
          pgpClk       => pgpClk,
          pgpRst       => pgpRst,
-         rxlinkReady  => pgpRxOut.linkReady,
-         txlinkReady  => pgpTxOut.linkReady,
+         rxlinkReady  => pgpRxOut_s.linkReady,
+         txlinkReady  => pgpTxOut_s.linkReady,
          pgpTxMasters => pgpTxMasters,
          pgpTxSlaves  => pgpTxSlaves);
 
@@ -211,7 +223,7 @@ begin
          -- PGP RX Interface (pgpRxClk domain)
          pgpClk          => pgpClk,
          pgpRst          => pgpRst,
-         rxlinkReady     => pgpRxOut.linkReady,
+         rxlinkReady     => pgpRxOut_s.linkReady,
          pgpRxMasters    => pgpRxMasters,
          pgpRxCtrl       => pgpRxCtrl);
 

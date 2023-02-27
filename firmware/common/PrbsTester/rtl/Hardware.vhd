@@ -40,8 +40,6 @@ entity Hardware is
       AXI_BASE_ADDR_G   : slv(31 downto 0)        := x"0080_0000");
    port (
       -- AXI-Lite Interface
-      axilClk         : in  sl;
-      axilRst         : in  sl;
       axilReadMaster  : in  AxiLiteReadMasterType;
       axilReadSlave   : out AxiLiteReadSlaveType;
       axilWriteMaster : in  AxiLiteWriteMasterType;
@@ -66,7 +64,6 @@ architecture mapping of Hardware is
    signal axilReadSlaves   : AxiLiteReadSlaveArray(8 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
-   signal axilRseet : slv(DMA_SIZE_G-1 downto 0);
    signal pause     : slv(7 downto 0);
 
    signal trig         : sl;
@@ -86,8 +83,8 @@ begin
          NUM_MASTER_SLOTS_G => 9,
          MASTERS_CONFIG_G   => AXI_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
+         axiClk              => dmaClk,
+         axiClkRst           => dmaRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -110,7 +107,7 @@ begin
             PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
             AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
          port map(
-            -- External Trigger Interface (axilClk domain)
+            -- External Trigger Interface
             trig            => trig,
             packetLength    => packetLength,
             busy            => busyVec(i),
@@ -123,8 +120,6 @@ begin
             dmaObMaster     => dmaObMasters(i),
             dmaObSlave      => dmaObSlaves(i),
             -- AXI-Lite Interface
-            axilClk         => axilClk,
-            axilRst         => axilRseet(i),
             axilReadMaster  => axilReadMasters(i),
             axilReadSlave   => axilReadSlaves(i),
             axilWriteMaster => axilWriteMasters(i),
@@ -138,14 +133,6 @@ begin
             rstIn  => dmaRst,
             rstOut => dmaReset(i));
 
-      U_axilRst : entity surf.RstPipeline
-         generic map (
-            TPD_G => TPD_G)
-         port map (
-            clk    => axilClk,
-            rstIn  => axilRst,
-            rstOut => axilRseet(i));
-
    end generate;
 
    -- Help with timing
@@ -153,11 +140,6 @@ begin
    begin
       if rising_edge(dmaClk) then
          pause <= dmaBuffGrpPause after TPD_G;
-      end if;
-   end process;
-   process(axilClk)
-   begin
-      if rising_edge(axilClk) then
          busy <= uOr(busyVec) after TPD_G;
       end if;
    end process;
@@ -171,8 +153,8 @@ begin
          packetLength    => packetLength,
          busy            => busy,
          -- AXI-Lite Interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
+         axilClk         => dmaClk,
+         axilRst         => dmaRst,
          axilReadMaster  => axilReadMasters(8),
          axilReadSlave   => axilReadSlaves(8),
          axilWriteMaster => axilWriteMasters(8),

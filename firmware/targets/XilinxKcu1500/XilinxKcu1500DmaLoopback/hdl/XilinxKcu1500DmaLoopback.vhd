@@ -132,6 +132,7 @@ begin
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
+         DMA_BURST_BYTES_G    => 4096,
          DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_G,
          DMA_SIZE_G           => DMA_SIZE_G)
       port map (

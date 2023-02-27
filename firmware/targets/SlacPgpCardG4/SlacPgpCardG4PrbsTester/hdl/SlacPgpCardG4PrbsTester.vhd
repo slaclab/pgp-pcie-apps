@@ -101,8 +101,6 @@ architecture top_level of SlacPgpCardG4PrbsTester is
          addrBits     => 23,
          connectivity => x"FFFF"));
 
-   signal axilClk         : sl;
-   signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
@@ -122,23 +120,6 @@ architecture top_level of SlacPgpCardG4PrbsTester is
    signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
 
 begin
-
-   U_axilClk : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 2)
-      port map (
-         I   => dmaClk,                 -- 250 MHz
-         CE  => '1',
-         CLR => '0',
-         O   => axilClk);               -- 125 MHz
-
-   U_axilRst : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => axilClk,
-         asyncRst => dmaRst,
-         syncRst  => axilRst);
 
    -----------------------
    -- axi-pcie-core module
@@ -164,8 +145,8 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => axilClk,
-         appRst          => axilRst,
+         appClk          => dmaClk,
+         appRst          => dmaRst,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
@@ -210,8 +191,8 @@ begin
          NUM_MASTER_SLOTS_G => 5,
          MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
+         axiClk              => dmaClk,
+         axiClkRst           => dmaRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -234,8 +215,6 @@ begin
          AXI_BASE_ADDR_G   => AXIL_XBAR_CONFIG_C(4).baseAddr)
       port map (
          -- AXI-Lite Interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
          axilReadMaster  => axilReadMasters(4),
          axilReadSlave   => axilReadSlaves(4),
          axilWriteMaster => axilWriteMasters(4),
