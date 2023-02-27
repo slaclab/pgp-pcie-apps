@@ -8,7 +8,7 @@ loadRuckusTcl $::env(PROJ_DIR)/../../../common/pgp2b/hardware/BittWareXupVv8
 
 # Load local source Code and constraints
 loadSource      -dir "$::DIR_PATH/../BittWareXupVv8Vu13pPgp2b/hdl"
-loadConstraints -dir "$::DIR_PATH/../BittWareXupVv8Vu13pPgp2b/hdl"
+loadConstraints -dir "$::DIR_PATH/../xdc"
 
 set_property top {BittWareXupVv8Pgp2b} [get_filesets {sources_1}]
 
