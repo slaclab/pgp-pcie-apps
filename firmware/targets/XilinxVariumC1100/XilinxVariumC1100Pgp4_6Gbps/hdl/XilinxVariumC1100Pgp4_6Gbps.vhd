@@ -21,6 +21,7 @@ use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
 use surf.SsiPkg.all;
+use surf.Pgp4Pkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -33,7 +34,7 @@ entity XilinxVariumC1100Pgp4_6Gbps is
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
+      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 2, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
       BUILD_INFO_G         : BuildInfoType);
    port (
       ---------------------
@@ -59,10 +60,10 @@ entity XilinxVariumC1100Pgp4_6Gbps is
       --  Core Ports
       --------------
       -- System Ports
-      userClkP        : in    sl;
-      userClkN        : in    sl;
-      hbmRefClkP      : in    sl;
-      hbmRefClkN      : in    sl;
+      userClkP     : in    sl;
+      userClkN     : in    sl;
+      hbmRefClkP   : in    sl;
+      hbmRefClkN   : in    sl;
       -- SI5394 Ports
       si5394Scl    : inout sl;
       si5394Sda    : inout sl;
@@ -72,23 +73,49 @@ entity XilinxVariumC1100Pgp4_6Gbps is
       si5394RstL   : out   sl;
       -- PCIe Ports
       pciRstL      : in    sl;
-      pciRefClkP   : in    slv(1 downto 0);
-      pciRefClkN   : in    slv(1 downto 0);
-      pciRxP       : in    slv(15 downto 0);
-      pciRxN       : in    slv(15 downto 0);
-      pciTxP       : out   slv(15 downto 0);
-      pciTxN       : out   slv(15 downto 0));
+      pciRefClkP   : in    slv(0 downto 0);
+      pciRefClkN   : in    slv(0 downto 0);
+      pciRxP       : in    slv(7 downto 0);
+      pciRxN       : in    slv(7 downto 0);
+      pciTxP       : out   slv(7 downto 0);
+      pciTxN       : out   slv(7 downto 0));
 end XilinxVariumC1100Pgp4_6Gbps;
 
 architecture top_level of XilinxVariumC1100Pgp4_6Gbps is
 
-   signal userClk         : sl;
+   constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
+      0               => (
+         baseAddr     => x"0010_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      1               => (
+         baseAddr     => x"0020_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      2               => (
+         baseAddr     => x"0030_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      3               => (
+         baseAddr     => x"0040_0000",
+         addrBits     => 20,
+         connectivity => x"FFFF"),
+      4               => (
+         baseAddr     => x"0080_0000",
+         addrBits     => 23,
+         connectivity => x"FFFF"));
+
    signal axilClk         : sl;
    signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
+
+   signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
 
    signal dmaClk          : sl;
    signal dmaRst          : sl;
@@ -97,6 +124,15 @@ architecture top_level of XilinxVariumC1100Pgp4_6Gbps is
    signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
    signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
    signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal buffIbMasters   : AxiStreamMasterArray(7 downto 0);
+   signal buffIbSlaves    : AxiStreamSlaveArray(7 downto 0);
+
+   signal hbmRefClk : sl;
+   signal userClk   : sl;
+
+   signal eventTrigMsgCtrl : AxiStreamCtrlArray(7 downto 0) := (others => AXI_STREAM_CTRL_UNUSED_C);
+   signal pgpClkOut        : slv(7 downto 0);
+   signal pgpTxIn          : Pgp4TxInArray(7 downto 0)      := (others => PGP4_TX_IN_INIT_C);
 
 begin
 
@@ -135,44 +171,108 @@ begin
          ------------------------
          --  Top Level Interfaces
          ------------------------
-         userClk        => userClk,
+         userClk         => userClk,
+         hbmRefClk       => hbmRefClk,
          -- DMA Interfaces
-         dmaClk         => dmaClk,
-         dmaRst         => dmaRst,
-         dmaObMasters   => dmaObMasters,
-         dmaObSlaves    => dmaObSlaves,
-         dmaIbMasters   => dmaIbMasters,
-         dmaIbSlaves    => dmaIbSlaves,
+         dmaClk          => dmaClk,
+         dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk         => axilClk,
-         appRst         => axilRst,
-         appReadMaster  => axilReadMaster,
-         appReadSlave   => axilReadSlave,
-         appWriteMaster => axilWriteMaster,
-         appWriteSlave  => axilWriteSlave,
+         appClk          => axilClk,
+         appRst          => axilRst,
+         appReadMaster   => axilReadMaster,
+         appReadSlave    => axilReadSlave,
+         appWriteMaster  => axilWriteMaster,
+         appWriteSlave   => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
          -- System Ports
-         userClkP       => userClkP,
-         userClkN       => userClkN,
-         hbmRefClkP     => hbmRefClkP,
-         hbmRefClkN     => hbmRefClkN,
+         userClkP        => userClkP,
+         userClkN        => userClkN,
+         hbmRefClkP      => hbmRefClkP,
+         hbmRefClkN      => hbmRefClkN,
          -- SI5394 Ports
-         si5394Scl      => si5394Scl,
-         si5394Sda      => si5394Sda,
-         si5394IrqL     => si5394IrqL,
-         si5394LolL     => si5394LolL,
-         si5394LosL     => si5394LosL,
-         si5394RstL     => si5394RstL,
+         si5394Scl       => si5394Scl,
+         si5394Sda       => si5394Sda,
+         si5394IrqL      => si5394IrqL,
+         si5394LolL      => si5394LolL,
+         si5394LosL      => si5394LosL,
+         si5394RstL      => si5394RstL,
          -- PCIe Ports
-         pciRstL        => pciRstL,
-         pciRefClkP     => pciRefClkP,
-         pciRefClkN     => pciRefClkN,
-         pciRxP         => pciRxP,
-         pciRxN         => pciRxN,
-         pciTxP         => pciTxP,
-         pciTxN         => pciTxN);
+         pciRstL         => pciRstL,
+         pciRefClkP      => pciRefClkP,
+         pciRefClkN      => pciRefClkN,
+         pciRxP          => pciRxP,
+         pciRxN          => pciRxN,
+         pciTxP          => pciTxP,
+         pciTxN          => pciTxN);
+
+   --------------------
+   -- AXI-Lite Crossbar
+   --------------------
+   U_XBAR : entity surf.AxiLiteCrossbar
+      generic map (
+         TPD_G              => TPD_G,
+         NUM_SLAVE_SLOTS_G  => 1,
+         NUM_MASTER_SLOTS_G => 5,
+         MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
+      port map (
+         axiClk              => axilClk,
+         axiClkRst           => axilRst,
+         sAxiWriteMasters(0) => axilWriteMaster,
+         sAxiWriteSlaves(0)  => axilWriteSlave,
+         sAxiReadMasters(0)  => axilReadMaster,
+         sAxiReadSlaves(0)   => axilReadSlave,
+         mAxiWriteMasters    => axilWriteMasters,
+         mAxiWriteSlaves     => axilWriteSlaves,
+         mAxiReadMasters     => axilReadMasters,
+         mAxiReadSlaves      => axilReadSlaves);
+
+   ----------------------------
+   -- DMA Inbound Large Buffer
+   ----------------------------
+   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
+      generic map (
+         TPD_G             => TPD_G,
+         DMA_SIZE_G        => 8,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
+      port map (
+         -- HBM Interface
+         hbmRefClk        => hbmRefClk,
+         hbmCatTrip       => hbmCatTrip,
+         -- AXI-Lite Interface (axilClk domain)
+         axilClk          => axilClk,
+         axilRst          => axilRst,
+         axilReadMaster   => axilReadMasters(0),
+         axilReadSlave    => axilReadSlaves(0),
+         axilWriteMaster  => axilWriteMasters(0),
+         axilWriteSlave   => axilWriteSlaves(0),
+         -- Trigger Event streams (eventClk domain)
+         eventClk         => axilClk,
+         eventTrigMsgCtrl => eventTrigMsgCtrl,
+         -- AXI Stream Interface (axisClk domain)
+         axisClk          => dmaClk,
+         axisRst          => dmaRst,
+         sAxisMasters     => buffIbMasters,
+         sAxisSlaves      => buffIbSlaves,
+         mAxisMasters     => dmaIbMasters,
+         mAxisSlaves      => dmaIbSlaves);
+
+   GEN_LANE : for i in 7 downto 0 generate
+      U_remoteDmaPause : entity surf.Synchronizer
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            clk     => pgpClkOut(i),
+            dataIn  => eventTrigMsgCtrl(i).pause,
+            dataOut => pgpTxIn(i).locData(0));
+   end generate;
 
    U_Hardware : entity work.Hardware
       generic map (
@@ -186,18 +286,21 @@ begin
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMaster,
-         axilReadSlave   => axilReadSlave,
-         axilWriteMaster => axilWriteMaster,
-         axilWriteSlave  => axilWriteSlave,
+         axilReadMaster  => axilReadMasters(4),
+         axilReadSlave   => axilReadSlaves(4),
+         axilWriteMaster => axilWriteMasters(4),
+         axilWriteSlave  => axilWriteSlaves(4),
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
          dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
-         dmaIbMasters    => dmaIbMasters,
-         dmaIbSlaves     => dmaIbSlaves,
+         dmaIbMasters    => buffIbMasters,
+         dmaIbSlaves     => buffIbSlaves,
+         -- Non-VC Interface (pgpClkOut domain)
+         pgpClkOut       => pgpClkOut,
+         pgpTxIn         => pgpTxIn,
          ------------------
          --  Hardware Ports
          ------------------

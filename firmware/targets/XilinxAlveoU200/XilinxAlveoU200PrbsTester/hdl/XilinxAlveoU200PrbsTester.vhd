@@ -59,6 +59,9 @@ entity XilinxAlveoU200PrbsTester is
       -- System Ports
       userClkP      : in    sl;
       userClkN      : in    sl;
+      i2cRstL       : out   sl;
+      i2cScl        : inout sl;
+      i2cSda        : inout sl;
       -- QSFP[1:0] Ports
       qsfpFs        : out   Slv2Array(1 downto 0);
       qsfpRefClkRst : out   slv(1 downto 0);
@@ -82,7 +85,6 @@ architecture top_level of XilinxAlveoU200PrbsTester is
    constant STOP_ADDR_C  : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '1');
 
    constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3);
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);   -- 8  Byte (64-bit)  tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
@@ -201,6 +203,9 @@ begin
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,
+         i2cRstL         => i2cRstL,
+         i2cScl          => i2cScl,
+         i2cSda          => i2cSda,
          -- QSFP[1:0] Ports
          qsfpFs          => qsfpFs,
          qsfpRefClkRst   => qsfpRefClkRst,
@@ -293,25 +298,6 @@ begin
    ---------------
    -- PRBS Modules
    ---------------
-
---    U_AxiLiteAsync_1 : entity surf.AxiLiteAsync
---       generic map (
---          TPD_G        => TPD_G,
---          COMMON_CLK_G => AXIL_CLK_IS_DMA_CLK_G)
---       port map (
---          sAxiClk         => axilClk,             -- [in]
---          sAxiClkRst      => axilRst,             -- [in]
---          sAxiReadMaster  => axilReadMasters,      -- [in]
---          sAxiReadSlave   => axilReadSlaves,       -- [out]
---          sAxiWriteMaster => axilWriteMasters,     -- [in]
---          sAxiWriteSlave  => axilWriteSlaves,      -- [out]
---          mAxiClk         => dmaClk,              -- [in]
---          mAxiClkRst      => dmaRst,              -- [in]
---          mAxiReadMaster  => dmaAxilReadMaster,   -- [out]
---          mAxiReadSlave   => dmaAxilReadSlave,    -- [in]
---          mAxiWriteMaster => dmaAxilWriteMaster,  -- [out]
---          mAxiWriteSlave  => dmaAxilWriteSlave);  -- [in]
-
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G                        => TPD_G,

@@ -108,8 +108,6 @@ architecture top_level of BittWareXupVv8PrbsTester is
          connectivity => x"FFFF"));
 
    signal userClk100      : sl;
-   signal axilClk         : sl;
-   signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
@@ -138,28 +136,6 @@ architecture top_level of BittWareXupVv8PrbsTester is
 
 begin
 
-   U_axilClk : entity surf.ClockManagerUltraScale
-      generic map(
-         TPD_G             => TPD_G,
-         TYPE_G            => "PLL",
-         INPUT_BUFG_G      => true,
-         FB_BUFG_G         => true,
-         RST_IN_POLARITY_G => '1',
-         NUM_CLOCKS_G      => 1,
-         -- MMCM attributes
-         BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 10.0,     -- 100 MHz
-         CLKFBOUT_MULT_G   => 10,       -- 1GHz = 10 x 100 MHz
-         CLKOUT0_DIVIDE_G  => 8)        -- 125MHz = 1GHz/8
-      port map(
-         -- Clock Input
-         clkIn     => userClk100,
-         rstIn     => dmaRst,
-         -- Clock Outputs
-         clkOut(0) => axilClk,
-         -- Reset Outputs
-         rstOut(0) => axilRst);
-
    -----------------------
    -- axi-pcie-core module
    -----------------------
@@ -187,8 +163,8 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => axilClk,
-         appRst          => axilRst,
+         appClk          => dmaClk,
+         appRst          => dmaRst,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
@@ -220,8 +196,8 @@ begin
          NUM_MASTER_SLOTS_G => 5,
          MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
+         axiClk              => dmaClk,
+         axiClkRst           => dmaRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -267,8 +243,8 @@ begin
             AXI_CONFIG_G => MEM_AXI_CONFIG_C)
          port map (
             -- AXI-Lite Interface
-            axilClk         => axilClk,
-            axilRst         => axilRst,
+            axilClk         => dmaClk,
+            axilRst         => dmaRst,
             axilReadMaster  => axilReadMasters(i),
             axilReadSlave   => axilReadSlaves(i),
             axilWriteMaster => axilWriteMasters(i),
@@ -296,8 +272,6 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
          -- AXI-Lite Interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
          axilReadMaster  => axilReadMasters(4),
          axilReadSlave   => axilReadSlaves(4),
          axilWriteMaster => axilWriteMasters(4),

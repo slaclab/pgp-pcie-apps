@@ -8,6 +8,16 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-set format     "mcs"
-set inteface   "SPIx8"
-set size       "1024"
+##############################
+# Get variables and procedures
+##############################
+source -quiet $::env(RUCKUS_DIR)/vivado_env_var.tcl
+source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
+
+############################
+## Open the synthesis design
+############################
+open_run synth_1
+
+# Bug fix for Vivado not connecting the HBM's debug hub clock
+SetDebugCoreClk {dbg_hub} {hbmRefClk}

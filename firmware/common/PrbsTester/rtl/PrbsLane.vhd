@@ -40,6 +40,10 @@ entity PrbsLane is
       DMA_BURST_BYTES_G            : integer range 256 to 4096 := 4096;
       AXI_BASE_ADDR_G              : slv(31 downto 0)          := (others => '0'));
    port (
+      -- External Trigger Interface (axilClk domain)
+      trig            : in  sl;
+      packetLength    : in  slv(31 downto 0);
+      busy            : out sl;
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
@@ -78,8 +82,17 @@ architecture mapping of PrbsLane is
    signal dmaObSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
 
    signal disableSel : slv(NUM_VC_G-1 downto 0);
+   signal busyVec : slv(NUM_VC_G-1 downto 0);
 
 begin
+
+   -- Help with timing
+   process(axilClk)
+   begin
+      if rising_edge(axilClk) then
+         busy <= uOr(busyVec) after TPD_G;
+      end if;
+   end process;
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -129,6 +142,9 @@ begin
                -- Trigger Signal (locClk domain)
                locClk          => axilClk,
                locRst          => axilRst,
+               trig => trig,
+               packetLength    => packetLength,
+               busy            => busyVec(i),
                -- Optional: Axi-Lite Register Interface (locClk domain)
                axilReadMaster  => axilReadMasters(2*i+0),
                axilReadSlave   => axilReadSlaves(2*i+0),
@@ -158,32 +174,6 @@ begin
                axiWriteMaster => axilWriteMasters(2*i+1),
                axiWriteSlave  => axilWriteSlaves(2*i+1));
       end generate GEN_RX;
-
---       U_SsiPrbsRateGen : entity surf.SsiPrbsRateGen
---          generic map (
---             TPD_G                   => TPD_G,
---             FIFO_INT_WIDTH_SELECT_G => "NARROW",
---             PRBS_SEED_SIZE_G        => PRBS_SEED_SIZE_G,
---             PRBS_FIFO_PIPE_STAGES_G => 1,
---             VALID_THOLD_G           => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
---             VALID_BURST_MODE_G      => ite(NUM_VC_G = 1, false, true),
---             AXIS_CONFIG_G           => DMA_AXIS_CONFIG_G,
---             AXIS_CLK_FREQ_G         => 250.0E+6,
---             USE_AXIL_CLK_G          => not COMMON_CLOCK_G)
---          port map (
---             -- Master Port (mAxisClk)
---             mAxisClk        => dmaClk,
---             mAxisRst        => dmaRst,
---             mAxisMaster     => dmaIbMasters(i),
---             mAxisSlave      => dmaIbSlaves(i),
---             -- Optional: Axi-Lite Register Interface 
---             axilClk         => axilClk,
---             axilRst         => axilRst,
---             axilReadMaster  => axilReadMasters(4*i+0),
---             axilReadSlave   => axilReadSlaves(4*i+0),
---             axilWriteMaster => axilWriteMasters(4*i+0),
---             axilWriteSlave  => axilWriteSlaves(4*i+0));
-
    end generate GEN_VC;
 
    GEN_TX : if (TX_EN_G) generate
@@ -228,6 +218,7 @@ begin
             sAxilReadSlave   => axilReadSlaves(2*NUM_VC_G+1));   -- [out]
 
    end generate GEN_RX;
+
    BYP_MUX : if (NUM_VC_G = 1) generate
 
       dmaObMasters(0) <= dmaObMaster;

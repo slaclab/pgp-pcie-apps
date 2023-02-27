@@ -110,6 +110,13 @@ parser.add_argument(
     help     = "Enable read all variables at start",
 )
 
+parser.add_argument(
+    "--syncTrig",
+    action   = 'store_true',
+    default  = False,
+    help     = "Enable sync triggers",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -124,6 +131,7 @@ with test.PrbsRoot(
         prbsWidth = args.prbsWidth,
         numVc = args.numVc,
         loopback = args.loopback,
+        syncTrig = args.syncTrig,
         pollEn=args.pollEn) as root:
 
     swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)

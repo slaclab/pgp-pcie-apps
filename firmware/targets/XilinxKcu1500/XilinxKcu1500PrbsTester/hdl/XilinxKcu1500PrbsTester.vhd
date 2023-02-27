@@ -32,20 +32,7 @@ use unisim.vcomponents.all;
 
 entity XilinxKcu1500PrbsTester is
    generic (
-      TPD_G      : time     := 1 ns;
-      DMA_SIZE_G : positive := 1;
-      NUM_VC_G   : positive := 1;
-
-      ROGUE_SIM_EN_G       : boolean                     := false;
-      ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
-      -- DMA_AXIS_CONFIG_G : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  --- 32 Byte (256-bit) tData interface
-
-      PRBS_SEED_SIZE_G : natural range 32 to 256 := 32;
-      -- PRBS_SEED_SIZE_G : natural range 32 to 256 := 256;
-
+      TPD_G        : time := 1 ns;
       BUILD_INFO_G : BuildInfoType);
    port (
       ---------------------
@@ -108,50 +95,55 @@ end XilinxKcu1500PrbsTester;
 
 architecture top_level of XilinxKcu1500PrbsTester is
 
-   constant START_ADDR_C : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '0');
-   constant STOP_ADDR_C  : slv(MEM_AXI_CONFIG_C.ADDR_WIDTH_C-1 downto 0) := (others => '1');
+   constant DMA_SIZE_C : positive := 8;
+
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  -- 8  Byte (64-bit)  tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
          baseAddr     => x"0010_0000",
-         addrBits     => 16,
+         addrBits     => 20,
          connectivity => x"FFFF"),
       1               => (
-         baseAddr     => x"0011_0000",
-         addrBits     => 16,
+         baseAddr     => x"0020_0000",
+         addrBits     => 20,
          connectivity => x"FFFF"),
       2               => (
-         baseAddr     => x"0012_0000",
-         addrBits     => 16,
+         baseAddr     => x"0030_0000",
+         addrBits     => 20,
          connectivity => x"FFFF"),
       3               => (
-         baseAddr     => x"0013_0000",
-         addrBits     => 16,
+         baseAddr     => x"0040_0000",
+         addrBits     => 20,
          connectivity => x"FFFF"),
       4               => (
          baseAddr     => x"0080_0000",
          addrBits     => 23,
          connectivity => x"FFFF"));
 
-   signal axilClk         : sl;
-   signal axilRst         : sl;
+   signal userClk156      : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
-   signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0)  := (others => AXI_LITE_READ_MASTER_INIT_C);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)   := (others => AXI_LITE_READ_SLAVE_EMPTY_OK_C);
-   signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0) := (others => AXI_LITE_WRITE_MASTER_INIT_C);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0)  := (others => AXI_LITE_WRITE_SLAVE_EMPTY_OK_C);
+   signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
 
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_G-1 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_G-1 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal buffIbMasters   : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal buffIbSlaves    : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
 
    signal ddrClk          : slv(3 downto 0);
    signal ddrRst          : slv(3 downto 0);
@@ -163,38 +155,20 @@ architecture top_level of XilinxKcu1500PrbsTester is
 
 begin
 
-   U_axilClk : BUFGCE_DIV
-      generic map (
-         BUFGCE_DIVIDE => 2)
-      port map (
-         I   => dmaClk,                 -- 250 MHz
-         CE  => '1',
-         CLR => '0',
-         O   => axilClk);               -- 125 MHz
-
-   U_axilRst : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => axilClk,
-         asyncRst => dmaRst,
-         syncRst  => axilRst);
-
    -----------------------
    -- axi-pcie-core module
    -----------------------
    U_Core : entity axi_pcie_core.XilinxKcu1500Core
       generic map (
-         TPD_G                => TPD_G,
-         ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
-         ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
-         BUILD_INFO_G         => BUILD_INFO_G,
-         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_G,
-         DMA_SIZE_G           => DMA_SIZE_G)
+         TPD_G             => TPD_G,
+         BUILD_INFO_G      => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         DMA_SIZE_G        => DMA_SIZE_C)
       port map (
          ------------------------
          --  Top Level Interfaces
          ------------------------
+         userClk156      => userClk156,
          -- DMA Interfaces
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
@@ -204,8 +178,8 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => axilClk,
-         appRst          => axilRst,
+         appClk          => dmaClk,
+         appRst          => dmaRst,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
@@ -252,8 +226,8 @@ begin
       generic map (
          TPD_G => TPD_G)
       port map (
-         axilClk      => axilClk,
-         axilRst      => axilRst,
+         axilClk      => dmaClk,
+         axilRst      => dmaRst,
          ---------------------
          --  Application Ports
          ---------------------
@@ -304,8 +278,8 @@ begin
          NUM_MASTER_SLOTS_G => 5,
          MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
+         axiClk              => dmaClk,
+         axiClkRst           => dmaRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -315,33 +289,41 @@ begin
          mAxiReadMasters     => axilReadMasters,
          mAxiReadSlaves      => axilReadSlaves);
 
-   ------------------------
-   -- Memory Tester Modules
-   ------------------------
-   GEN_VEC : for i in 3 downto 0 generate
-      U_AxiMemTester : entity surf.AxiMemTester
-         generic map (
-            TPD_G        => TPD_G,
-            START_ADDR_G => START_ADDR_C,
-            STOP_ADDR_G  => STOP_ADDR_C,
-            AXI_CONFIG_G => MEM_AXI_CONFIG_C)
-         port map (
-            -- AXI-Lite Interface
-            axilClk         => axilClk,
-            axilRst         => axilRst,
-            axilReadMaster  => axilReadMasters(i),
-            axilReadSlave   => axilReadSlaves(i),
-            axilWriteMaster => axilWriteMasters(i),
-            axilWriteSlave  => axilWriteSlaves(i),
-            -- DDR Memory Interface
-            axiClk          => ddrClk(i),
-            axiRst          => ddrRst(i),
-            start           => ddrReady(i),
-            axiWriteMaster  => ddrWriteMasters(i),
-            axiWriteSlave   => ddrWriteSlaves(i),
-            axiReadMaster   => ddrReadMasters(i),
-            axiReadSlave    => ddrReadSlaves(i));
-   end generate GEN_VEC;
+   ----------------------------
+   -- DMA Inbound Large Buffer
+   ----------------------------
+   U_MigDmaBuffer : entity axi_pcie_core.MigDmaBuffer
+      generic map (
+         TPD_G             => TPD_G,
+         DMA_SIZE_G        => DMA_SIZE_C,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
+      port map (
+         -- AXI-Lite Interface (axilClk domain)
+         axilClk          => dmaClk,
+         axilRst          => dmaRst,
+         axilReadMaster   => axilReadMasters(0),
+         axilReadSlave    => axilReadSlaves(0),
+         axilWriteMaster  => axilWriteMasters(0),
+         axilWriteSlave   => axilWriteSlaves(0),
+         -- Trigger Event streams (eventClk domain)
+         eventClk         => dmaClk,
+         eventTrigMsgCtrl => open,
+         -- AXI Stream Interface (axisClk domain)
+         axisClk          => dmaClk,
+         axisRst          => dmaRst,
+         sAxisMasters     => buffIbMasters,
+         sAxisSlaves      => buffIbSlaves,
+         mAxisMasters     => dmaIbMasters,
+         mAxisSlaves      => dmaIbSlaves,
+         -- DDR AXI MEM Interface
+         ddrClk           => ddrClk,
+         ddrRst           => ddrRst,
+         ddrReady         => ddrReady,
+         ddrWriteMasters  => ddrWriteMasters,
+         ddrWriteSlaves   => ddrWriteSlaves,
+         ddrReadMasters   => ddrReadMasters,
+         ddrReadSlaves    => ddrReadSlaves);
 
    ---------------
    -- PRBS Modules
@@ -349,15 +331,12 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
-         DMA_SIZE_G        => DMA_SIZE_G,
-         NUM_VC_G          => NUM_VC_G,
-         PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-         AXI_BASE_ADDR_G   => AXIL_XBAR_CONFIG_C(4).baseAddr)
+         DMA_SIZE_G        => DMA_SIZE_C,
+         NUM_VC_G          => 2,
+         PRBS_SEED_SIZE_G  => 8*DMA_AXIS_CONFIG_C.TDATA_BYTES_C,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
          -- AXI-Lite Interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
          axilReadMaster  => axilReadMasters(4),
          axilReadSlave   => axilReadSlaves(4),
          axilWriteMaster => axilWriteMasters(4),
@@ -368,7 +347,7 @@ begin
          dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
-         dmaIbMasters    => dmaIbMasters,
-         dmaIbSlaves     => dmaIbSlaves);
+         dmaIbMasters    => buffIbMasters,
+         dmaIbSlaves     => buffIbSlaves);
 
 end top_level;

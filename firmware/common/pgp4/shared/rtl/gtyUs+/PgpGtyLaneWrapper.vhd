@@ -22,6 +22,7 @@ library surf;
 use surf.StdRtlPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
+use surf.Pgp4Pkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -54,6 +55,13 @@ entity PgpGtyLaneWrapper is
       qsfp1RxN        : in  slv(3 downto 0);
       qsfp1TxP        : out slv(3 downto 0);
       qsfp1TxN        : out slv(3 downto 0);
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpClkOut       : out slv(7 downto 0);
+      pgpRstOut       : out slv(7 downto 0);
+      pgpRxIn         : in  Pgp4RxInArray(7 downto 0) := (others => PGP4_RX_IN_INIT_C);
+      pgpRxOut        : out Pgp4RxOutArray(7 downto 0);
+      pgpTxIn         : in  Pgp4TxInArray(7 downto 0) := (others => PGP4_TX_IN_INIT_C);
+      pgpTxOut        : out Pgp4TxOutArray(7 downto 0);
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
@@ -217,6 +225,13 @@ begin
             pgpRxN          => pgpRxN(i),
             pgpTxP          => pgpTxP(i),
             pgpTxN          => pgpTxN(i),
+            -- Non-VC Interface (pgpClkOut domain)
+            pgpClkOut       => pgpClkOut(i),
+            pgpRstOut       => pgpRstOut(i),
+            pgpRxIn         => pgpRxIn(i),
+            pgpRxOut        => pgpRxOut(i),
+            pgpTxIn         => pgpTxIn(i),
+            pgpTxOut        => pgpTxOut(i),
             -- DMA Interface (dmaClk domain)
             dmaClk          => dmaClk,
             dmaRst          => dmaRst,

@@ -121,23 +121,6 @@ architecture top_level of SlacPgpCardG4PrbsTester is
 
 begin
 
---    U_axilClk : BUFGCE_DIV
---       generic map (
---          BUFGCE_DIVIDE => 2)
---       port map (
---          I   => dmaClk,                 -- 250 MHz
---          CE  => '1',
---          CLR => '0',
---          O   => axilClk);               -- 125 MHz
-
---    U_axilRst : entity surf.RstSync
---       generic map (
---          TPD_G => TPD_G)
---       port map (
---          clk      => axilClk,
---          asyncRst => dmaRst,
---          syncRst  => axilRst);
-
    axilClk <= dmaClk;
    axilRst <= dmaRst;
 

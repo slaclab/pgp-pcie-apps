@@ -44,6 +44,7 @@ class PrbsRoot(pr.Root):
                     loopback,
                     no_tx=False,
                     no_rx=False,
+                    syncTrig=False,
                     writeToDisk = False,
             **kwargs):
         super().__init__(**kwargs)
@@ -83,6 +84,13 @@ class PrbsRoot(pr.Root):
             offset =  0x00800000,
             expand = False,
         ))
+
+        if syncTrig:
+            self.add(SyncTrigger(
+                offset  = 0x00880000,
+                memBase = self.memMap,
+                expand  = True,
+            ))        
 
         # Loop through the DMA channels
         for lane in range(numLanes):

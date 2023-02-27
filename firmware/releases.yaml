@@ -17,15 +17,6 @@ RogueScripts:
 
 Targets:
 ################################################################################
-  SlacPgpCardG3Pgp2b:
-    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3Pgp2b/images
-    Extensions:
-      - mcs
-  SlacPgpCardG3Pgp4_6Gbps:
-    ImageDir: targets/SlacPgpCardG3/SlacPgpCardG3Pgp4_6Gbps/images
-    Extensions:
-      - mcs
-################################################################################
   SlacPgpCardG4Pgp2b:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b/images
     Extensions:
@@ -36,6 +27,19 @@ Targets:
       - mcs
   SlacPgpCardG4Pgp4_10Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_10Gbps/images
+    Extensions:
+      - mcs
+################################################################################
+  XilinxKcu1500Pgp2b:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
+    Extensions:
+      - mcs
+  XilinxKcu1500Pgp4_6Gbps:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps/images
+    Extensions:
+      - mcs
+  XilinxKcu1500Pgp4_10Gbps:
+    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_10Gbps/images
     Extensions:
       - mcs
 ################################################################################
@@ -50,76 +54,36 @@ Targets:
   XilinxAlveoU200Pgp4_10Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps/images
     Extensions:
-      - mcs
-  XilinxAlveoU200Htsp_100Gbps:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Htsp_100Gbps/images
-    Extensions:
-      - mcs
+      - mcs   
 ################################################################################
-  XilinxKcu1500DmaLoopback:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500DmaLoopback/images
+  XilinxVariumC1100Pgp4_6Gbps:
+    ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps/images
     Extensions:
       - mcs
-  XilinxKcu1500DmaLoopbackBifurcatedPcie:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500DmaLoopbackBifurcatedPcie/images
+  XilinxVariumC1100Pgp4_10Gbps:
+    ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_10Gbps/images
     Extensions:
-      - mcs
-  XilinxKcu1500DmaLoopbackBifurcatedPcie:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500DmaLoopbackBifurcatedPcie/images
-    Extensions:
-      - mcs
-  XilinxKcu1500Pgp2b:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
-    Extensions:
-      - mcs
-  XilinxKcu1500Pgp4_6Gbps:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps/images
-    Extensions:
-      - mcs
-  XilinxKcu1500Pgp4_6Gbps_repeater:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps_repeater/images
-    Extensions:
-      - mcs
-  XilinxKcu1500Pgp4_10Gbps:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_10Gbps/images
-    Extensions:
-      - mcs
-  XilinxKcu1500PrbsTester:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500PrbsTester/images
-    Extensions:
-      - mcs
+      - mcs         
 ################################################################################
 Releases:
   pgp_pcie_apps:
     Primary: True
     Targets:
       #######################################
-      - SlacPgpCardG3Pgp2b
-      - SlacPgpCardG3Pgp4_6Gbps
-      #######################################
       - SlacPgpCardG4Pgp2b
       - SlacPgpCardG4Pgp4_6Gbps
       - SlacPgpCardG4Pgp4_10Gbps
       #######################################
+      - XilinxKcu1500Pgp2b
+      - XilinxKcu1500Pgp4_6Gbps
+      - XilinxKcu1500Pgp4_10Gbps
+      #######################################
       - XilinxAlveoU200Pgp2b
       - XilinxAlveoU200Pgp4_6Gbps
       - XilinxAlveoU200Pgp4_10Gbps
-      - XilinxAlveoU200Htsp_100Gbps
       #######################################
-      - XilinxKcu1500Pgp2b
-      - XilinxKcu1500Pgp4_6Gbps
-      - XilinxKcu1500Pgp4_10Gbps
-      #######################################
-    Types:
-      - FW_only
-  XilinxKcu1500:
-    Targets:
-      #######################################
-      - XilinxKcu1500DmaLoopback
-      - XilinxKcu1500Pgp2b
-      - XilinxKcu1500Pgp4_6Gbps
-      - XilinxKcu1500Pgp4_10Gbps
-      - XilinxKcu1500PrbsTester
+      - XilinxVariumC1100Pgp4_6Gbps
+      - XilinxVariumC1100Pgp4_10Gbps
       #######################################
     Types:
       - FW_only
