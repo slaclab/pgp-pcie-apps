@@ -266,12 +266,15 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
+         COMMON_CLOCK_G    => true,
          DMA_SIZE_G        => DMA_SIZE_G,
          NUM_VC_G          => NUM_VC_G,
          PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
          -- AXI-Lite Interface
+         axilClk         => dmaClk,
+         axilRst         => dmaRst,
          axilReadMaster  => axilReadMasters(4),
          axilReadSlave   => axilReadSlaves(4),
          axilWriteMaster => axilWriteMasters(4),
