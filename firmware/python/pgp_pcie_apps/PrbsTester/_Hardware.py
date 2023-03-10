@@ -29,7 +29,7 @@ class Hardware(pr.Device):
                 no_tx=no_tx,
                 no_rx=no_rx,
                 name    =(f"Lane[{lane}]"),
-                offset =  (0x100000*lane),
+                offset =  (0x10000*lane),
                 expand = False,
             ))
 

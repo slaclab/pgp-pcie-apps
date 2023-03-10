@@ -108,7 +108,7 @@ architecture top_level of XilinxAlveoU200PrbsTester is
          connectivity => x"FFFF"),
       4               => (
          baseAddr     => x"0080_0000",
-         addrBits     => 23,
+         addrBits     => 20,
          connectivity => x"FFFF"));
 
    signal userClk156      : sl;
