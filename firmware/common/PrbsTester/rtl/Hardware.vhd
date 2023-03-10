@@ -177,7 +177,7 @@ begin
       if rising_edge(axilClk) then
          busy <= uOr(busyVec) after TPD_G;
       end if;
-   end process
+   end process;
 
    U_SyncTrigger : entity work.SyncTrigger
       generic map(
