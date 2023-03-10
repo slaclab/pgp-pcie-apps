@@ -62,13 +62,7 @@ end Hardware;
 
 architecture mapping of Hardware is
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(DMA_SIZE_G-1 downto 0) := genAxiLiteConfig(DMA_SIZE_G, AXI_BASE_ADDR_G, 23, 20);
-
-   signal dmaAxilReadMaster  : AxiLiteReadMasterType;
-   signal dmaAxilReadSlave   : AxiLiteReadSlaveType;
-   signal dmaAxilWriteMaster : AxiLiteWriteMasterType;
-   signal dmaAxilWriteSlave  : AxiLiteWriteSlaveType;
-
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(8 downto 0) := genAxiLiteConfig(DMA_SIZE_G, AXI_BASE_ADDR_G, 23, 20);
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(8 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(8 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
