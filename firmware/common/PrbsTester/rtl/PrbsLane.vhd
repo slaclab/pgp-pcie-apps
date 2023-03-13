@@ -73,7 +73,7 @@ architecture mapping of PrbsLane is
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0) := (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_DECERR_C);
 
    signal dmaIbMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal dmaIbSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
@@ -81,8 +81,11 @@ architecture mapping of PrbsLane is
    signal dmaObMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal dmaObSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
 
+   signal pipeObMaster : AxiStreamMasterType;
+   signal pipeObSlave  : AxiStreamSlaveType;
+
    signal disableSel : slv(NUM_VC_G-1 downto 0);
-   signal busyVec : slv(NUM_VC_G-1 downto 0);
+   signal busyVec    : slv(NUM_VC_G-1 downto 0);
 
 begin
 
@@ -142,7 +145,7 @@ begin
                -- Trigger Signal (locClk domain)
                locClk          => axilClk,
                locRst          => axilRst,
-               trig => trig,
+               trig            => trig,
                packetLength    => packetLength,
                busy            => busyVec(i),
                -- Optional: Axi-Lite Register Interface (locClk domain)
@@ -236,19 +239,32 @@ begin
 
    GEN_MUX : if (NUM_VC_G /= 1) generate
 
+      -- Demux input pipe stage
+      U_Pipeline : entity surf.AxiStreamPipeline
+         generic map (
+            TPD_G         => TPD_G,
+            PIPE_STAGES_G => 1)
+         port map (
+            axisClk     => dmaClk,
+            axisRst     => dmaRst,
+            sAxisMaster => dmaObMaster,
+            sAxisSlave  => dmaObSlave,
+            mAxisMaster => pipeObMaster,
+            mAxisSlave  => pipeObSlave);
+
       U_DeMux : entity surf.AxiStreamDeMux
          generic map (
             TPD_G         => TPD_G,
             NUM_MASTERS_G => NUM_VC_G,
-            PIPE_STAGES_G => 2)
+            PIPE_STAGES_G => 1)
          port map (
-                                        -- Clock and reset
+            -- Clock and reset
             axisClk      => dmaClk,
             axisRst      => dmaRst,
-                                        -- Slave
-            sAxisMaster  => dmaObMaster,
-            sAxisSlave   => dmaObSlave,
-                                        -- Masters
+            -- Slave
+            sAxisMaster  => pipeObMaster,
+            sAxisSlave   => pipeObSlave,
+            -- Masters
             mAxisMasters => dmaObMasters,
             mAxisSlaves  => dmaObSlaves);
 
@@ -263,14 +279,14 @@ begin
             ILEAVE_REARB_G       => ILEAVE_REARB_C,
             PIPE_STAGES_G        => 1)
          port map (
-                                         -- Clock and reset
+            -- Clock and reset
             axisClk      => dmaClk,
             axisRst      => dmaRst,
-                                         -- Slaves
+            -- Slaves
             disableSel   => disableSel,  --dmaBuffGrpPause(NUM_VC_G-1 downto 0),
             sAxisMasters => dmaIbMasters,
             sAxisSlaves  => dmaIbSlaves,
-                                         -- Master
+            -- Master
             mAxisMaster  => dmaIbMaster,
             mAxisSlave   => dmaIbSlave);
 
