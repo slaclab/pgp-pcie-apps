@@ -76,10 +76,10 @@ architecture mapping of Hardware is
    attribute dont_touch              : string;
    attribute dont_touch of dmaReset  : signal is "true";
    attribute dont_touch of axilReset : signal is "true";
-   signal trig         : sl;
-   signal packetLength : slv(31 downto 0);
-   signal busyVec      : slv(DMA_SIZE_G-1 downto 0);
-   signal busy         : sl;
+   signal trig                       : sl;
+   signal packetLength               : slv(31 downto 0);
+   signal busyVec                    : slv(DMA_SIZE_G-1 downto 0);
+   signal busy                       : sl;
 
 begin
 
@@ -88,10 +88,11 @@ begin
    ---------------------
    U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
-         TPD_G              => TPD_G,
-         NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => 9,
-         MASTERS_CONFIG_G   => AXI_CONFIG_C)
+         TPD_G                => TPD_G,
+         NUM_SLAVE_SLOTS_G    => 1,
+         NUM_MASTER_SLOTS_G   => 9,
+         MASTER_PIPE_STAGES_G => 1,
+         MASTERS_CONFIG_G     => AXI_CONFIG_C)
       port map (
          axiClk              => axilClk,
          axiClkRst           => axilRst,
@@ -167,7 +168,8 @@ begin
       end if;
    end process;
 
-   process(axilClk) begin
+   process(axilClk)
+   begin
       if rising_edge(axilClk) then
          busy <= uOr(busyVec) after TPD_G;
       end if;
