@@ -41,7 +41,7 @@ entity BittWareXupVv8PrbsTester is
       RX_EN_G           : boolean                   := true;
 --      MIG_EN_G             : boolean                     := false;
       NUM_DIMM_G        : natural range 0 to 4      := 0;
-      DMA_SIZE_G        : positive                  := 1;
+      DMA_SIZE_G        : positive                  := 8;
       NUM_VC_G          : positive                  := 16;
       DMA_BURST_BYTES_G : integer range 256 to 4096 := 4096;
       DMA_BYTE_WIDTH_G  : integer range 8 to 64     := 8;
