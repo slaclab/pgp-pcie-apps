@@ -55,6 +55,14 @@ entity BittWareXupVv8PrbsTester is
       ddrClkN        : in    slv(NUM_DIMM_G-1 downto 0);
       ddrOut         : out   DdrOutArray(NUM_DIMM_G-1 downto 0);
       ddrInOut       : inout DdrInOutArray(NUM_DIMM_G-1 downto 0);
+      -- QSFP-DD Ports
+      qsfpRefClkP : in  slv(7 downto 0);
+      qsfpRefClkN : in  slv(7 downto 0);
+      qsfpRxP     : in  slv(31 downto 0);
+      qsfpRxN     : in  slv(31 downto 0);
+      qsfpTxP     : out slv(31 downto 0);
+      qsfpTxN     : out slv(31 downto 0);
+      
       --------------
       --  Core Ports
       --------------
