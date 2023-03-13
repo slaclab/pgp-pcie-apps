@@ -105,7 +105,11 @@ architecture top_level of BittWareXupVv8PrbsTester is
       4               => (
          baseAddr     => x"0080_0000",
          addrBits     => 20,
-         connectivity => x"FFFF"));
+         connectivity => x"FFFF"),
+      5               => (
+         baseAddr     => X"0090_0000",
+         addrBits     => 8,
+         connectivity => X"FFFF"));
 
    signal userClk100      : sl;
    signal axilClk         : sl;
@@ -312,5 +316,28 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves);
+
+   U_UnusedQsfp : entity axi_pcie_core.TerminateQsfp
+      generic map (
+         TPD_G => TPD_G)
+      port map (
+         -- AXI-Lite Interface
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => axilReadMasters(5),
+         axilReadSlave   => axilReadSlaves(5),
+         axilWriteMaster => axilWriteMasters(5),
+         axilWriteSlave  => axilWriteSlaves(5),
+         ---------------------
+         --  Application Ports
+         ---------------------
+         -- QSFP[31:0] Ports
+         qsfpRefClkP     => qsfpRefClkP,
+         qsfpRefClkN     => qsfpRefClkN,
+         qsfpRxP         => qsfpRxP,
+         qsfpRxN         => qsfpRxN,
+         qsfpTxP         => qsfpTxP,
+         qsfpTxN         => qsfpTxN);
+
 
 end top_level;

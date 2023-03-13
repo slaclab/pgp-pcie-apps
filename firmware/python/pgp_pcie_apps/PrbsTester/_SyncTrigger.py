@@ -15,10 +15,10 @@
 import pyrogue as pr
 
 class SyncTrigger(pr.Device):
-    def __init__(self, **kwargs):
+    def __init__(self, prbsWidth, **kwargs):
         super().__init__(**kwargs)
 
-        self.prbsByte = args.prbsWidth>>3
+        self.prbsByte = prbsWidth>>3
 
         self.add(pr.RemoteVariable(
             name         = "PacketLength",
@@ -64,7 +64,7 @@ class SyncTrigger(pr.Device):
             units         = "Hz",
             disp         = '{}',
             typeStr      = 'UInt32',
-            linkedGet    = lambda: int(156.25E+6/float(self.TimerSize.value())),
+            linkedGet    = lambda: int(156.25E+6/float(self.TimerSize.value()+1)),
             linkedSet    = lambda value, write: self.TimerSize.set( int(156.25E+6/value) ),
             dependencies = [self.TimerSize],
         ))

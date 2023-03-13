@@ -19,7 +19,15 @@ import pgp_pcie_apps.PrbsTester as test
 #################################################################
 
 class Hardware(pr.Device):
-    def __init__(self, numLanes, VCs, no_tx=False, no_rx=False, **kwargs):
+    def __init__(self,
+                 numLanes,
+                 VCs,
+                 no_tx=False,
+                 no_rx=False,
+                 prbsWidth=32,                 
+                 syncTrig=False,
+                 **kwargs):
+        
         super().__init__(**kwargs)
 
         # Generate lanes
@@ -32,6 +40,13 @@ class Hardware(pr.Device):
                 offset =  (0x10000*lane),
                 expand = False,
             ))
+
+        if syncTrig:
+            self.add(test.SyncTrigger(
+                offset  = 0x10000*8,
+                expand  = True,
+                prbsWidth = prbsWidth
+            ))   
 
 
 

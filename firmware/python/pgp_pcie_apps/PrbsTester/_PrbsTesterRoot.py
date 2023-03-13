@@ -79,18 +79,19 @@ class PrbsRoot(pr.Root):
             VCs = numVc,
             no_rx = no_rx,
             no_tx = no_tx,
+            prbsWidth = prbsWidth,            
+            syncTrig = syncTrig,
             name    =("Hardware"),
             memBase = self.memMap,
             offset =  0x00800000,
             expand = False,
         ))
 
-        if syncTrig:
-            self.add(SyncTrigger(
-                offset  = 0x00880000,
-                memBase = self.memMap,
-                expand  = True,
-            ))        
+        self.add(pcie.TerminateQsfp(
+            offset = 0x00900000,
+            memBase = self.memMap,
+            numRefClk = 8))
+
 
         # Loop through the DMA channels
         for lane in range(numLanes):
