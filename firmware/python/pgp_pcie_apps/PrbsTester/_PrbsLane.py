@@ -28,7 +28,7 @@ class PrbsLane(pr.Device):
             if no_tx is not True:
                 self.add(ssi.SsiPrbsTx(
                     name    = f'PrbsTx[{vc}]',
-                    offset  = (0x100*(2*vc+0)),
+                    offset  = (0x400*(2*vc+0)),
                     clock_freq = clock_freq,
                     expand  = False,
                 ))
@@ -38,7 +38,7 @@ class PrbsLane(pr.Device):
             if no_rx is not True:
                 self.add(ssi.SsiPrbsRx(
                     name    = f'PrbsRx[{vc}]',
-                    offset  = (0x100*(2*vc+1)),
+                    offset  = (0x400*(2*vc+1)),
                     rxClkPeriod = clock_freq,
                     expand  = False,
                 ))
@@ -46,14 +46,14 @@ class PrbsLane(pr.Device):
         if no_tx is not True:
             self.add(axi.AxiStreamMonAxiL(
                 name = f'TxMon',
-                offset = 0x100*2*numvc,
+                offset = 0x400*2*numvc,
                 numberLanes = numvc,
             ))
 
         if no_rx is not True:
             self.add(axi.AxiStreamMonAxiL(
                 name = f'RxMon',
-                offset = 0x100*((2*numvc)+1),
+                offset = 0x400*((2*numvc)+1),
                 numberLanes = numvc,
             ))
         
