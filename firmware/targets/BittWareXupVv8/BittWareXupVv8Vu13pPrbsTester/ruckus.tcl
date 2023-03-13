@@ -14,4 +14,5 @@ loadConstraints -dir "$::DIR_PATH/hdl"
 set_property top {BittWareXupVv8PrbsTester} [get_filesets {sources_1}]
 
 # Update impl_1 strategy
-set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]
+#set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]
+set_property strategy Performance_ExploreWithRemap [get_runs impl_1]

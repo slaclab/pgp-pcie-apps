@@ -12,6 +12,7 @@ loadSource      -dir "$::DIR_PATH/../BittWareXupVv8Vu13pPrbsTester/hdl"
 loadConstraints -dir "$::DIR_PATH/../BittWareXupVv8Vu13pPrbsTester/hdl"
 
 # Update impl_1 strategy
-set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]
+#set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]
+set_property strategy Performance_ExploreWithRemap [get_runs impl_1]
 
 set_property top {BittWareXupVv8PrbsTester} [get_filesets {sources_1}]
