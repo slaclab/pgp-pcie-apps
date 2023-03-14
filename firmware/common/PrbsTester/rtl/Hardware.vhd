@@ -62,12 +62,12 @@ end Hardware;
 
 architecture mapping of Hardware is
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(8 downto 0) := genAxiLiteConfig(9, AXI_BASE_ADDR_G, 20, 16);
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(DMA_SIZE_G downto 0) := genAxiLiteConfig(DMA_SIZE_G, AXI_BASE_ADDR_G, 20, 16);
 
-   signal axilWriteMasters : AxiLiteWriteMasterArray(8 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(8 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
-   signal axilReadMasters  : AxiLiteReadMasterArray(8 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(8 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(DMA_SIZE_G downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
+   signal axilReadMasters  : AxiLiteReadMasterArray(DMA_SIZE_G downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
    signal axilReset : slv(DMA_SIZE_G-1 downto 0);
@@ -90,7 +90,7 @@ begin
       generic map (
          TPD_G                => TPD_G,
          NUM_SLAVE_SLOTS_G    => 1,
-         NUM_MASTER_SLOTS_G   => 9,
+         NUM_MASTER_SLOTS_G   => DMA_SIZE_G+1,
          MASTER_PIPE_STAGES_G => 0,
          MASTERS_CONFIG_G     => AXI_CONFIG_C)
       port map (
@@ -137,26 +137,26 @@ begin
             -- AXI-Lite Interface
             axilClk         => axilClk,
             axilRst         => axilReset(i),
-            axilReadMaster  => axilReadMasters(i),
-            axilReadSlave   => axilReadSlaves(i),
-            axilWriteMaster => axilWriteMasters(i),
-            axilWriteSlave  => axilWriteSlaves(i));
+            axilReadMaster  => axilReadMasters(i+1),
+            axilReadSlave   => axilReadSlaves(i+1),
+            axilWriteMaster => axilWriteMasters(i+1),
+            axilWriteSlave  => axilWriteSlaves(i+1));
 
-      U_dmaRst : entity surf.RstSync
+      U_dmaRst : entity surf.RstPipeline
          generic map (
             TPD_G => TPD_G)
          port map (
-            clk      => dmaClk,
-            asyncRst => dmaRst,
-            syncRst  => dmaReset(i));
+            clk    => dmaClk,
+            rstIn  => dmaRst,
+            rstOut => dmaReset(i));
 
-      U_axilRst : entity surf.RstSync
+      U_axilRst : entity surf.RstPipeline
          generic map (
             TPD_G => TPD_G)
          port map (
-            clk      => axilClk,
-            asyncRst => axilRst,
-            syncRst  => axilReset(i));
+            clk    => axilClk,
+            rstIn  => axilRst,
+            rstOut => axilReset(i));
 
    end generate;
 
@@ -186,9 +186,9 @@ begin
          -- AXI-Lite Interface
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(8),
-         axilReadSlave   => axilReadSlaves(8),
-         axilWriteMaster => axilWriteMasters(8),
-         axilWriteSlave  => axilWriteSlaves(8));
+         axilReadMaster  => axilReadMasters(0),
+         axilReadSlave   => axilReadSlaves(0),
+         axilWriteMaster => axilWriteMasters(0),
+         axilWriteSlave  => axilWriteSlaves(0));
 
 end mapping;
