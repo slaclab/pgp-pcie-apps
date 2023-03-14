@@ -91,7 +91,7 @@ begin
          TPD_G                => TPD_G,
          NUM_SLAVE_SLOTS_G    => 1,
          NUM_MASTER_SLOTS_G   => 9,
-         MASTER_PIPE_STAGES_G => 2,
+         MASTER_PIPE_STAGES_G => 0,
          MASTERS_CONFIG_G     => AXI_CONFIG_C)
       port map (
          axiClk              => axilClk,
