@@ -37,13 +37,13 @@ class Hardware(pr.Device):
                 no_tx=no_tx,
                 no_rx=no_rx,
                 name    =(f"Lane[{lane}]"),
-                offset =  (0x10000*lane),
+                offset =  (0x10000*(lane+1)),
                 expand = False,
             ))
 
         if syncTrig:
             self.add(test.SyncTrigger(
-                offset  = 0x10000*8,
+                offset  = 0x10000*0,
                 expand  = True,
                 prbsWidth = prbsWidth
             ))   

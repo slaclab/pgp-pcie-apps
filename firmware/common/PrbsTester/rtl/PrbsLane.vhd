@@ -134,7 +134,7 @@ begin
                PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
                VALID_THOLD_G              => ILEAVE_REARB_C,  -- Hold until enough to burst into the interleaving MUX
                VALID_BURST_MODE_G         => ite(NUM_VC_G = 1, false, true),
-               MASTER_AXI_PIPE_STAGES_G   => 1,
+               MASTER_AXI_PIPE_STAGES_G   => 2,
                MASTER_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
             port map (
                -- Master Port (mAxisClk)
@@ -149,10 +149,10 @@ begin
                packetLength    => packetLength,
                busy            => busyVec(i),
                -- Optional: Axi-Lite Register Interface (locClk domain)
-               axilReadMaster  => axilReadMasters(2*i+0),
-               axilReadSlave   => axilReadSlaves(2*i+0),
-               axilWriteMaster => axilWriteMasters(2*i+0),
-               axilWriteSlave  => axilWriteSlaves(2*i+0));
+               axilReadMaster  => axilReadMasters(2*i+2),
+               axilReadSlave   => axilReadSlaves(2*i+2),
+               axilWriteMaster => axilWriteMasters(2*i+2),
+               axilWriteSlave  => axilWriteSlaves(2*i+2));
 
       end generate GEN_TX;
 
@@ -163,7 +163,7 @@ begin
                GEN_SYNC_FIFO_G           => COMMON_CLOCK_G,
                FIFO_INT_WIDTH_SELECT_G   => PRBS_FIFO_INT_WIDTH_SELECT_G,
                PRBS_SEED_SIZE_G          => PRBS_SEED_SIZE_G,
-               SLAVE_AXI_PIPE_STAGES_G   => 1,
+               SLAVE_AXI_PIPE_STAGES_G   => 2,
                SLAVE_AXI_STREAM_CONFIG_G => DMA_AXIS_CONFIG_G)
             port map (
                sAxisClk       => dmaClk,
@@ -172,10 +172,10 @@ begin
                sAxisSlave     => dmaObSlaves(i),
                axiClk         => axilClk,
                axiRst         => axilRst,
-               axiReadMaster  => axilReadMasters(2*i+1),
-               axiReadSlave   => axilReadSlaves(2*i+1),
-               axiWriteMaster => axilWriteMasters(2*i+1),
-               axiWriteSlave  => axilWriteSlaves(2*i+1));
+               axiReadMaster  => axilReadMasters(2*i+3),
+               axiReadSlave   => axilReadSlaves(2*i+3),
+               axiWriteMaster => axilWriteMasters(2*i+3),
+               axiWriteSlave  => axilWriteSlaves(2*i+3));
       end generate GEN_RX;
    end generate GEN_VC;
 
@@ -194,10 +194,10 @@ begin
             axisSlaves       => dmaIbSlaves,                   -- [in]
             axilClk          => axilClk,                       -- [in]
             axilRst          => axilRst,                       -- [in]
-            sAxilWriteMaster => axilWriteMasters(2*NUM_VC_G),  -- [in]
-            sAxilWriteSlave  => axilWriteSlaves(2*NUM_VC_G),   -- [out]
-            sAxilReadMaster  => axilReadMasters(2*NUM_VC_G),   -- [in]
-            sAxilReadSlave   => axilReadSlaves(2*NUM_VC_G));   -- [out]
+            sAxilWriteMaster => axilWriteMasters(0),  -- [in]
+            sAxilWriteSlave  => axilWriteSlaves(0),   -- [out]
+            sAxilReadMaster  => axilReadMasters(0),   -- [in]
+            sAxilReadSlave   => axilReadSlaves(0));   -- [out]
    end generate GEN_TX;
 
    GEN_RX : if (RX_EN_G) generate
@@ -215,10 +215,10 @@ begin
             axisSlaves       => dmaObSlaves,                     -- [in]
             axilClk          => axilClk,                         -- [in]
             axilRst          => axilRst,                         -- [in]
-            sAxilWriteMaster => axilWriteMasters(2*NUM_VC_G+1),  -- [in]
-            sAxilWriteSlave  => axilWriteSlaves(2*NUM_VC_G+1),   -- [out]
-            sAxilReadMaster  => axilReadMasters(2*NUM_VC_G+1),   -- [in]
-            sAxilReadSlave   => axilReadSlaves(2*NUM_VC_G+1));   -- [out]
+            sAxilWriteMaster => axilWriteMasters(1),  -- [in]
+            sAxilWriteSlave  => axilWriteSlaves(1),   -- [out]
+            sAxilReadMaster  => axilReadMasters(1),   -- [in]
+            sAxilReadSlave   => axilReadSlaves(1));   -- [out]
 
    end generate GEN_RX;
 
