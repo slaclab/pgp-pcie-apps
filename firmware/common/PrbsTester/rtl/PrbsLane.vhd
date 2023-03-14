@@ -128,7 +128,7 @@ begin
             generic map (
                TPD_G                      => TPD_G,
                GEN_SYNC_FIFO_G            => COMMON_CLOCK_G,
-               SYNTH_MODE_G               => "xpm",
+               SYNTH_MODE_G               => "inferred",
                MEMORY_TYPE_G              => "block",
                FIFO_ADDR_WIDTH_G          => FIFO_ADDR_WIDTH_C,
                PRBS_SEED_SIZE_G           => PRBS_SEED_SIZE_G,
@@ -277,7 +277,7 @@ begin
             ILEAVE_EN_G          => true,
             ILEAVE_ON_NOTVALID_G => true,
             ILEAVE_REARB_G       => ILEAVE_REARB_C,
-            PIPE_STAGES_G        => 1)
+            PIPE_STAGES_G        => 2)
          port map (
             -- Clock and reset
             axisClk      => dmaClk,
