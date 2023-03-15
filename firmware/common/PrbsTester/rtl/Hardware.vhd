@@ -91,7 +91,6 @@ begin
          TPD_G                => TPD_G,
          NUM_SLAVE_SLOTS_G    => 1,
          NUM_MASTER_SLOTS_G   => DMA_SIZE_G+1,
-         MASTER_PIPE_STAGES_G => 0,
          MASTERS_CONFIG_G     => AXI_CONFIG_C)
       port map (
          axiClk              => axilClk,
@@ -120,7 +119,7 @@ begin
             DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_G,
             PRBS_SEED_SIZE_G             => PRBS_SEED_SIZE_G,
             PRBS_FIFO_INT_WIDTH_SELECT_G => PRBS_FIFO_INT_WIDTH_SELECT_G,
-            AXI_BASE_ADDR_G              => AXI_CONFIG_C(i).baseAddr)
+            AXI_BASE_ADDR_G              => AXI_CONFIG_C(i+1).baseAddr)
          port map(
             -- External Trigger Interface
             trig            => trig,
