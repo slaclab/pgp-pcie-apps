@@ -168,7 +168,7 @@ begin
                1           => "000001--",
                2           => "000000--",
                3           => "000001--"),
-            PIPE_STAGES_G  => 1)
+            PIPE_STAGES_G  => 2)
          port map (
             -- Clock and reset
             axisClk      => dmaClk,
@@ -190,7 +190,7 @@ begin
                1           => "000001--",
                2           => "000010--",
                3           => "000011--"),
-            PIPE_STAGES_G  => 1)
+            PIPE_STAGES_G  => 2)
          port map (
             axisClk      => dmaClk,                                -- [in]
             axisRst      => dmaRst,                                -- [in]
