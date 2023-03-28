@@ -34,6 +34,8 @@ entity Hardware is
    generic (
       TPD_G             : time             := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      PGP_QUADS_G : integer := 8;
+      AXI_CLK_FREQ_G    : real             := 125.0e6;
       AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
       ------------------------
@@ -58,12 +60,12 @@ entity Hardware is
       --  Hardware Ports
       ---------------------
       -- QSFP-DD Ports
-      qsfpRefClkP  : in  slv(7 downto 0);
-      qsfpRefClkN  : in  slv(7 downto 0);
-      qsfpRxP      : in  slv(31 downto 0);
-      qsfpRxN      : in  slv(31 downto 0);
-      qsfpTxP      : out slv(31 downto 0);
-      qsfpTxN      : out slv(31 downto 0));
+      qsfpRefClkP     : in  slv(7 downto 0);
+      qsfpRefClkN     : in  slv(7 downto 0);
+      qsfpRxP         : in  slv(31 downto 0);
+      qsfpRxN         : in  slv(31 downto 0);
+      qsfpTxP         : out slv(31 downto 0);
+      qsfpTxN         : out slv(31 downto 0));
 end Hardware;
 
 architecture mapping of Hardware is
@@ -73,10 +75,12 @@ begin
    --------------
    -- PGP Modules
    --------------
-   U_PgpLaneWrapper_1: entity work.PgpLaneWrapper
+   U_PgpLaneWrapper_1 : entity work.PgpLaneWrapper
       generic map (
          TPD_G             => TPD_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         PGP_QUADS_G => PGP_QUADS_G,
+         AXI_CLK_FREQ_G    => AXI_CLK_FREQ_G,
          AXI_BASE_ADDR_G   => AXI_BASE_ADDR_G)
       port map (
          qsfpRefClkP     => qsfpRefClkP,      -- [in]
@@ -98,5 +102,5 @@ begin
          axilReadSlave   => axilReadSlave,    -- [out]
          axilWriteMaster => axilWriteMaster,  -- [in]
          axilWriteSlave  => axilWriteSlave);  -- [out]
-   
+
 end mapping;

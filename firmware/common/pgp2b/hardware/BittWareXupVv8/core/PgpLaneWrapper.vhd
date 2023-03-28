@@ -33,6 +33,8 @@ entity PgpLaneWrapper is
    generic (
       TPD_G             : time             := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      PGP_QUADS_G       : integer          := 8;
+      AXI_CLK_FREQ_G    : real             := 125.0e6;
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
       -- QSFP-DD Ports
@@ -61,7 +63,7 @@ end PgpLaneWrapper;
 
 architecture mapping of PgpLaneWrapper is
 
-   constant NUM_AXI_MASTERS_C : natural := 32;
+   constant NUM_AXI_MASTERS_C : natural := PGP_QUADS_G*4;
 
    constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 21, 16);
 
@@ -105,7 +107,7 @@ begin
    ------------
    -- PGP Lanes
    ------------
-   GEN_QUAD : for quad in 7 downto 0 generate
+   GEN_QUAD : for quad in PGP_QUADS_G-1 downto 0 generate
 
       U_QsfpRef : IBUFDS_GTE4
          generic map (
@@ -126,6 +128,7 @@ begin
                TPD_G             => TPD_G,
                DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
                LANE_G            => quad*4+lane,
+               AXI_CLK_FREQ_G    => AXI_CLK_FREQ_G,
                AXI_BASE_ADDR_G   => AXI_CONFIG_C(quad*4+lane).baseAddr)
             port map (
                -- PGP Serial Ports

@@ -37,6 +37,7 @@ entity PgpLane is
       TPD_G             : time             := 1 ns;
       LANE_G            : natural          := 0;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      AXI_CLK_FREQ_G    : real             := 125.0e6;
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
       -- PGP Serial Ports
@@ -200,7 +201,7 @@ begin
          COMMON_TX_CLK_G    => false,
          COMMON_RX_CLK_G    => false,
          WRITE_EN_G         => true,
-         AXI_CLK_FREQ_G     => 156.25E+6,
+         AXI_CLK_FREQ_G     => AXI_CLK_FREQ_G,
          STATUS_CNT_WIDTH_G => 16,
          ERROR_CNT_WIDTH_G  => 16)
       port map (

@@ -36,7 +36,7 @@ entity BittWareXupVv8Pgp2b is
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
       DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
       DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 8;
-
+      PGP_QUADS_G : integer := 1;
       BUILD_INFO_G : BuildInfoType);
    port (
       ---------------------
@@ -70,15 +70,15 @@ end BittWareXupVv8Pgp2b;
 
 architecture top_level of BittWareXupVv8Pgp2b is
 
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3); 
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3);
 
-   signal userClk100          : sl;
-   signal axilClk             : sl;
-   signal axilRst             : sl;
-   signal axilReadMaster      : AxiLiteReadMasterType;
-   signal axilReadSlave       : AxiLiteReadSlaveType;
-   signal axilWriteMaster     : AxiLiteWriteMasterType;
-   signal axilWriteSlave      : AxiLiteWriteSlaveType;
+   signal userClk100      : sl;
+   signal axilClk         : sl;
+   signal axilRst         : sl;
+   signal axilReadMaster  : AxiLiteReadMasterType;
+   signal axilReadSlave   : AxiLiteReadSlaveType;
+   signal axilWriteMaster : AxiLiteWriteMasterType;
+   signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
    signal dmaClk          : sl;
    signal dmaRst          : sl;
@@ -127,7 +127,7 @@ begin
          ROGUE_SIM_CH_COUNT_G => 4,
          DMA_BURST_BYTES_G    => DMA_BURST_BYTES_G,
          DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G           => 8)
+         DMA_SIZE_G           => PGP_QUADS_G)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -165,10 +165,12 @@ begin
          pciTxP          => pciTxP,
          pciTxN          => pciTxN);
 
-   U_Hardware_1: entity work.Hardware
+   U_Hardware_1 : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         PGP_QUADS_G       => PGP_QUADS_G,
+         AXI_CLK_FREQ_G    => 125.0e6,
          AXI_BASE_ADDR_G   => X"0080_0000")
       port map (
          axilClk         => axilClk,          -- [in]
@@ -190,6 +192,6 @@ begin
          qsfpRxN         => qsfpRxN,          -- [in]
          qsfpTxP         => qsfpTxP,          -- [out]
          qsfpTxN         => qsfpTxN);         -- [out]
-   
+
 
 end top_level;
