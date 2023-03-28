@@ -38,20 +38,20 @@ entity PgpLaneWrapper is
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
       -- QSFP-DD Ports
-      qsfpRefClkP     : in  slv(7 downto 0);
-      qsfpRefClkN     : in  slv(7 downto 0);
-      qsfpRxP         : in  slv(31 downto 0);
-      qsfpRxN         : in  slv(31 downto 0);
-      qsfpTxP         : out slv(31 downto 0);
-      qsfpTxN         : out slv(31 downto 0);
+      qsfpRefClkP     : in  slv(PGP_QUADS_G-1 downto 0);
+      qsfpRefClkN     : in  slv(PGP_QUADS_G-1 downto 0);
+      qsfpRxP         : in  slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpRxN         : in  slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpTxP         : out slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpTxN         : out slv(PGP_QUADS_G*4-1 downto 0);
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
       dmaBuffGrpPause : in  slv(7 downto 0);
-      dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      dmaObMasters    : in  AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -72,13 +72,13 @@ architecture mapping of PgpLaneWrapper is
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXI_MASTERS_C-1 downto 0);
 
-   signal qsfpRefClk : slv(7 downto 0);
+   signal qsfpRefClk : slv(PGP_QUADS_G-1 downto 0);
 
 
-   signal pgpObMasters : AxiStreamMasterArray(31 downto 0);
-   signal pgpObSlaves  : AxiStreamSlaveArray(31 downto 0);
-   signal pgpIbMasters : AxiStreamMasterArray(31 downto 0);
-   signal pgpIbSlaves  : AxiStreamSlaveArray(31 downto 0);
+   signal pgpObMasters : AxiStreamMasterArray(PGP_QUADS_G*4-1 downto 0);
+   signal pgpObSlaves  : AxiStreamSlaveArray(PGP_QUADS_G*4-1 downto 0);
+   signal pgpIbMasters : AxiStreamMasterArray(PGP_QUADS_G*4-1 downto 0);
+   signal pgpIbSlaves  : AxiStreamSlaveArray(PGP_QUADS_G*4-1 downto 0);
 
 
 begin

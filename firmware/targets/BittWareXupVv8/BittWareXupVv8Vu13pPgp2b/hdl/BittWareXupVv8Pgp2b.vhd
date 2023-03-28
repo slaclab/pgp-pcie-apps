@@ -83,10 +83,10 @@ architecture top_level of BittWareXupVv8Pgp2b is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
 
 begin
 
