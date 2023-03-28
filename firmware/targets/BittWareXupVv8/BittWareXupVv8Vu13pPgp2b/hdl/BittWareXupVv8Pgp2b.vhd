@@ -36,19 +36,19 @@ entity BittWareXupVv8Pgp2b is
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
       DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
       DMA_BYTE_WIDTH_G     : integer range 8 to 64       := 8;
-      PGP_QUADS_G : integer := 1;
-      BUILD_INFO_G : BuildInfoType);
+      PGP_QUADS_G          : integer                     := 1;
+      BUILD_INFO_G         : BuildInfoType);
    port (
       ---------------------
       --  Application Ports
       ---------------------
       -- QSFP-DD Ports
-      qsfpRefClkP : in  slv(7 downto 0);
-      qsfpRefClkN : in  slv(7 downto 0);
-      qsfpRxP     : in  slv(31 downto 0);
-      qsfpRxN     : in  slv(31 downto 0);
-      qsfpTxP     : out slv(31 downto 0);
-      qsfpTxN     : out slv(31 downto 0);
+      qsfpRefClkP : in  slv(PGP_QUADS_G-1 downto 0);
+      qsfpRefClkN : in  slv(PGP_QUADS_G-1 downto 0);
+      qsfpRxP     : in  slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpRxN     : in  slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpTxP     : out slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpTxN     : out slv(PGP_QUADS_G*4-1 downto 0);
 
       --------------
       --  Core Ports

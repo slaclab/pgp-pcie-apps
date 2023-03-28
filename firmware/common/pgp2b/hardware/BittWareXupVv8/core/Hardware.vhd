@@ -34,7 +34,7 @@ entity Hardware is
    generic (
       TPD_G             : time             := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      PGP_QUADS_G : integer := 8;
+      PGP_QUADS_G       : integer          := 8;
       AXI_CLK_FREQ_G    : real             := 125.0e6;
       AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
@@ -52,20 +52,20 @@ entity Hardware is
       dmaClk          : in  sl;
       dmaRst          : in  sl;
       dmaBuffGrpPause : in  slv(7 downto 0);
-      dmaObMasters    : in  AxiStreamMasterArray(7 downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      dmaObMasters    : in  AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
       ---------------------
       --  Hardware Ports
       ---------------------
       -- QSFP-DD Ports
-      qsfpRefClkP     : in  slv(7 downto 0);
-      qsfpRefClkN     : in  slv(7 downto 0);
-      qsfpRxP         : in  slv(31 downto 0);
-      qsfpRxN         : in  slv(31 downto 0);
-      qsfpTxP         : out slv(31 downto 0);
-      qsfpTxN         : out slv(31 downto 0));
+      qsfpRefClkP     : in  slv(PGP_QUADS_G-1 downto 0);
+      qsfpRefClkN     : in  slv(PGP_QUADS_G-1 downto 0);
+      qsfpRxP         : in  slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpRxN         : in  slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpTxP         : out slv(PGP_QUADS_G*4-1 downto 0);
+      qsfpTxN         : out slv(PGP_QUADS_G*4-1 downto 0));
 end Hardware;
 
 architecture mapping of Hardware is
@@ -79,7 +79,7 @@ begin
       generic map (
          TPD_G             => TPD_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-         PGP_QUADS_G => PGP_QUADS_G,
+         PGP_QUADS_G       => PGP_QUADS_G,
          AXI_CLK_FREQ_G    => AXI_CLK_FREQ_G,
          AXI_BASE_ADDR_G   => AXI_BASE_ADDR_G)
       port map (
