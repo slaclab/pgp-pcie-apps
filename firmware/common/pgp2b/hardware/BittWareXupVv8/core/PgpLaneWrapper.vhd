@@ -32,6 +32,7 @@ use unisim.vcomponents.all;
 entity PgpLaneWrapper is
    generic (
       TPD_G             : time             := 1 ns;
+      SIM_SPEEDUP_G     : boolean          := false;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       PGP_QUADS_G       : integer          := 8;
       AXI_CLK_FREQ_G    : real             := 125.0e6;
@@ -126,6 +127,7 @@ begin
          U_Lane : entity work.PgpLane
             generic map (
                TPD_G             => TPD_G,
+               SIM_SPEEDUP_G     => SIM_SPEEDUP_G,
                DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
                LANE_G            => quad*4+lane,
                AXI_CLK_FREQ_G    => AXI_CLK_FREQ_G,
@@ -155,6 +157,16 @@ begin
 
       end generate GEN_LANE;
 
+      ----------------------------------------------------------------------------------------------
+      -- Mux each quad of lanes together
+      -- This will make 1 DMA lane per QUAD
+      -- All even quads share a TID for buffGrpPause
+      -- Likewise for odd numbered quads
+      ----------------------------------------------------------------------------------------------
+      ----------------------------------------------------------------------------------------------
+      -- Should be
+      -- Place pgp lane streams into dma streams modulo 8
+      ----------------------------------------------------------------------------------------------
       U_Mux : entity surf.AxiStreamMux
          generic map (
             TPD_G          => TPD_G,
@@ -162,9 +174,9 @@ begin
             MODE_G         => "ROUTED",
             TDEST_ROUTES_G => (
                0           => "000000--",
-               1           => "000001--",
-               2           => "000010--",
-               3           => "000011--"),
+               1           => "000100--",
+               2           => "001000--",
+               3           => "001100--"),
             TID_MODE_G     => "ROUTED",
             TID_ROUTES_G   => (
                0           => "000000--",
@@ -190,9 +202,9 @@ begin
             MODE_G         => "ROUTED",
             TDEST_ROUTES_G => (
                0           => "000000--",
-               1           => "000001--",
-               2           => "000010--",
-               3           => "000011--"),
+               1           => "000100--",
+               2           => "001000--",
+               3           => "001100--"),
             PIPE_STAGES_G  => 2)
          port map (
             axisClk      => dmaClk,                                -- [in]
