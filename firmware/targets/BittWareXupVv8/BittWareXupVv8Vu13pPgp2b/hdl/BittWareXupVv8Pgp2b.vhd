@@ -32,6 +32,7 @@ use unisim.vcomponents.all;
 entity BittWareXupVv8Pgp2b is
    generic (
       TPD_G                : time                        := 1 ns;
+      SIM_SPEEDUP_G        : boolean                     := false;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
       DMA_BURST_BYTES_G    : integer range 256 to 4096   := 4096;
@@ -168,6 +169,7 @@ begin
    U_Hardware_1 : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
+         SIM_SPEEDUP_G     => SIM_SPEEDUP_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          PGP_QUADS_G       => PGP_QUADS_G,
          AXI_CLK_FREQ_G    => 125.0e6,

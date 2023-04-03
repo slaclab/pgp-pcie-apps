@@ -33,6 +33,7 @@ use unisim.vcomponents.all;
 entity Hardware is
    generic (
       TPD_G             : time             := 1 ns;
+      SIM_SPEEDUP_G     : boolean          := false;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       PGP_QUADS_G       : integer          := 8;
       AXI_CLK_FREQ_G    : real             := 125.0e6;
@@ -78,6 +79,7 @@ begin
    U_PgpLaneWrapper_1 : entity work.PgpLaneWrapper
       generic map (
          TPD_G             => TPD_G,
+         SIM_SPEEDUP_G     => SIM_SPEEDUP_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          PGP_QUADS_G       => PGP_QUADS_G,
          AXI_CLK_FREQ_G    => AXI_CLK_FREQ_G,
