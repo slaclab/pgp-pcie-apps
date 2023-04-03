@@ -35,6 +35,7 @@ use unisim.vcomponents.all;
 entity PgpLane is
    generic (
       TPD_G             : time             := 1 ns;
+      SIM_SPEEDUP_G     : boolean          := false;
       LANE_G            : natural          := 0;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
       AXI_CLK_FREQ_G    : real             := 125.0e6;
@@ -100,7 +101,9 @@ architecture mapping of PgpLane is
    signal pgpRxClk    : sl;
    signal pgpRxRst    : sl;
 
-   signal config : ConfigType;
+   signal config    : ConfigType;
+   signal txUserRst : sl;
+   signal rxUserRst : sl;
 
 begin
 
@@ -131,6 +134,7 @@ begin
    U_Pgp : entity surf.Pgp2bGtyUltra
       generic map (
          TPD_G           => TPD_G,
+         SIM_SPEEDUP_G   => SIM_SPEEDUP_G,
          VC_INTERLEAVE_G => 1)          -- AxiStreamDmaV2 supports interleaving
       port map (
          -- GT Clocking
@@ -228,12 +232,13 @@ begin
    ------------
    U_PgpMiscCtrl : entity work.PgpMiscCtrl
       generic map (
-         TPD_G => TPD_G)
+         TPD_G         => TPD_G,
+         SIM_SPEEDUP_G => SIM_SPEEDUP_G)
       port map (
          -- Control/Status  (axilClk domain)
          config          => config,
-         txUserRst       => pgpTxRst,
-         rxUserRst       => pgpRxRst,
+         txUserRst       => txUserRst,
+         rxUserRst       => rxUserRst,
          -- AXI Lite interface
          axilClk         => axilClk,
          axilRst         => axilRst,
@@ -241,6 +246,23 @@ begin
          axilReadSlave   => axilReadSlaves(CTRL_INDEX_C),
          axilWriteMaster => axilWriteMasters(CTRL_INDEX_C),
          axilWriteSlave  => axilWriteSlaves(CTRL_INDEX_C));
+
+   U_RstSync_Tx : entity surf.RstSync
+      generic map (
+         TPD_G => TPD_G)
+      port map (
+         clk      => pgpTxClk,          -- [in]
+         asyncRst => txUserRst,         -- [in]
+         syncRst  => pgpTxRst);         -- [out]
+
+   U_RstSync_Rx : entity surf.RstSync
+      generic map (
+         TPD_G => TPD_G)
+      port map (
+         clk      => pgpRxClk,          -- [in]
+         asyncRst => rxUserRst,         -- [in]
+         syncRst  => pgpRxRst);         -- [out]
+
 
    --------------
    -- PGP TX Path
