@@ -41,6 +41,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--sim",
+    action = 'store_true',
+    default = False)
+
+parser.add_argument(
     "--dmaLanes",
     type     = int,
     required = False,
@@ -60,12 +65,12 @@ parser.add_argument(
     "--numVc",
     type     = int,
     required = False,
-    default  = 1,
+    default  = 4,
     help     = "# of VC (virtual channels)",
 )
 
 parser.add_argument(
-    "--version",
+    "--pgpVersion",
     type     = int,
     required = False,
     default  = 4,
@@ -130,7 +135,10 @@ class MyRoot(pr.Root):
         super().__init__(name=name, description=description, **kwargs)
 
         # Create PCIE memory mapped interface
-        self.memMap = rogue.hardware.axi.AxiMemMap(args.dev)
+        if args.sim:
+            self.memMap = rogue.interfaces.memory.TcpClient('localhost', 11000)
+        else:
+            self.memMap = rogue.hardware.axi.AxiMemMap(args.dev)
 
         if (args.swRx or args.swTx):
             self.dmaStream   = [[None for x in range(args.numVc)] for y in range(args.pgpLanes)]
@@ -148,7 +156,7 @@ class MyRoot(pr.Root):
 
         # Add PGP Core
         for pgpLane in range(args.pgpLanes):
-            if (args.version == 4):
+            if (args.pgpVersion == 4):
                 self.add(pgp.Pgp4AxiL(
                     name    = f'Lane[{pgpLane}]',
                     offset  = (0x00800000 + pgpLane*0x00010000),
@@ -157,7 +165,7 @@ class MyRoot(pr.Root):
                     writeEn = True,
                     expand  = True,
                 ))
-            elif (args.version == 3):
+            elif (args.pgpVersion == 3):
                 self.add(pgp.Pgp3AxiL(
                     name    = f'Lane[{pgpLane}]',
                     offset  = (0x00800000 + pgpLane*0x00010000),
@@ -198,7 +206,12 @@ class MyRoot(pr.Root):
                 dmaDest = ((pgpLane // pgpLanesPerDmaLane) * 0x100) + ((pgpLane % pgpLanesPerDmaLane) * 0b100) + vc
 
                 if (args.swRx or args.swTx):
-                    self.dmaStream[pgpLane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev, dmaDest, 1)
+                    if args.sim:
+                        port = 11002 + (512*pgpLane) + (vc*2)
+                        print(f'Tcp data stream on port {port}')
+                        self.dmaStream[pgpLane][vc] = rogue.interfaces.stream.TcpClient('localhost', port)
+                    else:
+                        self.dmaStream[pgpLane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev, dmaDest, 1)
 
                 if (args.swRx):
 
