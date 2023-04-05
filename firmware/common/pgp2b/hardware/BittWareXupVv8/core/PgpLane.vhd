@@ -93,13 +93,15 @@ architecture mapping of PgpLane is
    signal pgpRxMasters : AxiStreamMasterArray(3 downto 0);
    signal pgpRxCtrl    : AxiStreamCtrlArray(3 downto 0);
 
-   signal pgpTxOutClk : sl;
-   signal pgpTxClk    : sl;
-   signal pgpTxRst    : sl;
+   signal pgpTxOutClk    : sl;
+   signal pgpTxClk       : sl;
+   signal pgpTxRst       : sl;
+   signal pgpTxResetDone : sl;
 
-   signal pgpRxOutClk : sl;
-   signal pgpRxClk    : sl;
-   signal pgpRxRst    : sl;
+   signal pgpRxOutClk    : sl;
+   signal pgpRxClk       : sl;
+   signal pgpRxRst       : sl;
+   signal pgpRxResetDone : sl;
 
    signal config    : ConfigType;
    signal txUserRst : sl;
@@ -148,11 +150,13 @@ begin
          pgpGtRxN        => pgpRxN,
          -- Tx Clocking
          pgpTxReset      => pgpTxRst,
+         pgpTxResetDone  => pgpTxResetDone,
          pgpTxOutClk     => pgpTxOutClk,
          pgpTxClk        => pgpTxClk,
          pgpTxMmcmLocked => '1',
          -- Rx clocking
          pgpRxReset      => pgpRxRst,
+         pgpRxResetDone  => pgpRxResetDone,
          pgpRxOutClk     => pgpRxOutClk,
          pgpRxClk        => pgpRxClk,
          pgpRxMmcmLocked => '1',
