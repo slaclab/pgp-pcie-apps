@@ -23,6 +23,7 @@ import pyrogue.utilities.prbs
 
 import axipcie            as pcie
 import surf.axi           as axi
+import surf.xilinx        as xilinx
 import surf.protocols.pgp as pgp
 
 #################################################################
@@ -181,6 +182,13 @@ class MyRoot(pr.Root):
                     memBase = self.memMap,
                     expand  = False,
                 ))
+
+            self.add(xilinx.Gtye4Channel(
+                name = f'GtyDrp[{pgpLane}]',
+                offset = (0x00800000 + pgpLane*0x00010000 + 0x000),
+                memBase = self.memMap,
+                expand = False))
+                
 
             self.add(axi.AxiStreamMonAxiL(
                 name        = (f'PgpTxAxisMon[{pgpLane}]'),
