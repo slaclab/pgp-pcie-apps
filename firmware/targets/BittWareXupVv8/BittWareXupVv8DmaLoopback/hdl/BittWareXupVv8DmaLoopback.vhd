@@ -38,7 +38,7 @@ entity BittWareXupVv8DmaLoopback is
       --  Application Ports
       ---------------------
       -- QSFP[31:0] Ports
-      qsfpRefClkP    : in  slv(7 downto 0);
+      qsfpRefClkP    : in  slv(7 downto 0); -- 322.265625 MHz Clocks
       qsfpRefClkN    : in  slv(7 downto 0);
       qsfpRxP        : in  slv(31 downto 0);
       qsfpRxN        : in  slv(31 downto 0);
