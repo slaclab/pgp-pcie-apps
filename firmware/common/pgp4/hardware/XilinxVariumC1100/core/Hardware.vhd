@@ -89,73 +89,28 @@ architecture mapping of Hardware is
 
 begin
 
-   U_IBUFDS : IBUFDS_GTE4
-      generic map (
-         REFCLK_EN_TX_PATH  => '0',
-         REFCLK_HROW_CK_SEL => "00",    -- 2'b00: ODIV2 = O
-         REFCLK_ICNTL_RX    => "00")
-      port map (
-         I     => qsfp0RefClkP,
-         IB    => qsfp0RefClkN,
-         CEB   => '0',
-         ODIV2 => qsfp0RefClk,
-         O     => open);
-
-   U_BUFG_GT : BUFG_GT
-      port map (
-         I       => qsfp0RefClk,
-         CE      => '1',
-         CEMASK  => '1',
-         CLR     => '0',
-         CLRMASK => '1',
-         DIV     => "000",
-         O       => qsfp0RefClkBuf);
-
-   U_gtRefClk : entity surf.ClockManagerUltraScale
-      generic map(
-         TPD_G              => TPD_G,
-         TYPE_G             => "MMCM",
-         INPUT_BUFG_G       => false,
-         FB_BUFG_G          => true,
-         RST_IN_POLARITY_G  => '1',
-         NUM_CLOCKS_G       => 1,
-         -- MMCM attributes
-         BANDWIDTH_G        => "OPTIMIZED",
-         CLKIN_PERIOD_G     => 6.206,   -- 161.1328125MHz
-         DIVCLK_DIVIDE_G    => 11,      -- 14.6484375MHz = 161.1328125MHz/11
-         CLKFBOUT_MULT_F_G  => 80.0,    -- 1171.875MHz = 80 x 14.6484375MHz
-         CLKOUT0_DIVIDE_F_G => 7.5)     -- 156.25MHz = 1171.875MHz/7.5
-      port map(
-         -- Clock Input
-         clkIn     => qsfp0RefClkBuf,
-         rstIn     => dmaRst,
-         -- Clock Outputs
-         clkOut(0) => gtRefClk);
-
    --------------
    -- PGP Modules
    --------------
    U_Pgp : entity work.PgpGtyLaneWrapper
       generic map (
          TPD_G             => TPD_G,
-         USE_GTREFCLK_G    => true, -- TRUE: gtRefClk
          RATE_G            => RATE_G,
          REFCLK_WIDTH_G    => 1,
          NUM_VC_G          => 4,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          AXI_BASE_ADDR_G   => AXI_BASE_ADDR_G)
       port map (
-         gtRefClk        => gtRefClk,
          -- QSFP[0] Ports
-         qsfp0RefClkP(0) => '0',
-         qsfp0RefClkN(0) => '1',
+         qsfp0RefClkP(0) => qsfp0RefClkP,
+         qsfp0RefClkN(0) => qsfp0RefClkN,
          qsfp0RxP        => qsfp0RxP,
          qsfp0RxN        => qsfp0RxN,
          qsfp0TxP        => qsfp0TxP,
          qsfp0TxN        => qsfp0TxN,
          -- QSFP[1] Ports
-         qsfp1RefClkP(0) => '0',
-         qsfp1RefClkN(0) => '1',
+         qsfp1RefClkP(0) => qsfp1RefClkP,
+         qsfp1RefClkN(0) => qsfp1RefClkN,
          qsfp1RxP        => qsfp1RxP,
          qsfp1RxN        => qsfp1RxN,
          qsfp1TxP        => qsfp1TxP,
