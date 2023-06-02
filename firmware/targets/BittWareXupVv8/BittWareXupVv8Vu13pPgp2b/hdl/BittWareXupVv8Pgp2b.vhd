@@ -207,11 +207,11 @@ begin
          -- Clock and Reset (pgpClk domain)
          axisClk      => dmaClk,
          axisRst      => dmaRst,
-         -- IB FIFO
-         ibFifoMaster => dmaIbMasters(1),
-         ibFifoSlave  => dmaIbSlaves(1),
-         -- OB FIFO
+         -- OB Stream
+         obFifoMaster => dmaObMasters(1),
          obFifoSlave  => dmaObSlaves(1),
-         obFifoMaster => dmaObMasters(1));
+         -- IB Stream
+         ibFifoSlave  => dmaIbSlaves(1),
+         ibFifoMaster => dmaIbMasters(1));
 
 end top_level;

@@ -36,11 +36,11 @@ entity DmaXvcWrapper is
       axisClk      : in  sl;
       axisRst      : in  sl;
       -- IB FIFO
-      ibFifoMaster : in  AxiStreamMasterType;
-      ibFifoSlave  : out AxiStreamSlaveType;
+      obFifoMaster : in  AxiStreamMasterType;
+      obFifoSlave  : out AxiStreamSlaveType;
       -- OB FIFO
-      obFifoSlave  : in  AxiStreamSlaveType;
-      obFifoMaster : out AxiStreamMasterType);
+      ibFifoSlave  : in  AxiStreamSlaveType;
+      ibFifoMaster : out AxiStreamMasterType);
 end DmaXvcWrapper;
 
 architecture rtl of DmaXvcWrapper is
