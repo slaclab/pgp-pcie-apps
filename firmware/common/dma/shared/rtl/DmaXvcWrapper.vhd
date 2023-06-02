@@ -50,9 +50,6 @@ architecture rtl of DmaXvcWrapper is
    signal obXvcMaster : AxiStreamMasterType := axiStreamMasterInit(EMAC_AXIS_CONFIG_C);
    signal obXvcSlave  : AxiStreamSlaveType  := AXI_STREAM_SLAVE_FORCE_C;
 
-   signal rxFifoSlave  : AxiStreamSlaveType  := AXI_STREAM_SLAVE_FORCE_C;
-   signal txFifoMaster : AxiStreamMasterType := axiStreamMasterInit(AXIS_CONFIG_G);
-
 begin
 
    -----------------------------------------------------------------
@@ -67,10 +64,10 @@ begin
          clk            => xvcClk,
          rst            => xvcRst,
          -- UDP XVC Interface
-         obServerMaster => ibXvcMaster,
-         obServerSlave  => ibXvcSlave,
-         ibServerMaster => obXvcMaster,
-         ibServerSlave  => obXvcSlave);
+         obServerMaster => obXvcMaster,
+         obServerSlave  => obXvcSlave,
+         ibServerMaster => ibXvcMaster,
+         ibServerSlave  => ibXvcSlave);
 
    U_IB_FIFO : entity surf.AxiStreamFifoV2
       generic map (
@@ -87,13 +84,13 @@ begin
          -- Slave Port
          sAxisClk    => axisClk,
          sAxisRst    => axisRst,
-         sAxisMaster => ibFifoMaster,
-         sAxisSlave  => rxFifoSlave,
+         sAxisMaster => obFifoMaster,
+         sAxisSlave  => obFifoSlave,
          -- Master Port
          mAxisClk    => xvcClk,
          mAxisRst    => xvcRst,
-         mAxisMaster => ibXvcMaster,
-         mAxisSlave  => ibXvcSlave);
+         mAxisMaster => obXvcMaster,
+         mAxisSlave  => obXvcSlave);
 
    U_OB_FIFO : entity surf.AxiStreamFifoV2
       generic map (
@@ -110,15 +107,13 @@ begin
          -- Slave Port
          sAxisClk    => xvcClk,
          sAxisRst    => xvcRst,
-         sAxisMaster => obXvcMaster,
-         sAxisSlave  => obXvcSlave,
+         sAxisMaster => ibXvcMaster,
+         sAxisSlave  => ibXvcSlave,
          -- Master Port
          mAxisClk    => axisClk,
          mAxisRst    => axisRst,
-         mAxisMaster => txFifoMaster,
-         mAxisSlave  => obFifoSlave);
+         mAxisMaster => ibFifoMaster,
+         mAxisSlave  => ibFifoSlave);
 
-   ibFifoSlave  <= rxFifoSlave;
-   obFifoMaster <= txFifoMaster;
 
 end rtl;
