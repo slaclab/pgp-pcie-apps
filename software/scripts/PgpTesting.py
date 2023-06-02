@@ -123,6 +123,11 @@ parser.add_argument(
     help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or SlacPgpCardG4, Kcu1500, etc]",
 )
 
+parser.add_argument(
+    '--xvc',
+    action = 'store_true',
+    default = False)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -148,14 +153,15 @@ class MyRoot(pr.Root):
             self.prbsTx      = [[None for x in range(args.numVc)] for y in range(args.pgpLanes)]
 
         # Hack in the XVC
-        self.xvcServer = rogue.protocol.xilinx.Xvc(2542)
-        self.addProtocol(self.xvc)
+        if (args.xvc):
+            self.xvcServer = rogue.protocols.xilinx.Xvc(2542)
+            self.addProtocol(self.xvcServer)
 
-        # XVC stream hard coded at DMA Lane 1
-        self.xvcStream = rogue.hardware.axi.AxiStreamDma(args.dev, 0x100, 1)
+            # XVC stream hard coded at DMA Lane 1
+            self.xvcStream = rogue.hardware.axi.AxiStreamDma(args.dev, 0x100, 1)
 
-        # Connect stream to server
-        self.xvcServer == self.xvcStream
+            # Connect stream to server
+            self.xvcServer == self.xvcStream
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
