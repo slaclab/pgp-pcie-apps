@@ -80,19 +80,19 @@ architecture top_level of BittWareXupVv8Pgp2b is
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
+   
+   -- +1 because of XVC
+   constant DMA_SIZE_C : integer := PGP_QUADS_G+1;
 
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(PGP_QUADS_G-1 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(PGP_QUADS_G-1 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
 
 begin
-
-
-
 
    U_axilClk : entity surf.ClockManagerUltraScale
       generic map(
@@ -128,7 +128,7 @@ begin
          ROGUE_SIM_CH_COUNT_G => 4,
          DMA_BURST_BYTES_G    => DMA_BURST_BYTES_G,
          DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G           => PGP_QUADS_G)
+         DMA_SIZE_G           => DMA_SIZE_C)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -184,10 +184,10 @@ begin
          dmaClk          => dmaClk,           -- [in]
          dmaRst          => dmaRst,           -- [in]
          dmaBuffGrpPause => dmaBuffGrpPause,  -- [in]
-         dmaObMasters    => dmaObMasters,     -- [in]
-         dmaObSlaves     => dmaObSlaves,      -- [out]
-         dmaIbMasters    => dmaIbMasters,     -- [out]
-         dmaIbSlaves     => dmaIbSlaves,      -- [in]
+         dmaObMasters(0) => dmaObMasters(0),  -- [in]
+         dmaObSlaves(0)  => dmaObSlaves(0),   -- [out]
+         dmaIbMasters(0) => dmaIbMasters(0),  -- [out]
+         dmaIbSlaves(0)  => dmaIbSlaves(0),   -- [in]
          qsfpRefClkP     => qsfpRefClkP,      -- [in]
          qsfpRefClkN     => qsfpRefClkN,      -- [in]
          qsfpRxP         => qsfpRxP,          -- [in]
@@ -195,5 +195,24 @@ begin
          qsfpTxP         => qsfpTxP,          -- [out]
          qsfpTxN         => qsfpTxN);         -- [out]
 
+   U_DmaXvc : entity work.DmaXvcWrapper
+      generic map(
+         TPD_G                  => TPD_G,
+         SIMULATION_G           => ROGUE_SIM_EN_G,
+         IB_SLAVE_AXI_CONFIG_G  => DMA_AXIS_CONFIG_C,
+         OB_MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_C)
+      port map(
+         -- Clock and Reset (xvcClk domain)
+         xvcClk       => dmaClk,
+         xvcRst       => dmaRst,
+         -- Clock and Reset (pgpClk domain)
+         axilClk      => dmaClk,
+         axilRst      => dmaRst,
+         -- IB FIFO
+         ibFifoMaster => dmaIbMasters(1),
+         ibFifoSlave  => dmaIbSlaves(1),
+         -- OB FIFO
+         obFifoSlave  => dmaObSlaves(1),
+         obFifoMaster => dmaObMasters(1));
 
 end top_level;
