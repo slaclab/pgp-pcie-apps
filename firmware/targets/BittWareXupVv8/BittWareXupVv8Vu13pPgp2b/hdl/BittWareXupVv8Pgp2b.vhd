@@ -80,7 +80,7 @@ architecture top_level of BittWareXupVv8Pgp2b is
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
-   
+
    -- +1 because of XVC
    constant DMA_SIZE_C : integer := PGP_QUADS_G+1;
 
@@ -198,16 +198,15 @@ begin
    U_DmaXvc : entity work.DmaXvcWrapper
       generic map(
          TPD_G                  => TPD_G,
-         SIMULATION_G           => ROGUE_SIM_EN_G,
-         IB_SLAVE_AXI_CONFIG_G  => DMA_AXIS_CONFIG_C,
-         OB_MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_C)
+         COMMON_CLOCK_G         => true,
+         AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C)
       port map(
          -- Clock and Reset (xvcClk domain)
          xvcClk       => dmaClk,
          xvcRst       => dmaRst,
          -- Clock and Reset (pgpClk domain)
-         axilClk      => dmaClk,
-         axilRst      => dmaRst,
+         axisClk      => dmaClk,
+         axisRst      => dmaRst,
          -- IB FIFO
          ibFifoMaster => dmaIbMasters(1),
          ibFifoSlave  => dmaIbSlaves(1),

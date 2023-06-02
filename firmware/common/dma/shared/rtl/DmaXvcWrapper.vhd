@@ -18,26 +18,23 @@ use ieee.std_logic_1164.all;
 library surf;
 use surf.StdRtlPkg.all;
 use surf.AxiStreamPkg.all;
-use surf.AxiLitePkg.all;
 use surf.EthMacPkg.all;
-use surf.Pgp4Pkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
 
 entity DmaXvcWrapper is
    generic (
-      TPD_G                  : time    := 1 ns;
-      SIMULATION_G           : boolean := false;
-      IB_SLAVE_AXI_CONFIG_G  : AxiStreamConfigType;
-      OB_MASTER_AXI_CONFIG_G : AxiStreamConfigType);
+      TPD_G          : time    := 1 ns;
+      COMMON_CLOCK_G : boolean := false;
+      AXIS_CONFIG_G  : AxiStreamConfigType);
    port (
       -- Clock and Reset (xvcClk domain)
-      xvcClk       : in sl;
-      xvcRst       : in sl;
+      xvcClk       : in  sl;
+      xvcRst       : in  sl;
       -- Clock and Reset (pgpClk domain)
-      axilClk      : in sl;
-      axilRst      : in sl;
+      axisClk      : in  sl;
+      axisRst      : in  sl;
       -- IB FIFO
       ibFifoMaster : in  AxiStreamMasterType;
       ibFifoSlave  : out AxiStreamSlaveType;
@@ -48,13 +45,13 @@ end DmaXvcWrapper;
 
 architecture rtl of DmaXvcWrapper is
 
-   signal ibXvcMaster  : AxiStreamMasterType := AXI_STREAM_MASTER_INIT_C;
-   signal ibXvcSlave   : AxiStreamSlaveType  := AXI_STREAM_SLAVE_FORCE_C;
-   signal obXvcMaster  : AxiStreamMasterType := AXI_STREAM_MASTER_INIT_C;
-   signal obXvcSlave   : AxiStreamSlaveType  := AXI_STREAM_SLAVE_FORCE_C;
+   signal ibXvcMaster : AxiStreamMasterType := axiStreamMasterInit(EMAC_AXIS_CONFIG_C);
+   signal ibXvcSlave  : AxiStreamSlaveType  := AXI_STREAM_SLAVE_FORCE_C;
+   signal obXvcMaster : AxiStreamMasterType := axiStreamMasterInit(EMAC_AXIS_CONFIG_C);
+   signal obXvcSlave  : AxiStreamSlaveType  := AXI_STREAM_SLAVE_FORCE_C;
 
    signal rxFifoSlave  : AxiStreamSlaveType  := AXI_STREAM_SLAVE_FORCE_C;
-   signal txFifoMaster : AxiStreamMasterType := AXI_STREAM_MASTER_INIT_C;
+   signal txFifoMaster : AxiStreamMasterType := axiStreamMasterInit(AXIS_CONFIG_G);
 
 begin
 
@@ -80,15 +77,16 @@ begin
          -- General Configurations
          TPD_G               => TPD_G,
          -- FIFO configurations
-         GEN_SYNC_FIFO_G     => true,
-         FIFO_ADDR_WIDTH_G   => 9,
+         GEN_SYNC_FIFO_G     => COMMON_CLOCK_G,
+         MEMORY_TYPE_G       => "distributed",
+         FIFO_ADDR_WIDTH_G   => 5,
          -- AXI Stream Port Configurations
-         SLAVE_AXI_CONFIG_G  => IB_SLAVE_AXI_CONFIG_G,
+         SLAVE_AXI_CONFIG_G  => AXIS_CONFIG_G,
          MASTER_AXI_CONFIG_G => EMAC_AXIS_CONFIG_C)
       port map (
          -- Slave Port
-         sAxisClk    => axilClk,
-         sAxisRst    => axilRst,
+         sAxisClk    => axisClk,
+         sAxisRst    => axisRst,
          sAxisMaster => ibFifoMaster,
          sAxisSlave  => rxFifoSlave,
          -- Master Port
@@ -102,11 +100,12 @@ begin
          -- General Configurations
          TPD_G               => TPD_G,
          -- FIFO configurations
-         GEN_SYNC_FIFO_G     => true,
-         FIFO_ADDR_WIDTH_G   => 9,
+         GEN_SYNC_FIFO_G     => COMMON_CLOCK_G,
+         MEMORY_TYPE_G       => "distributed",
+         FIFO_ADDR_WIDTH_G   => 5,
          -- AXI Stream Port Configurations
          SLAVE_AXI_CONFIG_G  => EMAC_AXIS_CONFIG_C,
-         MASTER_AXI_CONFIG_G => OB_MASTER_AXI_CONFIG_G)
+         MASTER_AXI_CONFIG_G => AXIS_CONFIG_G)
       port map (
          -- Slave Port
          sAxisClk    => xvcClk,
@@ -114,21 +113,12 @@ begin
          sAxisMaster => obXvcMaster,
          sAxisSlave  => obXvcSlave,
          -- Master Port
-         mAxisClk    => axilClk,
-         mAxisRst    => axilRst,
+         mAxisClk    => axisClk,
+         mAxisRst    => axisRst,
          mAxisMaster => txFifoMaster,
          mAxisSlave  => obFifoSlave);
 
-   GEN_REAL : if (SIMULATION_G = false) generate
-      -- tie with FIFOs
-      ibFifoSlave  <= rxFifoSlave;
-      obFifoMaster <= txFifoMaster;
-   end generate GEN_REAL;
-
-   GEN_SIM : if (SIMULATION_G = true) generate
-      -- bypass
-      ibFifoSlave  <= AXI_STREAM_SLAVE_FORCE_C;
-      obFifoMaster <= AXI_STREAM_MASTER_INIT_C;
-   end generate GEN_SIM;
+   ibFifoSlave  <= rxFifoSlave;
+   obFifoMaster <= txFifoMaster;
 
 end rtl;
