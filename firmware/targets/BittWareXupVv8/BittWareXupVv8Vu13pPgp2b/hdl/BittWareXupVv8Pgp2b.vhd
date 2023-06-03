@@ -197,13 +197,13 @@ begin
 
    U_DmaXvc : entity work.DmaXvcWrapper
       generic map(
-         TPD_G                  => TPD_G,
-         COMMON_CLOCK_G         => true,
+         TPD_G          => TPD_G,
+         COMMON_CLOCK_G => false,
          AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C)
       port map(
          -- Clock and Reset (xvcClk domain)
-         xvcClk       => dmaClk,
-         xvcRst       => dmaRst,
+         xvcClk       => axilClk,
+         xvcRst       => axilRst,
          -- Clock and Reset (pgpClk domain)
          axisClk      => dmaClk,
          axisRst      => dmaRst,
