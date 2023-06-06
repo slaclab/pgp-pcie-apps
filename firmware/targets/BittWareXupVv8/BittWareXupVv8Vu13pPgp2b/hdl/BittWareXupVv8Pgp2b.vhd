@@ -74,7 +74,9 @@ architecture top_level of BittWareXupVv8Pgp2b is
    constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3);
 
    signal userClk100      : sl;
-   signal userRst100 : sl;
+   signal userRst100      : sl;
+   signal clk156          : sl;
+   signal rst156          : sl;
    signal axilClk         : sl;
    signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
@@ -102,29 +104,32 @@ begin
          INPUT_BUFG_G      => true,
          FB_BUFG_G         => true,
          RST_IN_POLARITY_G => '1',
-         NUM_CLOCKS_G      => 1,
+         NUM_CLOCKS_G      => 2,
          -- MMCM attributes
          BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 10.0,     -- 100 MHz
-         CLKFBOUT_MULT_G   => 10,       -- 1GHz = 10 x 100 MHz
-         CLKOUT0_DIVIDE_G  => 8)        -- 125MHz = 1GHz/8
+         CLKIN_PERIOD_G    => 10.0,       -- 100 MHz
+         CLKFBOUT_MULT_G   => 14,       -- 1GHz = 10 x 100 MHz
+         CLKOUT0_DIVIDE_G  => 11,       -- 125MHz = 1GHz/8
+         CLKOUT1_DIVIDE_G  => 9)
       port map(
          -- Clock Input
          clkIn     => userClk100,
          rstIn     => dmaRst,
          -- Clock Outputs
          clkOut(0) => axilClk,
+         clkOut(1) => clk156,
          -- Reset Outputs
-         rstOut(0) => axilRst);
+         rstOut(0) => axilRst,
+         rstOut(1) => rst156);
 
-   U_PwrUpRst_1: entity surf.PwrUpRst
+   U_PwrUpRst_1 : entity surf.PwrUpRst
       generic map (
-         TPD_G          => TPD_G,
-         DURATION_G     => 500)
+         TPD_G      => TPD_G,
+         DURATION_G => 500)
       port map (
-         arst   => '0',                -- [in]
-         clk    => userClk100,                 -- [in]
-         rstOut => userRst100);             -- [out]
+         arst   => '0',                 -- [in]
+         clk    => userClk100,          -- [in]
+         rstOut => userRst100);         -- [out]
 
    -----------------------
    -- axi-pcie-core module
@@ -212,8 +217,8 @@ begin
          AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C)
       port map(
          -- Clock and Reset (xvcClk domain)
-         xvcClk       => userClk100,
-         xvcRst       => userRst100,
+         xvcClk       => clk156,
+         xvcRst       => rst156,
          -- Clock and Reset (pgpClk domain)
          axisClk      => dmaClk,
          axisRst      => dmaRst,

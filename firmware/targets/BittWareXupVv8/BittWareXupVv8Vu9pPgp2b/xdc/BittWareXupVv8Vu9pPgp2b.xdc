@@ -9,6 +9,7 @@
 ##############################################################################
 
 create_generated_clock -name axilClk [get_pins {U_axilClk/PllGen.U_Pll/CLKOUT0}]
+create_generated_clock -name xvcClk [get_pins {U_axilClk/PllGen.U_Pll/CLKOUT1}]
 
 create_clock -name qsfpRefClk0 -period 6.4 [get_ports {qsfpRefClkP[0]}]
 create_clock -name qsfpRefClk1 -period 6.4 [get_ports {qsfpRefClkP[1]}]
@@ -37,6 +38,11 @@ set_clock_groups -asynchronous \
     -group [get_clocks -of_objects [get_pins -hier * -filter {name=~U_Hardware_1/*/TXOUTCLK}]] \
     -group [get_clocks -of_objects [get_pins -hier * -filter {name=~U_Hardware_1/*/TXOUTCLKPCS}]]  \
     -group [get_clocks axilClk]
+
+set_clock_groups -asynchronous \
+    -group [get_clocks axilClk] \
+    -group [get_clocks xvcClk] \
+    -group [get_clocks dmaClk]
 
 # add_cells_to_pblock SLR1_GRP [get_cells {U_Core}]
 
