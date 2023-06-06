@@ -74,6 +74,7 @@ architecture top_level of BittWareXupVv8Pgp2b is
    constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => DMA_BYTE_WIDTH_G, tDestBits => 8, tIdBits => 3);
 
    signal userClk100      : sl;
+   signal userRst100 : sl;
    signal axilClk         : sl;
    signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
@@ -115,6 +116,15 @@ begin
          clkOut(0) => axilClk,
          -- Reset Outputs
          rstOut(0) => axilRst);
+
+   U_PwrUpRst_1: entity surf.PwrUpRst
+      generic map (
+         TPD_G          => TPD_G,
+         DURATION_G     => 500)
+      port map (
+         arst   => '0',                -- [in]
+         clk    => userClk100,                 -- [in]
+         rstOut => userRst100);             -- [out]
 
    -----------------------
    -- axi-pcie-core module
@@ -202,8 +212,8 @@ begin
          AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C)
       port map(
          -- Clock and Reset (xvcClk domain)
-         xvcClk       => axilClk,
-         xvcRst       => axilRst,
+         xvcClk       => userClk100,
+         xvcRst       => userRst100,
          -- Clock and Reset (pgpClk domain)
          axisClk      => dmaClk,
          axisRst      => dmaRst,
