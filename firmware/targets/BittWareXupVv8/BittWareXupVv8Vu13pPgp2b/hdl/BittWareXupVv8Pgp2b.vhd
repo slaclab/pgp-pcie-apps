@@ -85,7 +85,7 @@ architecture top_level of BittWareXupVv8Pgp2b is
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
    -- +1 because of XVC
-   constant DMA_SIZE_C : integer := PGP_QUADS_G+1;
+   constant DMA_SIZE_C : integer := PGP_QUADS_G;
 
    signal dmaClk          : sl;
    signal dmaRst          : sl;
@@ -210,23 +210,23 @@ begin
          qsfpTxP         => qsfpTxP,          -- [out]
          qsfpTxN         => qsfpTxN);         -- [out]
 
-   U_DmaXvc : entity work.DmaXvcWrapper
-      generic map(
-         TPD_G          => TPD_G,
-         COMMON_CLOCK_G => false,
-         AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C)
-      port map(
-         -- Clock and Reset (xvcClk domain)
-         xvcClk       => clk156,
-         xvcRst       => rst156,
-         -- Clock and Reset (pgpClk domain)
-         axisClk      => dmaClk,
-         axisRst      => dmaRst,
-         -- OB Stream
-         obFifoMaster => dmaObMasters(1),
-         obFifoSlave  => dmaObSlaves(1),
-         -- IB Stream
-         ibFifoSlave  => dmaIbSlaves(1),
-         ibFifoMaster => dmaIbMasters(1));
+--    U_DmaXvc : entity work.DmaXvcWrapper
+--       generic map(
+--          TPD_G          => TPD_G,
+--          COMMON_CLOCK_G => false,
+--          AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C)
+--       port map(
+--          -- Clock and Reset (xvcClk domain)
+--          xvcClk       => clk156,
+--          xvcRst       => rst156,
+--          -- Clock and Reset (pgpClk domain)
+--          axisClk      => dmaClk,
+--          axisRst      => dmaRst,
+--          -- OB Stream
+--          obFifoMaster => dmaObMasters(1),
+--          obFifoSlave  => dmaObSlaves(1),
+--          -- IB Stream
+--          ibFifoSlave  => dmaIbSlaves(1),
+--          ibFifoMaster => dmaIbMasters(1));
 
 end top_level;
