@@ -28,131 +28,109 @@ set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_0]
 set_property C_TRIGIN_EN false [get_debug_cores u_ila_0]
 set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
 set_property C_ADV_TRIGGER false [get_debug_cores u_ila_0]
-set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_0]
+set_property C_INPUT_PIPE_STAGES 1 [get_debug_cores u_ila_0]
 set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
-startgroup 
-set_property C_EN_STRG_QUAL true [get_debug_cores u_ila_0 ]
-set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0 ]
-set_property ALL_PROBE_SAME_MU_CNT 2 [get_debug_cores u_ila_0 ]
-endgroup
 create_debug_core u_ila_1 ila
 set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_1]
 set_property C_TRIGIN_EN false [get_debug_cores u_ila_1]
 set_property C_TRIGOUT_EN false [get_debug_cores u_ila_1]
 set_property C_ADV_TRIGGER false [get_debug_cores u_ila_1]
-set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_1]
+set_property C_INPUT_PIPE_STAGES 1 [get_debug_cores u_ila_1]
 set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_1]
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_1]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_1]
-startgroup 
-set_property C_EN_STRG_QUAL true [get_debug_cores u_ila_1 ]
-set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_1 ]
-set_property ALL_PROBE_SAME_MU_CNT 2 [get_debug_cores u_ila_1 ]
-endgroup
 create_debug_core u_ila_2 ila
 set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_2]
 set_property C_TRIGIN_EN false [get_debug_cores u_ila_2]
 set_property C_TRIGOUT_EN false [get_debug_cores u_ila_2]
 set_property C_ADV_TRIGGER false [get_debug_cores u_ila_2]
-set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_2]
+set_property C_INPUT_PIPE_STAGES 1 [get_debug_cores u_ila_2]
 set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_2]
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_2]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_2]
-startgroup 
-set_property C_EN_STRG_QUAL true [get_debug_cores u_ila_2 ]
-set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_2 ]
-set_property ALL_PROBE_SAME_MU_CNT 2 [get_debug_cores u_ila_2 ]
-endgroup
-
-connect_debug_port u_ila_1/clk [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/pgpRxClk} ]]
-connect_debug_port u_ila_2/clk [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/pgpTxClk} ]]
-connect_debug_port u_ila_0/clk [get_nets [list {U_axilClk/clkOut[0]} ]]
-
-connect_debug_port dbg_hub/clk [get_nets [list {U_axilClk/clkOut[0]} ]]
-
-set_property port_width 1 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/clk [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/pgpTxClk} ]]
+connect_debug_port u_ila_1/clk [get_nets [list {U_axilClk/clkOut[0]} ]]
+connect_debug_port u_ila_2/clk [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/pgpRxClk} ]]
+set_property port_width 16 [get_debug_ports u_ila_0/probe0]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
-connect_debug_port u_ila_0/probe0 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_reset_all_in[0]} ]]
-create_debug_port u_ila_0 probe
-set_property port_width 1 [get_debug_ports u_ila_0/probe1]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
-connect_debug_port u_ila_0/probe1 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_reset_rx_datapath_in[0]} ]]
-create_debug_port u_ila_0 probe
-set_property port_width 1 [get_debug_ports u_ila_0/probe2]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
-connect_debug_port u_ila_0/probe2 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_reset_rx_cdr_stable_out[0]} ]]
-create_debug_port u_ila_0 probe
-set_property port_width 1 [get_debug_ports u_ila_0/probe3]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_reset_tx_datapath_in[0]} ]]
-create_debug_port u_ila_0 probe
-set_property port_width 1 [get_debug_ports u_ila_0/probe4]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
-connect_debug_port u_ila_0/probe4 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxReset} ]]
-create_debug_port u_ila_0 probe
-set_property port_width 1 [get_debug_ports u_ila_0/probe5]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
-connect_debug_port u_ila_0/probe5 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/stableRst} ]]
-create_debug_port u_ila_0 probe
-set_property port_width 1 [get_debug_ports u_ila_0/probe6]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
-connect_debug_port u_ila_0/probe6 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txReset} ]]
+connect_debug_port u_ila_0/probe0 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[1]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[2]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[3]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[4]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[5]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[6]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[7]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[8]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[9]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[10]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[11]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[12]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[13]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[14]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtwiz_userdata_tx_in[15]} ]]
 set_property port_width 1 [get_debug_ports u_ila_1/probe0]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe0]
-connect_debug_port u_ila_1/probe0 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_reset_rx_done_out[0]} ]]
+connect_debug_port u_ila_1/probe0 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/rxbufreset_in[0]} ]]
 create_debug_port u_ila_1 probe
 set_property port_width 1 [get_debug_ports u_ila_1/probe1]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe1]
-connect_debug_port u_ila_1/probe1 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/txpmaresetdone_out[0]} ]]
+connect_debug_port u_ila_1/probe1 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/rxresetdone_out[0]} ]]
 create_debug_port u_ila_1 probe
-set_property port_width 16 [get_debug_ports u_ila_1/probe2]
+set_property port_width 3 [get_debug_ports u_ila_1/probe2]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe2]
-connect_debug_port u_ila_1/probe2 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[1]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[2]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[3]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[4]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[5]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[6]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[7]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[8]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[9]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[10]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[11]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[12]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[13]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[14]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxData[15]} ]]
+connect_debug_port u_ila_1/probe2 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/loopback_in[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/loopback_in[1]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/loopback_in[2]} ]]
 create_debug_port u_ila_1 probe
-set_property port_width 2 [get_debug_ports u_ila_1/probe3]
+set_property port_width 1 [get_debug_ports u_ila_1/probe3]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe3]
-connect_debug_port u_ila_1/probe3 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxDataK[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxDataK[1]} ]]
+connect_debug_port u_ila_1/probe3 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/txresetdone_out[0]} ]]
 create_debug_port u_ila_1 probe
-set_property port_width 2 [get_debug_ports u_ila_1/probe4]
+set_property port_width 1 [get_debug_ports u_ila_1/probe4]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe4]
-connect_debug_port u_ila_1/probe4 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxDispErr[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxDispErr[1]} ]]
+connect_debug_port u_ila_1/probe4 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/rxresetdone_out[0]} ]]
 create_debug_port u_ila_1 probe
-set_property port_width 2 [get_debug_ports u_ila_1/probe5]
+set_property port_width 1 [get_debug_ports u_ila_1/probe5]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe5]
-connect_debug_port u_ila_1/probe5 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxDecErr[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxDecErr[1]} ]]
+connect_debug_port u_ila_1/probe5 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/txresetdone_out[0]} ]]
 create_debug_port u_ila_1 probe
-set_property port_width 1 [get_debug_ports u_ila_1/probe6]
+set_property port_width 3 [get_debug_ports u_ila_1/probe6]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe6]
-connect_debug_port u_ila_1/probe6 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtpowergood_out[0]} ]]
+connect_debug_port u_ila_1/probe6 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST_3[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST_3[1]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST_3[2]} ]]
 create_debug_port u_ila_1 probe
-set_property port_width 16 [get_debug_ports u_ila_1/probe7]
+set_property port_width 1 [get_debug_ports u_ila_1/probe7]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe7]
-connect_debug_port u_ila_1/probe7 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[1]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[2]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[3]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[4]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[5]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[6]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[7]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[8]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[9]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[10]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[11]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[12]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[13]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[14]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_rx_out[15]} ]]
+connect_debug_port u_ila_1/probe7 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gen_gtwizard_gtye4.gtrxreset_int} ]]
 create_debug_port u_ila_1 probe
 set_property port_width 1 [get_debug_ports u_ila_1/probe8]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe8]
-connect_debug_port u_ila_1/probe8 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/rxResetDone} ]]
-set_property port_width 2 [get_debug_ports u_ila_2/probe0]
+connect_debug_port u_ila_1/probe8 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gen_gtwizard_gtye4.rxprogdivreset_int} ]]
+create_debug_port u_ila_1 probe
+set_property port_width 1 [get_debug_ports u_ila_1/probe9]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe9]
+connect_debug_port u_ila_1/probe9 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gen_gtwizard_gtye4.rxuserrdy_int} ]]
+create_debug_port u_ila_1 probe
+set_property port_width 1 [get_debug_ports u_ila_1/probe10]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe10]
+connect_debug_port u_ila_1/probe10 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/GTYE4_TXPROGDIVRESET_OUT} ]]
+set_property port_width 1 [get_debug_ports u_ila_2/probe0]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe0]
-connect_debug_port u_ila_2/probe0 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txDataK[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txDataK[1]} ]]
+connect_debug_port u_ila_2/probe0 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/rxpmaresetdone_out[0]} ]]
 create_debug_port u_ila_2 probe
-set_property port_width 16 [get_debug_ports u_ila_2/probe1]
+set_property port_width 1 [get_debug_ports u_ila_2/probe1]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe1]
-connect_debug_port u_ila_2/probe1 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[1]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[2]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[3]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[4]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[5]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[6]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[7]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[8]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[9]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[10]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[11]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[12]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[13]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[14]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txData[15]} ]]
+connect_debug_port u_ila_2/probe1 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/TXRATE[0]} ]]
 create_debug_port u_ila_2 probe
-set_property port_width 16 [get_debug_ports u_ila_2/probe2]
+set_property port_width 1 [get_debug_ports u_ila_2/probe2]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe2]
-connect_debug_port u_ila_2/probe2 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[0]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[1]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[2]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[3]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[4]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[5]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[6]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[7]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[8]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[9]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[10]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[11]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[12]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[13]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[14]} {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_userdata_tx_in[15]} ]]
+connect_debug_port u_ila_2/probe2 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/rxcommadet_out[0]} ]]
 create_debug_port u_ila_2 probe
 set_property port_width 1 [get_debug_ports u_ila_2/probe3]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe3]
-connect_debug_port u_ila_2/probe3 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_reset_tx_done_out[0]} ]]
+connect_debug_port u_ila_2/probe3 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/rxpmaresetdone_out[0]} ]]
 create_debug_port u_ila_2 probe
 set_property port_width 1 [get_debug_ports u_ila_2/probe4]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe4]
-connect_debug_port u_ila_2/probe4 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/txResetDone} ]]
+connect_debug_port u_ila_2/probe4 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/txpmaresetdone_out[0]} ]]
+create_debug_port u_ila_2 probe
+set_property port_width 1 [get_debug_ports u_ila_2/probe5]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe5]
+connect_debug_port u_ila_2/probe5 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/txpmaresetdone_out[0]} ]]
+create_debug_port u_ila_2 probe
+set_property port_width 1 [get_debug_ports u_ila_2/probe6]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe6]
+connect_debug_port u_ila_2/probe6 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gen_gtwizard_gtye4.gtpowergood_int} ]]
+create_debug_port u_ila_2 probe
+set_property port_width 1 [get_debug_ports u_ila_2/probe7]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe7]
+connect_debug_port u_ila_2/probe7 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/inst/gen_gtwizard_gtye4_top.PgpGtyCore_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[1].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gen_gtwizard_gtye4.gttxreset_ch_int} ]]
+
 
 
 ###############################
