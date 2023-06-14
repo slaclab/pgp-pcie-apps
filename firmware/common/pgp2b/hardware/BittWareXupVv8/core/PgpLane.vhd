@@ -251,21 +251,24 @@ begin
          axilWriteMaster => axilWriteMasters(CTRL_INDEX_C),
          axilWriteSlave  => axilWriteSlaves(CTRL_INDEX_C));
 
-   U_RstSync_Tx : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => pgpTxClk,          -- [in]
-         asyncRst => txUserRst,         -- [in]
-         syncRst  => pgpTxRst);         -- [out]
+--    U_RstSync_Tx : entity surf.RstSync
+--       generic map (
+--          TPD_G => TPD_G)
+--       port map (
+--          clk      => pgpTxClk,          -- [in]
+--          asyncRst => txUserRst,         -- [in]
+--          syncRst  => pgpTxRst);         -- [out]
 
-   U_RstSync_Rx : entity surf.RstSync
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk      => pgpRxClk,          -- [in]
-         asyncRst => rxUserRst,         -- [in]
-         syncRst  => pgpRxRst);         -- [out]
+--    U_RstSync_Rx : entity surf.RstSync
+--       generic map (
+--          TPD_G => TPD_G)
+--       port map (
+--          clk      => pgpRxClk,          -- [in]
+--          asyncRst => rxUserRst,         -- [in]
+--          syncRst  => pgpRxRst);         -- [out]
+
+   pgpTxRst <= '0';
+   pgpRxRst <= '0';
 
 
    --------------
