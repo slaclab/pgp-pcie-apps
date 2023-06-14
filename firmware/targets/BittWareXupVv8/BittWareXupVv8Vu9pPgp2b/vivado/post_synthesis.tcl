@@ -65,9 +65,13 @@ set_property C_EN_STRG_QUAL true [get_debug_cores u_ila_2 ]
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_2 ]
 set_property ALL_PROBE_SAME_MU_CNT 2 [get_debug_cores u_ila_2 ]
 endgroup
-connect_debug_port u_ila_0/clk [get_nets [list {U_axilClk/clkOut[0]} ]]
+
 connect_debug_port u_ila_1/clk [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/pgpRxClk} ]]
 connect_debug_port u_ila_2/clk [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/pgpTxClk} ]]
+connect_debug_port u_ila_0/clk [get_nets [list {U_axilClk/clkOut[0]} ]]
+
+connect_debug_port dbg_hub/clk [get_nets [list {U_axilClk/clkOut[0]} ]]
+
 set_property port_width 1 [get_debug_ports u_ila_0/probe0]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
 connect_debug_port u_ila_0/probe0 [get_nets [list {U_Hardware_1/U_PgpLaneWrapper_1/GEN_QUAD[0].GEN_LANE[0].U_Lane/U_Pgp/PgpGtyCoreWrapper_1/U_PgpGtyCore/gtwiz_reset_all_in[0]} ]]
