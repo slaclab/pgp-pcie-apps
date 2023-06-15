@@ -37,7 +37,8 @@ set_clock_groups -asynchronous \
     -group [get_clocks -of_objects [get_pins -hier * -filter {name=~U_Hardware_1/*/RXOUTCLK}]] \
     -group [get_clocks -of_objects [get_pins -hier * -filter {name=~U_Hardware_1/*/TXOUTCLK}]] \
     -group [get_clocks -of_objects [get_pins -hier * -filter {name=~U_Hardware_1/*/TXOUTCLKPCS}]]  \
-    -group [get_clocks axilClk]
+    -group [get_clocks axilClk] \
+    -group [get_clocks xvcClk]
 
 set_clock_groups -asynchronous \
     -group [get_clocks axilClk] \
