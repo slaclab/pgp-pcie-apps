@@ -107,7 +107,30 @@ architecture mapping of PgpLane is
    signal txUserRst : sl;
    signal rxUserRst : sl;
 
+   signal wdtRst  : sl;
+   signal locRxIn : Pgp2bRxInType := PGP2B_RX_IN_INIT_C;
+   signal locTxIn : Pgp2bTxInType := PGP2B_TX_IN_INIT_C;
+
 begin
+
+   U_Wtd : entity surf.WatchDogRst
+      generic map(
+         TPD_G      => TPD_G,
+         DURATION_G => getTimeRatio(AXI_CLK_FREQ_G, 0.2))  -- 5 s timeout
+      port map (
+         clk    => axilClk,
+         monIn  => pgpRxOut.remLinkReady,
+         rstOut => wdtRst);
+
+   U_PwrUpRst : entity surf.PwrUpRst
+      generic map (
+         TPD_G         => TPD_G,
+         SIM_SPEEDUP_G => ROGUE_SIM_EN_G,
+         DURATION_G    => getTimeRatio(AXI_CLK_FREQ_G, 10.0))  -- 100 ms reset pulse
+      port map (
+         clk    => axilClk,
+         arst   => wdtRst,
+         rstOut => locRxIn.resetRx);
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -210,19 +233,21 @@ begin
          COMMON_RX_CLK_G    => false,
          WRITE_EN_G         => true,
          AXI_CLK_FREQ_G     => AXI_CLK_FREQ_G,
-         STATUS_CNT_WIDTH_G => 16,
-         ERROR_CNT_WIDTH_G  => 16)
+         STATUS_CNT_WIDTH_G => 12,
+         ERROR_CNT_WIDTH_G  => 18)
       port map (
          -- TX PGP Interface (pgpTxClk)
          pgpTxClk        => pgpTxClk,
          pgpTxClkRst     => pgpTxRst,
          pgpTxIn         => pgpTxIn,
          pgpTxOut        => pgpTxOut,
+         locTxIn         => locTxIn,
          -- RX PGP Interface (pgpRxClk)
          pgpRxClk        => pgpRxClk,
          pgpRxClkRst     => pgpRxRst,
          pgpRxIn         => pgpRxIn,
          pgpRxOut        => pgpRxOut,
+         locRxIn         => locRxIn,
          -- AXI-Lite Register Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
@@ -234,22 +259,22 @@ begin
    ------------
    -- Misc Core
    ------------
-   U_PgpMiscCtrl : entity work.PgpMiscCtrl
-      generic map (
-         TPD_G         => TPD_G,
-         SIM_SPEEDUP_G => SIM_SPEEDUP_G)
-      port map (
-         -- Control/Status  (axilClk domain)
-         config          => config,
-         txUserRst       => txUserRst,
-         rxUserRst       => rxUserRst,
-         -- AXI Lite interface
-         axilClk         => axilClk,
-         axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(CTRL_INDEX_C),
-         axilReadSlave   => axilReadSlaves(CTRL_INDEX_C),
-         axilWriteMaster => axilWriteMasters(CTRL_INDEX_C),
-         axilWriteSlave  => axilWriteSlaves(CTRL_INDEX_C));
+--    U_PgpMiscCtrl : entity work.PgpMiscCtrl
+--       generic map (
+--          TPD_G         => TPD_G,
+--          SIM_SPEEDUP_G => SIM_SPEEDUP_G)
+--       port map (
+--          -- Control/Status  (axilClk domain)
+--          config          => config,
+--          txUserRst       => txUserRst,
+--          rxUserRst       => rxUserRst,
+--          -- AXI Lite interface
+--          axilClk         => axilClk,
+--          axilRst         => axilRst,
+--          axilReadMaster  => axilReadMasters(CTRL_INDEX_C),
+--          axilReadSlave   => axilReadSlaves(CTRL_INDEX_C),
+--          axilWriteMaster => axilWriteMasters(CTRL_INDEX_C),
+--          axilWriteSlave  => axilWriteSlaves(CTRL_INDEX_C));
 
 --    U_RstSync_Tx : entity surf.RstSync
 --       generic map (
