@@ -107,7 +107,7 @@ begin
          NUM_CLOCKS_G      => 2,
          -- MMCM attributes
          BANDWIDTH_G       => "OPTIMIZED",
-         CLKIN_PERIOD_G    => 10.0,       -- 100 MHz
+         CLKIN_PERIOD_G    => 10.0,     -- 100 MHz
          CLKFBOUT_MULT_G   => 14,       -- 1GHz = 10 x 100 MHz
          CLKOUT0_DIVIDE_G  => 11,       -- 125MHz = 1GHz/8
          CLKOUT1_DIVIDE_G  => 9)
@@ -158,8 +158,8 @@ begin
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk          => axilClk,
-         appRst          => axilRst,
+         appClk          => clk156,
+         appRst          => rst156,
          appReadMaster   => axilReadMaster,
          appReadSlave    => axilReadSlave,
          appWriteMaster  => axilWriteMaster,
@@ -187,11 +187,11 @@ begin
          SIM_SPEEDUP_G     => SIM_SPEEDUP_G,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          PGP_QUADS_G       => PGP_QUADS_G,
-         AXI_CLK_FREQ_G    => 125.0e6,
+         AXI_CLK_FREQ_G    => 156.25e6,
          AXI_BASE_ADDR_G   => X"0080_0000")
       port map (
-         axilClk         => axilClk,          -- [in]
-         axilRst         => axilRst,          -- [in]
+         axilClk         => clk156,           -- [in]
+         axilRst         => rst156,           -- [in]
          axilReadMaster  => axilReadMaster,   -- [in]
          axilReadSlave   => axilReadSlave,    -- [out]
          axilWriteMaster => axilWriteMaster,  -- [in]
