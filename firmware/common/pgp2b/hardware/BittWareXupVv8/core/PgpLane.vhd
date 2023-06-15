@@ -125,7 +125,7 @@ begin
    U_PwrUpRst : entity surf.PwrUpRst
       generic map (
          TPD_G         => TPD_G,
-         SIM_SPEEDUP_G => ROGUE_SIM_EN_G,
+         SIM_SPEEDUP_G => false,
          DURATION_G    => getTimeRatio(AXI_CLK_FREQ_G, 10.0))  -- 100 ms reset pulse
       port map (
          clk    => axilClk,
