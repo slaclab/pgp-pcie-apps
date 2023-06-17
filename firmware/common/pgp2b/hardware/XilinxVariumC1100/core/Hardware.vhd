@@ -1,5 +1,4 @@
 -------------------------------------------------------------------------------
--- File       : Hardware.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
 -- Description: Hardware File
@@ -23,7 +22,7 @@ use surf.StdRtlPkg.all;
 use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
-use surf.Pgp2bPkg.all;
+use surf.Pgp4Pkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -59,15 +58,15 @@ entity Hardware is
       --  Hardware Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP    : in  slv(1 downto 0);
-      qsfp0RefClkN    : in  slv(1 downto 0);
+      qsfp0RefClkP    : in  sl;
+      qsfp0RefClkN    : in  sl;
       qsfp0RxP        : in  slv(3 downto 0);
       qsfp0RxN        : in  slv(3 downto 0);
       qsfp0TxP        : out slv(3 downto 0);
       qsfp0TxN        : out slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP    : in  slv(1 downto 0);
-      qsfp1RefClkN    : in  slv(1 downto 0);
+      qsfp1RefClkP    : in  sl;
+      qsfp1RefClkN    : in  sl;
       qsfp1RxP        : in  slv(3 downto 0);
       qsfp1RxN        : in  slv(3 downto 0);
       qsfp1TxP        : out slv(3 downto 0);
@@ -84,24 +83,20 @@ begin
    U_Pgp : entity work.PgpLaneWrapper
       generic map (
          TPD_G             => TPD_G,
-         REFCLK_WIDTH_G    => 2,
+         REFCLK_WIDTH_G    => 1,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          AXI_BASE_ADDR_G   => AXI_BASE_ADDR_G)
       port map (
          -- QSFP[0] Ports
-         qsfp0RefClkP(0) => qsfp0RefClkP(1),  -- 156.25 MHz clock mapped to qsfp0RefClkP(0) in wrapper
-         qsfp0RefClkP(1) => qsfp0RefClkP(0),
-         qsfp0RefClkN(0) => qsfp0RefClkN(1),
-         qsfp0RefClkN(1) => qsfp0RefClkN(0),
+         qsfp0RefClkP(0) => qsfp0RefClkP,
+         qsfp0RefClkN(0) => qsfp0RefClkN,
          qsfp0RxP        => qsfp0RxP,
          qsfp0RxN        => qsfp0RxN,
          qsfp0TxP        => qsfp0TxP,
          qsfp0TxN        => qsfp0TxN,
          -- QSFP[1] Ports
-         qsfp1RefClkP(0) => qsfp1RefClkP(1),  -- 156.25 MHz clock mapped to qsfp1RefClkP(0) in wrapper
-         qsfp1RefClkP(1) => qsfp1RefClkP(0),
-         qsfp1RefClkN(0) => qsfp1RefClkN(1),
-         qsfp1RefClkN(1) => qsfp1RefClkN(0),
+         qsfp1RefClkP(0) => qsfp1RefClkP, 
+         qsfp1RefClkN(0) => qsfp1RefClkN,
          qsfp1RxP        => qsfp1RxP,
          qsfp1RxN        => qsfp1RxN,
          qsfp1TxP        => qsfp1TxP,

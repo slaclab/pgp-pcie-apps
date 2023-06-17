@@ -6,4 +6,4 @@ loadConstraints -dir  "$::DIR_PATH/xdc"
 loadIpCore      -path "$::DIR_PATH/ip/Pgp2bGtp7Drp.xci"
 
 # Load shared source code
-loadRuckusTcl "$::DIR_PATH/../../shared"
+loadSource -dir "$::DIR_PATH/../../shared/rtl"
