@@ -94,6 +94,14 @@ parser.add_argument(
     help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or SlacPgpCardG4, Kcu1500, etc]",
 )
 
+parser.add_argument(
+    "--prbsWidth",
+    type     = int,
+    required = False,
+    default  = 64,
+    help     = "# of DMA Lanes",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -158,12 +166,20 @@ class MyRoot(pr.Root):
             for vc in range(args.numVc):
 
                 # Connect the SW PRBS Receiver module
-                self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(name=('SwPrbsRx[%d][%d]'%(lane,vc)),expand=True)
+                self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
+                    name   = f'SwPrbsRx[{lane}][{vc}]',
+                    width  = args.prbsWidth,
+                    expand = True,
+                )
                 self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                 self.add(self.prbsRx[lane][vc])
 
                 # Connect the SW PRBS Transmitter module
-                self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(name=('SwPrbsTx[%d][%d]'%(lane,vc)),expand=True)
+                self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
+                    name   = f'SwPrbsTx[{lane}][{vc}]',
+                    width  = args.prbsWidth,
+                    expand = True,
+                )
                 self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
                 self.add(self.prbTx[lane][vc])
 
