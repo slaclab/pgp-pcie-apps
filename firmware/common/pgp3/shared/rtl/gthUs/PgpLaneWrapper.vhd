@@ -1,8 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : PgpLaneWrapper.vhd
 -- Company    : SLAC National Accelerator Laboratory
--------------------------------------------------------------------------------
--- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
 -- It is subject to the license terms in the LICENSE.txt file found in the
@@ -53,6 +50,13 @@ entity PgpLaneWrapper is
       qsfp1RxN        : in  slv(3 downto 0);
       qsfp1TxP        : out slv(3 downto 0);
       qsfp1TxN        : out slv(3 downto 0);
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpClkOut       : out slv(7 downto 0);
+      pgpRstOut       : out slv(7 downto 0);
+      pgpRxIn         : in  Pgp3RxInArray(7 downto 0) := (others => PGP3_RX_IN_INIT_C);
+      pgpRxOut        : out Pgp3RxOutArray(7 downto 0);
+      pgpTxIn         : in  Pgp3TxInArray(7 downto 0) := (others => PGP3_TX_IN_INIT_C);
+      pgpTxOut        : out Pgp3TxOutArray(7 downto 0);
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
@@ -210,6 +214,13 @@ begin
             pgpRxN          => pgpRxN(i),
             pgpTxP          => pgpTxP(i),
             pgpTxN          => pgpTxN(i),
+            -- Non-VC Interface (pgpClkOut domain)
+            pgpClkOut       => pgpClkOut(i),
+            pgpRstOut       => pgpRstOut(i),
+            pgpRxIn         => pgpRxIn(i),
+            pgpRxOut        => pgpRxOut(i),
+            pgpTxIn         => pgpTxIn(i),
+            pgpTxOut        => pgpTxOut(i),
             -- DMA Interface (dmaClk domain)
             dmaClk          => dmaClk,
             dmaRst          => dmaRst,

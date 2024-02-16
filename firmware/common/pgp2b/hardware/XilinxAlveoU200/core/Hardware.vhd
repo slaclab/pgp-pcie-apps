@@ -55,6 +55,15 @@ entity Hardware is
       dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
       dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpRxClkOut     : out slv(7 downto 0);
+      pgpRxRstOut     : out slv(7 downto 0);
+      pgpRxIn         : in  Pgp2bRxInArray(7 downto 0) := (others => PGP2B_RX_IN_INIT_C);
+      pgpRxOut        : out Pgp2bRxOutArray(7 downto 0);
+      pgpTxClkOut     : out slv(7 downto 0);
+      pgpTxRstOut     : out slv(7 downto 0);
+      pgpTxIn         : in  Pgp2bTxInArray(7 downto 0) := (others => PGP2B_TX_IN_INIT_C);
+      pgpTxOut        : out Pgp2bTxOutArray(7 downto 0);
       ---------------------
       --  Hardware Ports
       ---------------------
@@ -114,6 +123,15 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
+         -- Non-VC Interface (pgpClkOut domain)
+         pgpRxClkOut     => pgpRxClkOut,
+         pgpRxRstOut     => pgpRxRstOut,
+         pgpRxIn         => pgpRxIn,
+         pgpRxOut        => pgpRxOut,
+         pgpTxClkOut     => pgpTxClkOut,
+         pgpTxRstOut     => pgpTxRstOut,
+         pgpTxIn         => pgpTxIn,
+         pgpTxOut        => pgpTxOut,
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,

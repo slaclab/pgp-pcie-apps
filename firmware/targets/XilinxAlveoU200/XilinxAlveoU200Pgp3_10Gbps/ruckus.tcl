@@ -4,6 +4,7 @@ source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
 # Load common and sub-module ruckus.tcl files
 loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/surf
 loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/XilinxAlveoU200
+loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/XilinxAlveoU200/ddr
 loadRuckusTcl $::env(PROJ_DIR)/../../../common/pgp3/hardware/XilinxAlveoU200
 
 # Load local source Code and constraints

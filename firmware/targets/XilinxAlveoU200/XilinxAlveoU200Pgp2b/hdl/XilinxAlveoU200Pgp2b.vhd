@@ -21,6 +21,7 @@ use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
 use surf.SsiPkg.all;
+use surf.Pgp2bPkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -141,6 +142,8 @@ architecture top_level of XilinxAlveoU200Pgp2b is
    signal ddrReadSlaves   : AxiReadSlaveArray(3 downto 0);
 
    signal eventTrigMsgCtrl : AxiStreamCtrlArray(7 downto 0) := (others => AXI_STREAM_CTRL_UNUSED_C);
+   signal pgpClkOut        : slv(7 downto 0);
+   signal pgpTxIn          : Pgp2bTxInArray(7 downto 0)     := (others => PGP2B_TX_IN_INIT_C);
 
 begin
 
@@ -298,6 +301,16 @@ begin
          ddrReadMasters   => ddrReadMasters,
          ddrReadSlaves    => ddrReadSlaves);
 
+   GEN_LANE : for i in 7 downto 0 generate
+      U_remoteDmaPause : entity surf.Synchronizer
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            clk     => pgpClkOut(i),
+            dataIn  => eventTrigMsgCtrl(i).pause,
+            dataOut => pgpTxIn(i).locData(0));
+   end generate;
+
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
@@ -321,6 +334,9 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => buffIbMasters,
          dmaIbSlaves     => buffIbSlaves,
+         -- Non-VC Interface (pgpClkOut domain)
+         pgpTxClkOut     => pgpClkOut,
+         pgpTxIn         => pgpTxIn,
          ------------------
          --  Hardware Ports
          ------------------

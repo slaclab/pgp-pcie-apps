@@ -1,8 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : XilinxKcu1500Pgp4_6Gbps.vhd
 -- Company    : SLAC National Accelerator Laboratory
--------------------------------------------------------------------------------
--- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
 -- It is subject to the license terms in the LICENSE.txt file found in the

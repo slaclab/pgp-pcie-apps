@@ -22,7 +22,7 @@ use surf.StdRtlPkg.all;
 use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
-use surf.Pgp4Pkg.all;
+use surf.Pgp2bPkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -54,6 +54,15 @@ entity Hardware is
       dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
       dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpRxClkOut     : out slv(7 downto 0);
+      pgpRxRstOut     : out slv(7 downto 0);
+      pgpRxIn         : in  Pgp2bRxInArray(7 downto 0) := (others => PGP2B_RX_IN_INIT_C);
+      pgpRxOut        : out Pgp2bRxOutArray(7 downto 0);
+      pgpTxClkOut     : out slv(7 downto 0);
+      pgpTxRstOut     : out slv(7 downto 0);
+      pgpTxIn         : in  Pgp2bTxInArray(7 downto 0) := (others => PGP2B_TX_IN_INIT_C);
+      pgpTxOut        : out Pgp2bTxOutArray(7 downto 0);
       ---------------------
       --  Hardware Ports
       ---------------------
@@ -95,7 +104,7 @@ begin
          qsfp0TxP        => qsfp0TxP,
          qsfp0TxN        => qsfp0TxN,
          -- QSFP[1] Ports
-         qsfp1RefClkP(0) => qsfp1RefClkP, 
+         qsfp1RefClkP(0) => qsfp1RefClkP,
          qsfp1RefClkN(0) => qsfp1RefClkN,
          qsfp1RxP        => qsfp1RxP,
          qsfp1RxN        => qsfp1RxN,
@@ -109,6 +118,15 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
+         -- Non-VC Interface (pgpClkOut domain)
+         pgpRxClkOut     => pgpRxClkOut,
+         pgpRxRstOut     => pgpRxRstOut,
+         pgpRxIn         => pgpRxIn,
+         pgpRxOut        => pgpRxOut,
+         pgpTxClkOut     => pgpTxClkOut,
+         pgpTxRstOut     => pgpTxRstOut,
+         pgpTxIn         => pgpTxIn,
+         pgpTxOut        => pgpTxOut,
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,

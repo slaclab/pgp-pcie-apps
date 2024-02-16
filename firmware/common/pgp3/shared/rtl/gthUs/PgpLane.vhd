@@ -1,8 +1,5 @@
 -------------------------------------------------------------------------------
--- File       : PgpLane.vhd
 -- Company    : SLAC National Accelerator Laboratory
--------------------------------------------------------------------------------
--- Description:
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
 -- It is subject to the license terms in the LICENSE.txt file found in the
@@ -46,6 +43,13 @@ entity PgpLane is
       pgpTxN          : out sl;
       pgpRxP          : in  sl;
       pgpRxN          : in  sl;
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpClkOut       : out sl;
+      pgpRstOut       : out sl;
+      pgpRxIn         : in  Pgp3RxInType := PGP3_RX_IN_INIT_C;
+      pgpRxOut        : out Pgp3RxOutType;
+      pgpTxIn         : in  Pgp3TxInType := PGP3_TX_IN_INIT_C;
+      pgpTxOut        : out Pgp3TxOutType;
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
@@ -89,15 +93,20 @@ architecture mapping of PgpLane is
    signal pgpClk : sl;
    signal pgpRst : sl;
 
-   signal pgpTxOut     : Pgp3TxOutType;
+   signal pgpTxOut_s   : Pgp3TxOutType;
    signal pgpTxMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal pgpTxSlaves  : AxiStreamSlaveArray(NUM_VC_G-1 downto 0);
 
-   signal pgpRxOut     : Pgp3RxOutType;
+   signal pgpRxOut_s   : Pgp3RxOutType;
    signal pgpRxMasters : AxiStreamMasterArray(NUM_VC_G-1 downto 0);
    signal pgpRxCtrl    : AxiStreamCtrlArray(NUM_VC_G-1 downto 0);
 
 begin
+
+   pgpClkOut <= pgpClk;
+   pgpRstOut <= pgpRst;
+   pgpRxOut  <= pgpRxOut_s;
+   pgpTxOut  <= pgpTxOut_s;
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -150,11 +159,11 @@ begin
          pgpClk          => pgpClk,
          pgpClkRst       => pgpRst,
          -- Non VC Rx Signals
-         pgpRxIn         => PGP3_RX_IN_INIT_C,
-         pgpRxOut        => pgpRxOut,
+         pgpRxIn         => pgpRxIn,
+         pgpRxOut        => pgpRxOut_s,
          -- Non VC Tx Signals
-         pgpTxIn         => PGP3_TX_IN_INIT_C,
-         pgpTxOut        => pgpTxOut,
+         pgpTxIn         => pgpTxIn,
+         pgpTxOut        => pgpTxOut_s,
          -- Frame Transmit Interface
          pgpTxMasters    => pgpTxMasters,
          pgpTxSlaves     => pgpTxSlaves,
@@ -186,8 +195,8 @@ begin
          -- PGP Interface
          pgpClk       => pgpClk,
          pgpRst       => pgpRst,
-         rxlinkReady  => pgpRxOut.linkReady,
-         txlinkReady  => pgpTxOut.linkReady,
+         rxlinkReady  => pgpRxOut_s.linkReady,
+         txlinkReady  => pgpTxOut_s.linkReady,
          pgpTxMasters => pgpTxMasters,
          pgpTxSlaves  => pgpTxSlaves);
 
@@ -210,7 +219,7 @@ begin
          -- PGP RX Interface (pgpRxClk domain)
          pgpClk          => pgpClk,
          pgpRst          => pgpRst,
-         rxlinkReady     => pgpRxOut.linkReady,
+         rxlinkReady     => pgpRxOut_s.linkReady,
          pgpRxMasters    => pgpRxMasters,
          pgpRxCtrl       => pgpRxCtrl);
 
