@@ -4,7 +4,7 @@ export PRJ_PART = XCKU085-FLVB1760-2-E
 # Define target output
 target: prom
 
-# Using a non-standard target directory structure, 
+# Using a non-standard target directory structure,
 # which requires me to define the TOP_DIR path
 export TOP_DIR = $(abspath $(PWD)/../../..)
 
