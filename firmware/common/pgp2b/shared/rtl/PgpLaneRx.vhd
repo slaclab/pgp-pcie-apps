@@ -49,10 +49,11 @@ end PgpLaneRx;
 
 architecture mapping of PgpLaneRx is
 
-   signal pgpMasters : AxiStreamMasterArray(3 downto 0);
-   signal rxMasters  : AxiStreamMasterArray(3 downto 0);
-   signal rxSlaves   : AxiStreamSlaveArray(3 downto 0);
-   signal disableSel : slv(3 downto 0);
+   signal pgpMasters   : AxiStreamMasterArray(3 downto 0);
+   signal rxMasters    : AxiStreamMasterArray(3 downto 0);
+   signal rxSlaves     : AxiStreamSlaveArray(3 downto 0);
+   signal locBuffPause : slv(3 downto 0);
+   signal disableSel   : slv(3 downto 0);
 
    signal rxMaster : AxiStreamMasterType;
    signal rxSlave  : AxiStreamSlaveType;
@@ -129,13 +130,14 @@ begin
          mAxisMaster  => rxMaster,
          mAxisSlave   => rxSlave);
 
+   locBuffPause <= dmaBuffGrpPause(3 downto 0) when (LANE_G mod 2 = 0) else dmaBuffGrpPause(7 downto 4);
    U_disableSel : entity surf.SynchronizerVector
       generic map (
          TPD_G   => TPD_G,
          WIDTH_G => 4)
       port map (
          clk     => pgpRxClk,
-         dataIn  => dmaBuffGrpPause(3 downto 0),
+         dataIn  => locBuffPause,
          dataOut => disableSel);
 
    ASYNC_FIFO : entity surf.AxiStreamFifoV2
@@ -143,7 +145,7 @@ begin
          -- General Configurations
          TPD_G               => TPD_G,
          INT_PIPE_STAGES_G   => 1,
-         PIPE_STAGES_G       => 1,
+         PIPE_STAGES_G       => 2,
          SLAVE_READY_EN_G    => true,
          VALID_THOLD_G       => 1,
          -- FIFO configurations

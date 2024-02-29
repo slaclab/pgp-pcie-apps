@@ -7,11 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import pyrogue as pr
-import os
 
-top_level = os.path.realpath(__file__).split('software')[0]
-
-pr.addLibraryPath(top_level+'firmware/submodules/axi-pcie-core/python')
-pr.addLibraryPath(top_level+'firmware/submodules/surf/python')
-pr.addLibraryPath(top_level+'firmware/python')
+set format     "mcs"
+set inteface   "SPIx4"
+set size       "1024"
+set loadbit    "up 0x01002000 ${inputFile}"

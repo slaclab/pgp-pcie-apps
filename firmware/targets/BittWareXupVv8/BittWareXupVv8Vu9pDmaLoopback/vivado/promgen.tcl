@@ -8,4 +8,6 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/PllGen.U_Pll/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_Core/REAL_PCIE.U_AxiPciePhy/U_AxiPcie/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
+set format     "mcs"
+set inteface   "SPIx4"
+set size       "2048"

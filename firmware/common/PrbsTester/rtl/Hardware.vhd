@@ -32,14 +32,20 @@ use unisim.vcomponents.all;
 
 entity Hardware is
    generic (
-      TPD_G             : time                    := 1 ns;
-      DMA_SIZE_G        : positive                := 1;
-      NUM_VC_G          : positive                := 1;
-      PRBS_SEED_SIZE_G  : natural range 32 to 512 := 32;
-      DMA_AXIS_CONFIG_G : AxiStreamConfigType;
-      AXI_BASE_ADDR_G   : slv(31 downto 0)        := x"0080_0000");
+      TPD_G                        : time                    := 1 ns;
+      TX_EN_G                      : boolean                 := true;
+      RX_EN_G                      : boolean                 := true;
+      DMA_SIZE_G                   : positive                := 1;
+      NUM_VC_G                     : positive                := 1;
+      PRBS_SEED_SIZE_G             : natural range 32 to 512 := 32;
+      PRBS_FIFO_INT_WIDTH_SELECT_G : string                  := "WIDE";
+      DMA_AXIS_CONFIG_G            : AxiStreamConfigType;
+      AXI_BASE_ADDR_G              : slv(31 downto 0)        := x"0080_0000";
+      COMMON_CLOCK_G               : boolean                 := false);
    port (
       -- AXI-Lite Interface
+      axilClk         : in  sl;
+      axilRst         : in  sl;
       axilReadMaster  : in  AxiLiteReadMasterType;
       axilReadSlave   : out AxiLiteReadSlaveType;
       axilWriteMaster : in  AxiLiteWriteMasterType;
@@ -56,20 +62,24 @@ end Hardware;
 
 architecture mapping of Hardware is
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(8 downto 0) := genAxiLiteConfig(9, AXI_BASE_ADDR_G, 20, 16);
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(DMA_SIZE_G downto 0) := genAxiLiteConfig(DMA_SIZE_G+1, AXI_BASE_ADDR_G, 20, 16);
 
-   signal axilWriteMasters : AxiLiteWriteMasterArray(8 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(8 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
-   signal axilReadMasters  : AxiLiteReadMasterArray(8 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(8 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(DMA_SIZE_G downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(DMA_SIZE_G downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
+   signal axilReadMasters  : AxiLiteReadMasterArray(DMA_SIZE_G downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(DMA_SIZE_G downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
 
    signal dmaReset  : slv(DMA_SIZE_G-1 downto 0);
+   signal axilReset : slv(DMA_SIZE_G-1 downto 0);
    signal pause     : slv(7 downto 0);
 
-   signal trig         : sl;
-   signal packetLength : slv(31 downto 0);
-   signal busyVec      : slv(DMA_SIZE_G-1 downto 0);
-   signal busy         : sl;
+   attribute dont_touch              : string;
+   attribute dont_touch of dmaReset  : signal is "true";
+   attribute dont_touch of axilReset : signal is "true";
+   signal trig                       : sl;
+   signal packetLength               : slv(31 downto 0);
+   signal busyVec                    : slv(DMA_SIZE_G-1 downto 0);
+   signal busy                       : sl;
 
 begin
 
@@ -78,13 +88,13 @@ begin
    ---------------------
    U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
-         TPD_G              => TPD_G,
-         NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => 9,
-         MASTERS_CONFIG_G   => AXI_CONFIG_C)
+         TPD_G                => TPD_G,
+         NUM_SLAVE_SLOTS_G    => 1,
+         NUM_MASTER_SLOTS_G   => DMA_SIZE_G+1,
+         MASTERS_CONFIG_G     => AXI_CONFIG_C)
       port map (
-         axiClk              => dmaClk,
-         axiClkRst           => dmaRst,
+         axiClk              => axilClk,
+         axiClkRst           => axilRst,
          sAxiWriteMasters(0) => axilWriteMaster,
          sAxiWriteSlaves(0)  => axilWriteSlave,
          sAxiReadMasters(0)  => axilReadMaster,
@@ -101,11 +111,15 @@ begin
 
       U_PrbsLane : entity work.PrbsLane
          generic map(
-            TPD_G             => TPD_G,
-            NUM_VC_G          => NUM_VC_G,
-            DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-            PRBS_SEED_SIZE_G  => PRBS_SEED_SIZE_G,
-            AXI_BASE_ADDR_G   => AXI_CONFIG_C(i).baseAddr)
+            TPD_G                        => TPD_G,
+            TX_EN_G                      => TX_EN_G,
+            RX_EN_G                      => RX_EN_G,
+            COMMON_CLOCK_G               => COMMON_CLOCK_G,
+            NUM_VC_G                     => NUM_VC_G,
+            DMA_AXIS_CONFIG_G            => DMA_AXIS_CONFIG_G,
+            PRBS_SEED_SIZE_G             => PRBS_SEED_SIZE_G,
+            PRBS_FIFO_INT_WIDTH_SELECT_G => PRBS_FIFO_INT_WIDTH_SELECT_G,
+            AXI_BASE_ADDR_G              => AXI_CONFIG_C(i+1).baseAddr)
          port map(
             -- External Trigger Interface
             trig            => trig,
@@ -120,10 +134,12 @@ begin
             dmaObMaster     => dmaObMasters(i),
             dmaObSlave      => dmaObSlaves(i),
             -- AXI-Lite Interface
-            axilReadMaster  => axilReadMasters(i),
-            axilReadSlave   => axilReadSlaves(i),
-            axilWriteMaster => axilWriteMasters(i),
-            axilWriteSlave  => axilWriteSlaves(i));
+            axilClk         => axilClk,
+            axilRst         => axilReset(i),
+            axilReadMaster  => axilReadMasters(i+1),
+            axilReadSlave   => axilReadSlaves(i+1),
+            axilWriteMaster => axilWriteMasters(i+1),
+            axilWriteSlave  => axilWriteSlaves(i+1));
 
       U_dmaRst : entity surf.RstPipeline
          generic map (
@@ -133,6 +149,14 @@ begin
             rstIn  => dmaRst,
             rstOut => dmaReset(i));
 
+      U_axilRst : entity surf.RstPipeline
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            clk    => axilClk,
+            rstIn  => axilRst,
+            rstOut => axilReset(i));
+
    end generate;
 
    -- Help with timing
@@ -140,6 +164,12 @@ begin
    begin
       if rising_edge(dmaClk) then
          pause <= dmaBuffGrpPause after TPD_G;
+      end if;
+   end process;
+
+   process(axilClk)
+   begin
+      if rising_edge(axilClk) then
          busy <= uOr(busyVec) after TPD_G;
       end if;
    end process;
@@ -153,11 +183,11 @@ begin
          packetLength    => packetLength,
          busy            => busy,
          -- AXI-Lite Interface
-         axilClk         => dmaClk,
-         axilRst         => dmaRst,
-         axilReadMaster  => axilReadMasters(8),
-         axilReadSlave   => axilReadSlaves(8),
-         axilWriteMaster => axilWriteMasters(8),
-         axilWriteSlave  => axilWriteSlaves(8));
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => axilReadMasters(0),
+         axilReadSlave   => axilReadSlaves(0),
+         axilWriteMaster => axilWriteMasters(0),
+         axilWriteSlave  => axilWriteSlaves(0));
 
 end mapping;

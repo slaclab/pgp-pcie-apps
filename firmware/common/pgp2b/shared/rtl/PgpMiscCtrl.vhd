@@ -29,7 +29,8 @@ use work.AppPkg.all;
 
 entity PgpMiscCtrl is
    generic (
-      TPD_G            : time            := 1 ns);
+      TPD_G         : time    := 1 ns;
+      SIM_SPEEDUP_G : boolean := false);
    port (
       -- Control/Status  (axilClk domain)
       config          : out ConfigType;
@@ -124,8 +125,9 @@ begin
 
    U_rxUserRst : entity surf.PwrUpRst
       generic map (
-         TPD_G       => TPD_G,
-         DURATION_G  => 125000000)
+         TPD_G         => TPD_G,
+         DURATION_G    => 125000000,
+         SIM_SPEEDUP_G => SIM_SPEEDUP_G)
       port map (
          arst   => r.rxUserRst,
          clk    => axilClk,
@@ -141,8 +143,9 @@ begin
 
    U_txUserRst : entity surf.PwrUpRst
       generic map (
-         TPD_G       => TPD_G,
-         DURATION_G  => 125000000)
+         TPD_G         => TPD_G,
+         DURATION_G    => 125000000,
+         SIM_SPEEDUP_G => SIM_SPEEDUP_G)
       port map (
          arst   => r.txUserRst,
          clk    => axilClk,
