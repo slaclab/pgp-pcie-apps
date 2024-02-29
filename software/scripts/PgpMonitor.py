@@ -159,6 +159,13 @@ class MyRoot(pr.Root):
                 memBase     = self.memMap,
                 expand      = False,
             ))
+        for lane in range(args.numLane):
+            self.add(axi.AxiStreamDmaV2Fifo(
+                name        = (f'AxiStreamDmaV2Fifo[{lane}]'),
+                offset      = (0x0010_0000 + lane*0x100),
+                memBase     = self.memMap,
+                expand      = False,
+            ))
 
 #################################################################
 

@@ -23,6 +23,7 @@ use surf.StdRtlPkg.all;
 use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
+use surf.Pgp3Pkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -55,6 +56,13 @@ entity Hardware is
       dmaObSlaves     : out AxiStreamSlaveArray(7 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(7 downto 0);
       dmaIbSlaves     : in  AxiStreamSlaveArray(7 downto 0);
+      -- Non-VC Interface (pgpClkOut domain)
+      pgpClkOut       : out slv(7 downto 0);
+      pgpRstOut       : out slv(7 downto 0);
+      pgpRxIn         : in  Pgp3RxInArray(7 downto 0) := (others => PGP3_RX_IN_INIT_C);
+      pgpRxOut        : out Pgp3RxOutArray(7 downto 0);
+      pgpTxIn         : in  Pgp3TxInArray(7 downto 0) := (others => PGP3_TX_IN_INIT_C);
+      pgpTxOut        : out Pgp3TxOutArray(7 downto 0);
       ---------------------
       --  Hardware Ports
       ---------------------
@@ -192,6 +200,13 @@ begin
             pgpRxN          => pgpRxN(i),
             pgpTxP          => pgpTxP(i),
             pgpTxN          => pgpTxN(i),
+            -- Non-VC Interface (pgpClkOut domain)
+            pgpClkOut       => pgpClkOut(i),
+            pgpRstOut       => pgpRstOut(i),
+            pgpRxIn         => pgpRxIn(i),
+            pgpRxOut        => pgpRxOut(i),
+            pgpTxIn         => pgpTxIn(i),
+            pgpTxOut        => pgpTxOut(i),
             -- DMA Interface (dmaClk domain)
             dmaClk          => dmaClk,
             dmaRst          => dmaRst,

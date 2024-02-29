@@ -1,3 +1,5 @@
+export PARALLEL_SYNTH = 1
+
 # Define target part
 export PRJ_PART = XCU200-FSGD2104-2-E
 

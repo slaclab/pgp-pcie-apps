@@ -40,7 +40,7 @@ entity PgpGtyLaneWrapper is
       RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps"
       AXI_BASE_ADDR_G   : slv(31 downto 0) := (others => '0'));
    port (
-      gtRefClk        : in  sl := '0';
+      gtRefClk        : in  sl                        := '0';
       -- QSFP[0] Ports
       qsfp0RefClkP    : in  slv(REFCLK_WIDTH_G-1 downto 0);
       qsfp0RefClkN    : in  slv(REFCLK_WIDTH_G-1 downto 0);
