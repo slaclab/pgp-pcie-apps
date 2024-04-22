@@ -198,6 +198,9 @@ class MyRoot(pr.Root):
             **kwargs):
         super().__init__(name=name, description=description, **kwargs)
 
+        self.zmqServer = pyrogue.interfaces.ZmqServer(root=self, addr='127.0.0.1', port=0)
+        self.addInterface(self.zmqServer)
+
         self._syncTrig = args.syncTrig
 
         # Create an arrays to be filled
@@ -329,6 +332,6 @@ with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
     for rx in swRxDevices:
         rx.checkPayload.set(False)
 
-    pyrogue.pydm.runPyDM(root=root)
+    pyrogue.pydm.runPyDM(serverList = root.zmqServer.address)
 
 #################################################################

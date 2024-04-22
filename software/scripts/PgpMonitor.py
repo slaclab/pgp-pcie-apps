@@ -104,6 +104,9 @@ class MyRoot(pr.Root):
             **kwargs):
         super().__init__(name=name, description=description, **kwargs)
 
+        self.zmqServer = pyrogue.interfaces.ZmqServer(root=self, addr='127.0.0.1', port=0)
+        self.addInterface(self.zmqServer)
+
         # Create PCIE memory mapped interface
         self.memMap = rogue.hardware.axi.AxiMemMap(args.dev)
 
@@ -170,6 +173,6 @@ class MyRoot(pr.Root):
 #################################################################
 
 with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
-     pyrogue.pydm.runPyDM(root=root)
+     pyrogue.pydm.runPyDM(serverList = root.zmqServer.address)
 
 #################################################################
