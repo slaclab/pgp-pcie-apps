@@ -21,7 +21,7 @@ import rogue.interfaces.memory
 import pyrogue as pr
 import pyrogue.pydm
 import pyrogue.utilities.prbs
-import pyrogue.interfaces.simulation
+import pyrogue.hardware.axi
 
 import axipcie            as pcie
 import surf.protocols.ssi as ssi
@@ -154,7 +154,7 @@ class MyRoot(pr.Root):
             offset       = 0x00000000,
             numDmaLanes  = args.numLane,
             boardType    = args.boardType,
-            expand       = True,
+            # expand       = True,
         ))
 
         self.add(pcie.TerminateQsfp(
@@ -162,7 +162,7 @@ class MyRoot(pr.Root):
             memBase      = self.memMap,
             offset       = 0x00800000,
             numRefClk    = 2,
-            expand       = True,
+            # expand       = True,
         ))
 
         for lane in range(args.numLane):
@@ -172,7 +172,7 @@ class MyRoot(pr.Root):
                 self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
                     name   = f'SwPrbsRx[{lane}][{vc}]',
                     width  = args.prbsWidth,
-                    expand = True,
+                    # expand = True,
                 )
                 self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                 self.add(self.prbsRx[lane][vc])
@@ -181,10 +181,21 @@ class MyRoot(pr.Root):
                 self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
                     name   = f'SwPrbsTx[{lane}][{vc}]',
                     width  = args.prbsWidth,
-                    expand = True,
+                    # expand = True,
                 )
                 self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
                 self.add(self.prbTx[lane][vc])
+
+        self.add(pyrogue.hardware.axi.AxiStreamDmaMon(
+            axiStreamDma = self.dmaStream[0][0],
+            expand       = True,
+        ))
+
+
+    def start(self, **kwargs):
+        super().start(**kwargs)
+        print( f'Number of RX buffers = {self.dmaStream[0][0].getRxBuffCount()}' )
+
 
 #################################################################
 
