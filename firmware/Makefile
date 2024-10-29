@@ -7,9 +7,11 @@ export TARGET_DIRS  = $(PWD)/targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b \
                       $(PWD)/targets/XilinxAlveoU200/XilinxAlveoU200Pgp2b \
                       $(PWD)/targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_6Gbps \
                       $(PWD)/targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps \
+                      $(PWD)/targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_15Gbps \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp2b \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps \
-                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_10Gbps
+                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_10Gbps \
+                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps
 
 .PHONY: all build clean
 

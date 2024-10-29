@@ -54,7 +54,11 @@ Targets:
   XilinxAlveoU200Pgp4_10Gbps:
     ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps/images
     Extensions:
-      - mcs   
+      - mcs
+  XilinxAlveoU200Pgp4_15Gbps:
+    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_15Gbps/images
+    Extensions:
+      - mcs
 ################################################################################
   XilinxVariumC1100Pgp2b:
     ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp2b/images
@@ -67,7 +71,11 @@ Targets:
   XilinxVariumC1100Pgp4_10Gbps:
     ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_10Gbps/images
     Extensions:
-      - mcs         
+      - mcs
+  XilinxVariumC1100Pgp4_15Gbps:
+    ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps/images
+    Extensions:
+      - mcs
 ################################################################################
 Releases:
   pgp_pcie_apps:
@@ -85,10 +93,12 @@ Releases:
       - XilinxAlveoU200Pgp2b
       - XilinxAlveoU200Pgp4_6Gbps
       - XilinxAlveoU200Pgp4_10Gbps
+      - XilinxAlveoU200Pgp4_15Gbps
       #######################################
       - XilinxVariumC1100Pgp2b
       - XilinxVariumC1100Pgp4_6Gbps
       - XilinxVariumC1100Pgp4_10Gbps
+      - XilinxVariumC1100Pgp4_15Gbps
       #######################################
     Types:
       - FW_only
