@@ -21,7 +21,7 @@ import rogue.interfaces.memory
 import pyrogue as pr
 import pyrogue.pydm
 import pyrogue.utilities.prbs
-import pyrogue.hardware.axi
+#import pyrogue.hardware.axi
 
 import axipcie            as pcie
 import surf.protocols.ssi as ssi
@@ -172,7 +172,7 @@ class MyRoot(pr.Root):
                 self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
                     name   = f'SwPrbsRx[{lane}][{vc}]',
                     width  = args.prbsWidth,
-                    # expand = True,
+                    expand = True,
                 )
                 self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                 self.add(self.prbsRx[lane][vc])
@@ -186,15 +186,21 @@ class MyRoot(pr.Root):
                 self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
                 self.add(self.prbTx[lane][vc])
 
-        self.add(pyrogue.hardware.axi.AxiStreamDmaMon(
-            axiStreamDma = self.dmaStream[0][0],
-            expand       = True,
-        ))
+        # self.add(pyrogue.hardware.axi.AxiStreamDmaMon(
+            # axiStreamDma = self.dmaStream[0][0],
+            # expand       = True,
+        # ))
 
 
     def start(self, **kwargs):
         super().start(**kwargs)
         print( f'Number of RX buffers = {self.dmaStream[0][0].getRxBuffCount()}' )
+
+        for lane in range(args.numLane):
+            for vc in range(args.numVc):
+                # Connect the SW PRBS Transmitter module
+                self.prbTx[lane][vc].txEnable.setDisp(True)
+
 
 
 #################################################################
