@@ -80,9 +80,9 @@ https://confluence.slac.stanford.edu/x/n4-jCg
 
 <!--- ######################################################## -->
 
-# How to install the Rogue With Anaconda
+# How to install the Rogue With miniforge
 
-> https://slaclab.github.io/rogue/installing/anaconda.html
+> https://slaclab.github.io/rogue/installing/miniforge.html
 
 <!--- ######################################################## -->
 # How to reprogram the PCIe firmware via Rogue software
