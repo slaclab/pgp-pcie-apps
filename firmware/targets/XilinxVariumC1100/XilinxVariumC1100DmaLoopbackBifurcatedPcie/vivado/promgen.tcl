@@ -7,3 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+
+set format     "mcs"
+set inteface   "SPIx4"
+set size       "1024"
+set loadbit    "up 0x01002000 ${inputFile}"
