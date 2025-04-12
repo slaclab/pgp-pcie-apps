@@ -30,8 +30,8 @@ use unisim.vcomponents.all;
 
 entity XilinxVariumC1100PrbsTester is
    generic (
-      TPD_G                : time                        := 1 ns;
-      BUILD_INFO_G         : BuildInfoType);
+      TPD_G        : time := 1 ns;
+      BUILD_INFO_G : BuildInfoType);
    port (
       ---------------------
       --  Application Ports
@@ -41,6 +41,10 @@ entity XilinxVariumC1100PrbsTester is
       --------------
       --  Core Ports
       --------------
+      -- Card Management Solution (CMS) Interface
+      cmsUartRxd : in    sl;
+      cmsUartTxd : out   sl;
+      cmsGpio    : in    slv(3 downto 0);
       -- System Ports
       userClkP   : in    sl;
       userClkN   : in    sl;
@@ -116,14 +120,17 @@ architecture top_level of XilinxVariumC1100PrbsTester is
    signal hbmRefClk : sl;
    signal userClk   : sl;
 
+   signal cmsHbmCatTrip : sl                    := '0';
+   signal cmsHbmTemp    : Slv7Array(1 downto 0) := (others => b"0000000");
+
 begin
 
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
-         TPD_G                => TPD_G,
-         BUILD_INFO_G         => BUILD_INFO_G,
-         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G           => DMA_SIZE_C)
+         TPD_G             => TPD_G,
+         BUILD_INFO_G      => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         DMA_SIZE_G        => DMA_SIZE_C)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -148,6 +155,12 @@ begin
          --------------
          --  Core Ports
          --------------
+         -- Card Management Solution (CMS) Interface
+         cmsHbmCatTrip   => cmsHbmCatTrip,
+         cmsHbmTemp      => cmsHbmTemp,
+         cmsUartRxd      => cmsUartRxd,
+         cmsUartTxd      => cmsUartTxd,
+         cmsGpio         => cmsGpio,
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,
@@ -200,6 +213,9 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
+         -- Card Management Solution (CMS) Interface
+         cmsHbmCatTrip    => cmsHbmCatTrip,
+         cmsHbmTemp       => cmsHbmTemp,
          -- HBM Interface
          hbmRefClk        => hbmRefClk,
          hbmCatTrip       => hbmCatTrip,

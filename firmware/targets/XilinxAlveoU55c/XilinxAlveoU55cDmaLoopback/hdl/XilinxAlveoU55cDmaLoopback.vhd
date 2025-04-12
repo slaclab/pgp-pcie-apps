@@ -55,6 +55,10 @@ entity XilinxAlveoU55cDmaLoopback is
       --------------
       --  Core Ports
       --------------
+      -- Card Management Solution (CMS) Interface
+      cmsUartRxd   : in    sl;
+      cmsUartTxd   : out   sl;
+      cmsGpio      : in    slv(3 downto 0);
       -- System Ports
       userClkP     : in    sl;
       userClkN     : in    sl;
@@ -98,6 +102,9 @@ architecture top_level of XilinxAlveoU55cDmaLoopback is
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType;
+
+   signal cmsHbmCatTrip : sl                    := '0';
+   signal cmsHbmTemp    : Slv7Array(1 downto 0) := (others => b"0000000");
 
 begin
 
@@ -152,6 +159,12 @@ begin
          --------------
          --  Core Ports
          --------------
+         -- Card Management Solution (CMS) Interface
+         cmsHbmCatTrip   => cmsHbmCatTrip,
+         cmsHbmTemp      => cmsHbmTemp,
+         cmsUartRxd      => cmsUartRxd,
+         cmsUartTxd      => cmsUartTxd,
+         cmsGpio         => cmsGpio,
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,

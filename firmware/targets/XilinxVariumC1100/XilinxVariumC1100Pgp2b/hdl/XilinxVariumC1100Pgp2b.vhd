@@ -57,6 +57,10 @@ entity XilinxVariumC1100Pgp2b is
       --------------
       --  Core Ports
       --------------
+      -- Card Management Solution (CMS) Interface
+      cmsUartRxd   : in    sl;
+      cmsUartTxd   : out   sl;
+      cmsGpio      : in    slv(3 downto 0);
       -- System Ports
       userClkP     : in    sl;
       userClkN     : in    sl;
@@ -132,6 +136,9 @@ architecture top_level of XilinxVariumC1100Pgp2b is
    signal pgpClkOut        : slv(7 downto 0);
    signal pgpTxIn          : Pgp2bTxInArray(7 downto 0)     := (others => PGP2B_TX_IN_INIT_C);
 
+   signal cmsHbmCatTrip : sl                    := '0';
+   signal cmsHbmTemp    : Slv7Array(1 downto 0) := (others => b"0000000");
+
 begin
 
    U_axilClk : entity surf.ClockManagerUltraScale
@@ -189,6 +196,12 @@ begin
          --------------
          --  Core Ports
          --------------
+         -- Card Management Solution (CMS) Interface
+         cmsHbmCatTrip   => cmsHbmCatTrip,
+         cmsHbmTemp      => cmsHbmTemp,
+         cmsUartRxd      => cmsUartRxd,
+         cmsUartTxd      => cmsUartTxd,
+         cmsGpio         => cmsGpio,
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,
@@ -241,6 +254,9 @@ begin
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
+         -- Card Management Solution (CMS) Interface
+         cmsHbmCatTrip    => cmsHbmCatTrip,
+         cmsHbmTemp       => cmsHbmTemp,
          -- HBM Interface
          hbmRefClk        => hbmRefClk,
          hbmCatTrip       => hbmCatTrip,
