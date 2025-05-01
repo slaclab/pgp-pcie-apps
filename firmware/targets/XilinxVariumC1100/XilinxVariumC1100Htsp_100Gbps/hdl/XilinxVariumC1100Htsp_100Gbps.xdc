@@ -8,14 +8,26 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
+#######################
+# Placement Constraints
+#######################
+
 set_property USER_SLR_ASSIGNMENT SLR1 [get_cells {U_Hardware}]
 set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_HbmDmaBuffer}]
 
-set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
+create_pblock CMACE4_GRP
+add_cells_to_pblock [get_pblocks CMACE4_GRP] [get_cells [list U_Hardware/U_QSFP0/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK161MHz.U_CAUI4]]
+add_cells_to_pblock [get_pblocks CMACE4_GRP] [get_cells [list U_Hardware/U_QSFP1/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK161MHz.U_CAUI4]]
+resize_pblock [get_pblocks CMACE4_GRP] -add {CLOCKREGION_X0Y4:CLOCKREGION_X7Y7}
 
 ######################
 # Timing Constraints #
 ######################
+
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
+
+create_clock -period 6.206 -name qsfp0RefClkP [get_ports {qsfp0RefClkP}] ;# SI5394_INIT_FILE_G="Si5394A_GT_REFCLK_161MHz.mem"
+create_clock -period 6.206 -name qsfp1RefClkP [get_ports {qsfp1RefClkP}] ;# SI5394_INIT_FILE_G="Si5394A_GT_REFCLK_161MHz.mem"
 
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/PllGen.U_Pll/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_Core/REAL_PCIE.U_AxiPciePhy/U_AxiPcie/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
 

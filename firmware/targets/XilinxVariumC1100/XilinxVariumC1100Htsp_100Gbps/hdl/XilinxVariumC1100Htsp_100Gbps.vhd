@@ -82,6 +82,17 @@ entity XilinxVariumC1100Htsp_100Gbps is
       pciRxN       : in    slv(7 downto 0);
       pciTxP       : out   slv(7 downto 0);
       pciTxN       : out   slv(7 downto 0));
+
+   ------------------------------------------------------------------------
+   -- TODO: Adding bifrication to PCIE to support HTPS 100Gb/s link per PCIe endpoint
+   ------------------------------------------------------------------------
+--      pciRstL      : in    sl;
+--      pciRefClkP   : in    slv(1 downto 0);
+--      pciRefClkN   : in    slv(1 downto 0);
+--      pciRxP       : in    slv(15 downto 0);
+--      pciRxN       : in    slv(15 downto 0);
+--      pciTxP       : out   slv(15 downto 0);
+--      pciTxN       : out   slv(15 downto 0));
 end XilinxVariumC1100Htsp_100Gbps;
 
 architecture top_level of XilinxVariumC1100Htsp_100Gbps is
@@ -182,6 +193,11 @@ begin
          DMA_AXIS_CONFIG_G    => HTSP_AXIS_CONFIG_C,
          DMA_BURST_BYTES_G    => 4096,
          DMA_SIZE_G           => 2)
+
+   ------------------------------------------------------------------------
+   -- TODO: Adding bifrication to PCIE to support HTPS 100Gb/s link per PCIe endpoint
+   ------------------------------------------------------------------------
+--         DMA_SIZE_G           => 1)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -225,13 +241,47 @@ begin
          si5394LosL      => si5394LosL,
          si5394RstL      => si5394RstL,
          -- PCIe Ports
-         pciRstL         => pciRstL,
-         pciRefClkP      => pciRefClkP,
-         pciRefClkN      => pciRefClkN,
-         pciRxP          => pciRxP,
-         pciRxN          => pciRxN,
-         pciTxP          => pciTxP,
-         pciTxN          => pciTxN);
+         pciRstL       => pciRstL,
+         pciRefClkP(0) => pciRefClkP(0),
+         pciRefClkN(0) => pciRefClkN(0),
+         pciRxP        => pciRxP(7 downto 0),
+         pciRxN        => pciRxN(7 downto 0),
+         pciTxP        => pciTxP(7 downto 0),
+         pciTxN        => pciTxN(7 downto 0));
+
+   ------------------------------------------------------------------------
+   -- TODO: Adding bifrication to PCIE to support HTPS 100Gb/s link per PCIe endpoint
+   ------------------------------------------------------------------------
+--   U_ExtendedCore : entity axi_pcie_core.XilinxVariumC1100PcieExtendedCore
+--      generic map (
+--         TPD_G             => TPD_G,
+--         BUILD_INFO_G      => BUILD_INFO_G,
+--         DMA_AXIS_CONFIG_G => HTSP_AXIS_CONFIG_C,
+--         DMA_BURST_BYTES_G => 4096,
+--         DMA_SIZE_G        => 1)
+--      port map (
+--         ------------------------
+--         --  Top Level Interfaces
+--         ------------------------
+--         -- DMA Interfaces
+--         dmaClk        => dmaSecClk,
+--         dmaRst        => dmaSecRst,
+--         dmaObMasters  => dmaSecMasters,
+--         dmaObSlaves   => dmaSecSlaves,
+--         dmaIbMasters  => dmaSecMasters,
+--         dmaIbSlaves   => dmaSecSlaves,
+--         --------------
+--         --  Core Ports
+--         --------------
+--         -- Extended PCIe Ports
+--         pciRstL       => pciRstL,
+--         pciRefClkP(0) => pciRefClkP(1),
+--         pciRefClkN(0) => pciRefClkN(1),
+--         pciRxP        => pciRxP(15 downto 8),
+--         pciRxN        => pciRxN(15 downto 8),
+--         pciTxP        => pciTxP(15 downto 8),
+--         pciTxN        => pciTxN(15 downto 8));
+
 
    --------------------
    -- AXI-Lite Crossbar
@@ -257,38 +307,44 @@ begin
    ----------------------------
    -- DMA Inbound Large Buffer
    ----------------------------
-   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
-      generic map (
-         TPD_G             => TPD_G,
-         DMA_SIZE_G        => 2,
-         DMA_AXIS_CONFIG_G => HTSP_AXIS_CONFIG_C,
-         AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
-      port map (
-         -- Card Management Solution (CMS) Interface
-         cmsHbmCatTrip    => cmsHbmCatTrip,
-         cmsHbmTemp       => cmsHbmTemp,
-         -- HBM Interface
-         hbmRefClk        => hbmRefClk,
-         hbmCatTrip       => hbmCatTrip,
-         -- AXI-Lite Interface (axilClk domain)
-         axilClk          => axilClk,
-         axilRst          => axilRst,
-         axilReadMaster   => axilReadMasters(0),
-         axilReadSlave    => axilReadSlaves(0),
-         axilWriteMaster  => axilWriteMasters(0),
-         axilWriteSlave   => axilWriteSlaves(0),
-         -- Trigger Event streams (eventClk domain)
-         eventClk         => axilClk,
-         eventTrigMsgCtrl => eventTrigMsgCtrl,
-         -- AXI Stream Interface (axisClk domain)
-         axisClk          => dmaClk,
-         axisRst          => dmaRst,
-         sAxisMasters     => buffIbMasters,
-         sAxisSlaves      => buffIbSlaves,
-         mAxisMasters     => dmaIbMasters,
-         mAxisSlaves      => dmaIbSlaves);
 
-   GEN_LANE : for i in 7 downto 0 generate
+   --------------------------------------------------------------------
+   -- TODO: Need to figure out how to support 512b in this HbmDmaBuffer
+   --------------------------------------------------------------------
+--   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
+--      generic map (
+--         TPD_G             => TPD_G,
+--         DMA_SIZE_G        => 2,
+--         DMA_AXIS_CONFIG_G => HTSP_AXIS_CONFIG_C,
+--         AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
+--      port map (
+--         -- Card Management Solution (CMS) Interface
+--         cmsHbmCatTrip    => cmsHbmCatTrip,
+--         cmsHbmTemp       => cmsHbmTemp,
+--         -- HBM Interface
+--         hbmRefClk        => hbmRefClk,
+--         hbmCatTrip       => hbmCatTrip,
+--         -- AXI-Lite Interface (axilClk domain)
+--         axilClk          => axilClk,
+--         axilRst          => axilRst,
+--         axilReadMaster   => axilReadMasters(0),
+--         axilReadSlave    => axilReadSlaves(0),
+--         axilWriteMaster  => axilWriteMasters(0),
+--         axilWriteSlave   => axilWriteSlaves(0),
+--         -- Trigger Event streams (eventClk domain)
+--         eventClk         => axilClk,
+--         eventTrigMsgCtrl => eventTrigMsgCtrl,
+--         -- AXI Stream Interface (axisClk domain)
+--         axisClk          => dmaClk,
+--         axisRst          => dmaRst,
+--         sAxisMasters     => buffIbMasters,
+--         sAxisSlaves      => buffIbSlaves,
+--         mAxisMasters     => dmaIbMasters,
+--         mAxisSlaves      => dmaIbSlaves);
+   dmaIbMasters <= buffIbMasters;
+   buffIbSlaves <= dmaIbSlaves;
+
+   GEN_LANE : for i in 1 downto 0 generate
       U_remoteDmaPause : entity surf.Synchronizer
          generic map (
             TPD_G => TPD_G)
