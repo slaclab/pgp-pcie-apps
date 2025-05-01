@@ -63,19 +63,19 @@ entity Hardware is
       --  Hardware Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP    : in  slv(1 downto 0);
-      qsfp0RefClkN    : in  slv(1 downto 0);
-      qsfp0RxP        : in  slv(3 downto 0);
-      qsfp0RxN        : in  slv(3 downto 0);
-      qsfp0TxP        : out slv(3 downto 0);
-      qsfp0TxN        : out slv(3 downto 0);
+      qsfp0RefClkP : in    sl;
+      qsfp0RefClkN : in    sl;
+      qsfp0RxP     : in    slv(3 downto 0);
+      qsfp0RxN     : in    slv(3 downto 0);
+      qsfp0TxP     : out   slv(3 downto 0);
+      qsfp0TxN     : out   slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP    : in  slv(1 downto 0);
-      qsfp1RefClkN    : in  slv(1 downto 0);
-      qsfp1RxP        : in  slv(3 downto 0);
-      qsfp1RxN        : in  slv(3 downto 0);
-      qsfp1TxP        : out slv(3 downto 0);
-      qsfp1TxN        : out slv(3 downto 0));
+      qsfp1RefClkP : in    sl;
+      qsfp1RefClkN : in    sl;
+      qsfp1RxP     : in    slv(3 downto 0);
+      qsfp1RxN     : in    slv(3 downto 0);
+      qsfp1TxP     : out   slv(3 downto 0);
+      qsfp1TxN     : out   slv(3 downto 0));
 end Hardware;
 
 architecture mapping of Hardware is
@@ -115,20 +115,6 @@ begin
          rstIn  => dmaRst,
          rstOut => dmaReset);
 
-   U_UnusedRef_0 : IBUFDS_GTE4
-      port map (
-         I   => qsfp0RefClkP(1),
-         IB  => qsfp0RefClkN(1),
-         CEB => '0',
-         O   => dummy(0));
-
-   U_UnusedRef_1 : IBUFDS_GTE4
-      port map (
-         I   => qsfp1RefClkP(1),
-         IB  => qsfp1RefClkN(1),
-         CEB => '0',
-         O   => dummy(1));
-
    ---------------------
    -- AXI-Lite Crossbar
    ---------------------
@@ -162,8 +148,8 @@ begin
          TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_G)
       port map (
          -- QSFP Ports
-         qsfpRefClkP     => qsfp0RefClkP(0),
-         qsfpRefClkN     => qsfp0RefClkN(0),
+         qsfpRefClkP     => qsfp0RefClkP,
+         qsfpRefClkN     => qsfp0RefClkN,
          qsfpRxP         => qsfp0RxP,
          qsfpRxN         => qsfp0RxN,
          qsfpTxP         => qsfp0TxP,
@@ -199,8 +185,8 @@ begin
          TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_G)
       port map (
          -- QSFP Ports
-         qsfpRefClkP     => qsfp1RefClkP(0),
-         qsfpRefClkN     => qsfp1RefClkN(0),
+         qsfpRefClkP     => qsfp1RefClkP,
+         qsfpRefClkN     => qsfp1RefClkN,
          qsfpRxP         => qsfp1RxP,
          qsfpRxN         => qsfp1RxN,
          qsfpTxP         => qsfp1TxP,
