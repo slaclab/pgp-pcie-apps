@@ -53,6 +53,9 @@ entity HtspWrapper is
       dmaObSlave      : out AxiStreamSlaveType;
       dmaIbMaster     : out AxiStreamMasterType;
       dmaIbSlave      : in  AxiStreamSlaveType;
+      -- Non-VC Interface (htspClkOut domain)
+      htspClkOut      : out sl;
+      htspTxIn        : in  HtspTxInType := HTSP_TX_IN_INIT_C;
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -73,7 +76,7 @@ architecture mapping of HtspWrapper is
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
 
-   signal htspTxIn  : HtspTxInType := HTSP_TX_IN_INIT_C;
+   -- signal htspTxIn  : HtspTxInType := HTSP_TX_IN_INIT_C;
    signal htspTxOut : HtspTxOutType;
 
    signal htspRxIn  : HtspRxInType := HTSP_RX_IN_INIT_C;
@@ -99,6 +102,8 @@ architecture mapping of HtspWrapper is
    attribute dont_touch of htspRxCtrl    : signal is "TRUE";
 
 begin
+
+   htspClkOut <= htspClk;
 
    U_axilRst : entity surf.RstPipeline
       generic map (
