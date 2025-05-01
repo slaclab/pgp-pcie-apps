@@ -135,12 +135,13 @@ begin
    -----------------------
    U_Core : entity axi_pcie_core.XilinxAlveoU200Core
       generic map (
-         TPD_G             => TPD_G,
-         BUILD_INFO_G      => BUILD_INFO_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         TPD_G              => TPD_G,
+         QSFP_CDR_DISABLE_G => true,    -- < 25Gb/s/lane
+         BUILD_INFO_G       => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C,
          -- DMA_BURST_BYTES_G => 4096,
-         DMA_BURST_BYTES_G => 256,
-         DMA_SIZE_G        => DMA_SIZE_C)
+         DMA_BURST_BYTES_G  => 256,
+         DMA_SIZE_G         => DMA_SIZE_C)
       port map (
          ------------------------
          --  Top Level Interfaces
