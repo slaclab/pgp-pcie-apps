@@ -261,6 +261,7 @@ begin
          cmsHbmCatTrip    => cmsHbmCatTrip,
          cmsHbmTemp       => cmsHbmTemp,
          -- HBM Interface
+         userClk          => userClk,
          hbmRefClk        => hbmRefClk,
          hbmCatTrip       => hbmCatTrip,
          -- AXI-Lite Interface (axilClk domain)
@@ -271,24 +272,18 @@ begin
          axilWriteMaster  => axilWriteMasters(0),
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
-         eventClk         => axilClk,
+         eventClk         => pgpClkOut,
          eventTrigMsgCtrl => eventTrigMsgCtrl,
          -- AXI Stream Interface (axisClk domain)
-         axisClk          => dmaClk,
-         axisRst          => dmaRst,
+         axisClk          => (others => dmaClk),
+         axisRst          => (others => dmaRst),
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
 
    GEN_LANE : for i in 7 downto 0 generate
-      U_remoteDmaPause : entity surf.Synchronizer
-         generic map (
-            TPD_G => TPD_G)
-         port map (
-            clk     => pgpClkOut(i),
-            dataIn  => eventTrigMsgCtrl(i).pause,
-            dataOut => pgpTxIn(i).locData(0));
+      pgpTxIn(i).locData(0) <= eventTrigMsgCtrl(i).pause;
    end generate;
 
    U_Hardware : entity work.Hardware
