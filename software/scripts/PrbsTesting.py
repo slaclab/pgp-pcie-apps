@@ -236,19 +236,21 @@ class MyRoot(pr.Root):
                 if (args.fwTx):
                     # Add the FW PRBS TX Module
                     self.add(ssi.SsiPrbsTx(
-                        name    = ('FwPrbsTx[%d][%d]' % (lane,vc)),
-                        memBase = self.memMap,
-                        offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
-                        expand  = False,
+                        name       = ('FwPrbsTx[%d][%d]' % (lane,vc)),
+                        memBase    = self.memMap,
+                        offset     = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
+                        clock_freq = 250e6,
+                        expand     = False,
                     ))
 
                 if (args.fwRx):
                     # Add the FW PRBS RX Module
                     self.add(ssi.SsiPrbsRx(
-                        name    = ('FwPrbsRx[%d][%d]' % (lane,vc)),
-                        memBase = self.memMap,
-                        offset  = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
-                        expand  = False,
+                        name        = ('FwPrbsRx[%d][%d]' % (lane,vc)),
+                        memBase     = self.memMap,
+                        offset      = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
+                        rxClkPeriod = 4.0e-9,
+                        expand      = False,
                     ))
 
         if self._syncTrig:
