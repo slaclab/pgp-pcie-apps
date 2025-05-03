@@ -48,14 +48,14 @@ entity HtspWrapper is
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
       dmaRst          : in  sl;
-      dmaBuffGrpPause : in  slv(7 downto 0);
+      dmaBuffGrpPause : in  slv(7 downto 0) := x"00";
       dmaObMaster     : in  AxiStreamMasterType;
       dmaObSlave      : out AxiStreamSlaveType;
       dmaIbMaster     : out AxiStreamMasterType;
       dmaIbSlave      : in  AxiStreamSlaveType;
       -- Non-VC Interface (htspClkOut domain)
       htspClkOut      : out sl;
-      htspTxIn        : in  HtspTxInType := HTSP_TX_IN_INIT_C;
+      htspTxIn        : in  HtspTxInType;
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;

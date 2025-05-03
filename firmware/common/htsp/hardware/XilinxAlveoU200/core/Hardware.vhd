@@ -58,7 +58,7 @@ entity Hardware is
       dmaIbSlaves     : in  AxiStreamSlaveArray(1 downto 0);
       -- Non-VC Interface (htspClkOut domain)
       htspClkOut      : out slv(1 downto 0);
-      htspTxIn        : in  HtspTxInArray(1 downto 0) := (others => HTSP_TX_IN_INIT_C);
+      htspTxIn        : in  HtspTxInArray(1 downto 0);
       ---------------------
       --  Hardware Ports
       ---------------------
