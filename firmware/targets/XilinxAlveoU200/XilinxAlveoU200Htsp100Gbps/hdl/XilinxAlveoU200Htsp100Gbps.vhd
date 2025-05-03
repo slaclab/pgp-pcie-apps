@@ -24,7 +24,7 @@ use surf.HtspPkg.all;
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
 
-entity XilinxAlveoU200Htsp_PerfTester is
+entity XilinxAlveoU200Htsp100Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -72,9 +72,9 @@ entity XilinxAlveoU200Htsp_PerfTester is
       pciRxN        : in    slv(15 downto 0);
       pciTxP        : out   slv(15 downto 0);
       pciTxN        : out   slv(15 downto 0));
-end XilinxAlveoU200Htsp_PerfTester;
+end XilinxAlveoU200Htsp100Gbps;
 
-architecture top_level of XilinxAlveoU200Htsp_PerfTester is
+architecture top_level of XilinxAlveoU200Htsp100Gbps is
 
    -- constant TX_MAX_PAYLOAD_SIZE_C : positive := 1024;
    -- constant TX_MAX_PAYLOAD_SIZE_C : positive := 2048;
@@ -82,33 +82,6 @@ architecture top_level of XilinxAlveoU200Htsp_PerfTester is
    constant TX_MAX_PAYLOAD_SIZE_C : positive := 8192;
 
    constant AXIL_CLK_FREQ_C : real := 156.25E+6;  -- units of Hz
-
-   constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
-      0               => (
-         baseAddr     => x"0010_0000",
-         addrBits     => 20,
-         connectivity => x"FFFF"),
-      1               => (
-         baseAddr     => x"0020_0000",
-         addrBits     => 20,
-         connectivity => x"FFFF"),
-      2               => (
-         baseAddr     => x"0030_0000",
-         addrBits     => 20,
-         connectivity => x"FFFF"),
-      3               => (
-         baseAddr     => x"0040_0000",
-         addrBits     => 20,
-         connectivity => x"FFFF"),
-      4               => (
-         baseAddr     => x"0080_0000",
-         addrBits     => 23,
-         connectivity => x"FFFF"));
-
-   signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
-   signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
 
    signal userClk156      : sl;
    signal axilClk         : sl;
@@ -121,10 +94,10 @@ architecture top_level of XilinxAlveoU200Htsp_PerfTester is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
-   signal dmaObSlaves     : AxiStreamSlaveArray(1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
-   signal dmaIbMasters    : AxiStreamMasterArray(1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
+   signal dmaObMasters    : AxiStreamMasterArray(1 downto 0);
+   signal dmaObSlaves     : AxiStreamSlaveArray(1 downto 0);
+   signal dmaIbMasters    : AxiStreamMasterArray(1 downto 0);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(1 downto 0);
 
 begin
 
@@ -158,7 +131,7 @@ begin
          BUILD_INFO_G         => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G    => HTSP_AXIS_CONFIG_C,
          DMA_BURST_BYTES_G    => 4096,
-         DMA_SIZE_G           => 1)
+         DMA_SIZE_G           => 2)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -168,10 +141,10 @@ begin
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
          dmaBuffGrpPause => dmaBuffGrpPause,
-         dmaObMasters    => open,
-         dmaObSlaves     => (others => AXI_STREAM_SLAVE_FORCE_C),
-         dmaIbMasters    => (others => AXI_STREAM_MASTER_INIT_C),
-         dmaIbSlaves     => open,
+         dmaObMasters    => dmaObMasters,
+         dmaObSlaves     => dmaObSlaves,
+         dmaIbMasters    => dmaIbMasters,
+         dmaIbSlaves     => dmaIbSlaves,
          -- AXI-Lite Interface
          appClk          => axilClk,
          appRst          => axilRst,
@@ -204,54 +177,10 @@ begin
          pciTxP          => pciTxP,
          pciTxN          => pciTxN);
 
-   U_XBAR : entity surf.AxiLiteCrossbar
-      generic map (
-         TPD_G              => TPD_G,
-         NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => 5,
-         MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
-      port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
-         sAxiWriteMasters(0) => axilWriteMaster,
-         sAxiWriteSlaves(0)  => axilWriteSlave,
-         sAxiReadMasters(0)  => axilReadMaster,
-         sAxiReadSlaves(0)   => axilReadSlave,
-         mAxiWriteMasters    => axilWriteMasters,
-         mAxiWriteSlaves     => axilWriteSlaves,
-         mAxiReadMasters     => axilReadMasters,
-         mAxiReadSlaves      => axilReadSlaves);
-
-   U_Application : entity work.Application
-      generic map (
-         TPD_G                 => TPD_G,
-         AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_C,
-         AXIL_BASE_ADDR_G      => AXIL_XBAR_CONFIG_C(3).baseAddr,
-         TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_C)
-      port map (
-         ------------------------
-         --  Top Level Interfaces
-         ------------------------
-         -- AXI-Lite Interface (axilClk domain)
-         axilClk         => axilClk,
-         axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(3),
-         axilReadSlave   => axilReadSlaves(3),
-         axilWriteMaster => axilWriteMasters(3),
-         axilWriteSlave  => axilWriteSlaves(3),
-         -- DMA Interface (dmaClk domain)
-         dmaClk          => dmaClk,
-         dmaRst          => dmaRst,
-         dmaObMaster     => dmaObMasters(0),
-         dmaObSlave      => dmaObSlaves(0),
-         dmaIbMaster     => dmaIbMasters(0),
-         dmaIbSlave      => dmaIbSlaves(0));
-
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G                 => TPD_G,
          AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_C,
-         AXIL_BASE_ADDR_G      => AXIL_XBAR_CONFIG_C(4).baseAddr,
          TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_C)
       port map (
          ------------------------
@@ -260,10 +189,10 @@ begin
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(4),
-         axilReadSlave   => axilReadSlaves(4),
-         axilWriteMaster => axilWriteMasters(4),
-         axilWriteSlave  => axilWriteSlaves(4),
+         axilReadMaster  => axilReadMaster,
+         axilReadSlave   => axilReadSlave,
+         axilWriteMaster => axilWriteMaster,
+         axilWriteSlave  => axilWriteSlave,
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
@@ -272,6 +201,9 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
+         -- Non-VC Interface (htspClkOut domain)
+         htspClkOut      => open,
+         htspTxIn        => (others => HTSP_TX_IN_INIT_C),
          ------------------
          --  Hardware Ports
          ------------------
