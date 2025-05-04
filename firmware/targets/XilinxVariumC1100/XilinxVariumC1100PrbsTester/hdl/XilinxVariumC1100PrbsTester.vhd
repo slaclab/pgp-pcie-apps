@@ -240,6 +240,8 @@ begin
          sAxisSlaves      => buffIbSlaves,
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
+   -- dmaIbMasters <= buffIbMasters;
+   -- buffIbSlaves <= dmaIbSlaves;
 
    ---------------
    -- PRBS Modules
@@ -249,6 +251,7 @@ begin
          TPD_G             => TPD_G,
          DMA_SIZE_G        => DMA_SIZE_C,
          NUM_VC_G          => 1,
+         -- NUM_VC_G          => 4,
          PRBS_SEED_SIZE_G  => 8*DMA_AXIS_CONFIG_C.TDATA_BYTES_C,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
