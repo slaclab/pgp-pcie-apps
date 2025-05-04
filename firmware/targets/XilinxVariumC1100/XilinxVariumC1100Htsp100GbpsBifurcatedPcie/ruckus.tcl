@@ -4,10 +4,7 @@ source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
 # Load common and sub-module ruckus.tcl files
 loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/surf
 loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/XilinxVariumC1100
-#   --------------------------------------------------------------------
-#   -- TODO: Adding bifrication to PCIE to support HTPS 100Gb/s link per PCIe endpoint
-#   --------------------------------------------------------------------
-# loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/XilinxVariumC1100/pcie-extended
+loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/XilinxVariumC1100/pcie-extended
 loadRuckusTcl $::env(PROJ_DIR)/../../../common/htsp/hardware/XilinxVariumC1100
 
 # Load local source Code and constraints

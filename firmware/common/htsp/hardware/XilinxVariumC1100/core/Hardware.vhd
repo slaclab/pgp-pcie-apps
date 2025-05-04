@@ -49,33 +49,32 @@ entity Hardware is
       axilWriteMaster : in  AxiLiteWriteMasterType;
       axilWriteSlave  : out AxiLiteWriteSlaveType;
       -- DMA Interface
-      dmaClk          : in  sl;
-      dmaRst          : in  sl;
-      dmaBuffGrpPause : in  slv(7 downto 0);
+      dmaClk          : in  slv(1 downto 0);
+      dmaRst          : in  slv(1 downto 0);
       dmaObMasters    : in  AxiStreamMasterArray(1 downto 0);
       dmaObSlaves     : out AxiStreamSlaveArray(1 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(1 downto 0);
       dmaIbSlaves     : in  AxiStreamSlaveArray(1 downto 0);
       -- Non-VC Interface (htspClkOut domain)
       htspClkOut      : out slv(1 downto 0);
-      htspTxIn        : in  HtspTxInArray(1 downto 0) := (others => HTSP_TX_IN_INIT_C);
+      htspTxIn        : in  HtspTxInArray(1 downto 0);
       ---------------------
       --  Hardware Ports
       ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP : in    sl;
-      qsfp0RefClkN : in    sl;
-      qsfp0RxP     : in    slv(3 downto 0);
-      qsfp0RxN     : in    slv(3 downto 0);
-      qsfp0TxP     : out   slv(3 downto 0);
-      qsfp0TxN     : out   slv(3 downto 0);
+      qsfp0RefClkP    : in  sl;
+      qsfp0RefClkN    : in  sl;
+      qsfp0RxP        : in  slv(3 downto 0);
+      qsfp0RxN        : in  slv(3 downto 0);
+      qsfp0TxP        : out slv(3 downto 0);
+      qsfp0TxN        : out slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP : in    sl;
-      qsfp1RefClkN : in    sl;
-      qsfp1RxP     : in    slv(3 downto 0);
-      qsfp1RxN     : in    slv(3 downto 0);
-      qsfp1TxP     : out   slv(3 downto 0);
-      qsfp1TxN     : out   slv(3 downto 0));
+      qsfp1RefClkP    : in  sl;
+      qsfp1RefClkN    : in  sl;
+      qsfp1RxP        : in  slv(3 downto 0);
+      qsfp1RxN        : in  slv(3 downto 0);
+      qsfp1TxP        : out slv(3 downto 0);
+      qsfp1TxN        : out slv(3 downto 0));
 end Hardware;
 
 architecture mapping of Hardware is
@@ -90,7 +89,6 @@ architecture mapping of Hardware is
    signal axilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
 
    signal axilReset : sl;
-   signal dmaReset  : sl;
 
    signal dummy : slv(1 downto 0);
 
@@ -106,14 +104,6 @@ begin
          clk    => axilClk,
          rstIn  => axilRst,
          rstOut => axilReset);
-
-   U_dmaRst : entity surf.RstPipeline
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         clk    => dmaClk,
-         rstIn  => dmaRst,
-         rstOut => dmaReset);
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -155,9 +145,8 @@ begin
          qsfpTxP         => qsfp0TxP,
          qsfpTxN         => qsfp0TxN,
          -- DMA Interfaces (dmaClk domain)
-         dmaClk          => dmaClk,
-         dmaRst          => dmaReset,
-         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaClk          => dmaClk(0),
+         dmaRst          => dmaRst(0),
          dmaObMaster     => dmaObMasters(0),
          dmaObSlave      => dmaObSlaves(0),
          dmaIbMaster     => dmaIbMasters(0),
@@ -192,9 +181,8 @@ begin
          qsfpTxP         => qsfp1TxP,
          qsfpTxN         => qsfp1TxN,
          -- DMA Interfaces (dmaClk domain)
-         dmaClk          => dmaClk,
-         dmaRst          => dmaReset,
-         dmaBuffGrpPause => dmaBuffGrpPause,
+         dmaClk          => dmaClk(1),
+         dmaRst          => dmaRst(1),
          dmaObMaster     => dmaObMasters(1),
          dmaObSlave      => dmaObSlaves(1),
          dmaIbMaster     => dmaIbMasters(1),

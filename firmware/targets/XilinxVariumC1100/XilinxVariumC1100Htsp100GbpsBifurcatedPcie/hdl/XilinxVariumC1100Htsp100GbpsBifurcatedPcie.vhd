@@ -21,7 +21,7 @@ use surf.AxiPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
 use surf.SsiPkg.all;
-use surf.Pgp4Pkg.all;
+use surf.HtspPkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -29,12 +29,11 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxVariumC1100Pgp4_15Gbps is
+entity XilinxVariumC1100Htsp100GbpsBifurcatedPcie is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  --- 32 Byte (256-bit) tData interface
       BUILD_INFO_G         : BuildInfoType);
    port (
       ---------------------
@@ -77,15 +76,22 @@ entity XilinxVariumC1100Pgp4_15Gbps is
       si5394RstL   : out   sl;
       -- PCIe Ports
       pciRstL      : in    sl;
-      pciRefClkP   : in    slv(0 downto 0);
-      pciRefClkN   : in    slv(0 downto 0);
-      pciRxP       : in    slv(7 downto 0);
-      pciRxN       : in    slv(7 downto 0);
-      pciTxP       : out   slv(7 downto 0);
-      pciTxN       : out   slv(7 downto 0));
-end XilinxVariumC1100Pgp4_15Gbps;
+      pciRefClkP   : in    slv(1 downto 0);
+      pciRefClkN   : in    slv(1 downto 0);
+      pciRxP       : in    slv(15 downto 0);
+      pciRxN       : in    slv(15 downto 0);
+      pciTxP       : out   slv(15 downto 0);
+      pciTxN       : out   slv(15 downto 0));
+end XilinxVariumC1100Htsp100GbpsBifurcatedPcie;
 
-architecture top_level of XilinxVariumC1100Pgp4_15Gbps is
+architecture top_level of XilinxVariumC1100Htsp100GbpsBifurcatedPcie is
+
+   -- constant TX_MAX_PAYLOAD_SIZE_C : positive := 1024;
+   -- constant TX_MAX_PAYLOAD_SIZE_C : positive := 2048;
+   -- constant TX_MAX_PAYLOAD_SIZE_C : positive := 4096;
+   constant TX_MAX_PAYLOAD_SIZE_C : positive := 8192;
+
+   constant AXIL_CLK_FREQ_C : real := 156.25E+6;  -- units of Hz
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -121,22 +127,21 @@ architecture top_level of XilinxVariumC1100Pgp4_15Gbps is
    signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
 
-   signal dmaClk          : sl;
-   signal dmaRst          : sl;
-   signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(7 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(7 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(7 downto 0);
-   signal buffIbMasters   : AxiStreamMasterArray(7 downto 0);
-   signal buffIbSlaves    : AxiStreamSlaveArray(7 downto 0);
+   signal dmaClk        : slv(1 downto 0);
+   signal dmaRst        : slv(1 downto 0);
+   signal dmaObMasters  : AxiStreamMasterArray(1 downto 0);
+   signal dmaObSlaves   : AxiStreamSlaveArray(1 downto 0);
+   signal dmaIbMasters  : AxiStreamMasterArray(1 downto 0);
+   signal dmaIbSlaves   : AxiStreamSlaveArray(1 downto 0);
+   signal buffIbMasters : AxiStreamMasterArray(1 downto 0);
+   signal buffIbSlaves  : AxiStreamSlaveArray(1 downto 0);
 
    signal hbmRefClk : sl;
    signal userClk   : sl;
 
-   signal eventTrigMsgCtrl : AxiStreamCtrlArray(7 downto 0) := (others => AXI_STREAM_CTRL_UNUSED_C);
-   signal pgpClkOut        : slv(7 downto 0);
-   signal pgpTxIn          : Pgp4TxInArray(7 downto 0)      := (others => PGP4_TX_IN_INIT_C);
+   signal eventTrigMsgCtrl : AxiStreamCtrlArray(1 downto 0) := (others => AXI_STREAM_CTRL_UNUSED_C);
+   signal htspClkOut       : slv(1 downto 0);
+   signal htspTxIn         : HtspTxInArray(1 downto 0)      := (others => HTSP_TX_IN_INIT_C);
 
    signal cmsHbmCatTrip : sl                    := '0';
    signal cmsHbmTemp    : Slv7Array(1 downto 0) := (others => b"0000000");
@@ -160,7 +165,7 @@ begin
       port map(
          -- Clock Input
          clkIn     => userClk,
-         rstIn     => dmaRst,
+         rstIn     => dmaRst(0),
          -- Clock Outputs
          clkOut(0) => axilClk,
          -- Reset Outputs
@@ -169,12 +174,13 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         QSFP_CDR_DISABLE_G   => true,
+         SI5394_INIT_FILE_G   => "Si5394A_GT_REFCLK_161MHz.mem",
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
-         DMA_AXIS_CONFIG_G    => DMA_AXIS_CONFIG_G,
-         DMA_SIZE_G           => 8)
+         DMA_AXIS_CONFIG_G    => HTSP_AXIS_CONFIG_C,
+         DMA_BURST_BYTES_G    => 4096,
+         DMA_SIZE_G           => 1)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -182,13 +188,12 @@ begin
          userClk         => userClk,
          hbmRefClk       => hbmRefClk,
          -- DMA Interfaces
-         dmaClk          => dmaClk,
-         dmaRst          => dmaRst,
-         dmaBuffGrpPause => dmaBuffGrpPause,
-         dmaObMasters    => dmaObMasters,
-         dmaObSlaves     => dmaObSlaves,
-         dmaIbMasters    => dmaIbMasters,
-         dmaIbSlaves     => dmaIbSlaves,
+         dmaClk          => dmaClk(0),
+         dmaRst          => dmaRst(0),
+         dmaObMasters(0) => dmaObMasters(0),
+         dmaObSlaves(0)  => dmaObSlaves(0),
+         dmaIbMasters(0) => dmaIbMasters(0),
+         dmaIbSlaves(0)  => dmaIbSlaves(0),
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
          appClk          => axilClk,
          appRst          => axilRst,
@@ -219,12 +224,42 @@ begin
          si5394RstL      => si5394RstL,
          -- PCIe Ports
          pciRstL         => pciRstL,
-         pciRefClkP      => pciRefClkP,
-         pciRefClkN      => pciRefClkN,
-         pciRxP          => pciRxP,
-         pciRxN          => pciRxN,
-         pciTxP          => pciTxP,
-         pciTxN          => pciTxN);
+         pciRefClkP(0)   => pciRefClkP(0),
+         pciRefClkN(0)   => pciRefClkN(0),
+         pciRxP          => pciRxP(7 downto 0),
+         pciRxN          => pciRxN(7 downto 0),
+         pciTxP          => pciTxP(7 downto 0),
+         pciTxN          => pciTxN(7 downto 0));
+
+   U_ExtendedCore : entity axi_pcie_core.XilinxVariumC1100PcieExtendedCore
+      generic map (
+         TPD_G             => TPD_G,
+         BUILD_INFO_G      => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G => HTSP_AXIS_CONFIG_C,
+         DMA_BURST_BYTES_G => 4096,
+         DMA_SIZE_G        => 1)
+      port map (
+         ------------------------
+         --  Top Level Interfaces
+         ------------------------
+         -- DMA Interfaces
+         dmaClk          => dmaClk(1),
+         dmaRst          => dmaRst(1),
+         dmaObMasters(0) => dmaObMasters(1),
+         dmaObSlaves(0)  => dmaObSlaves(1),
+         dmaIbMasters(0) => dmaIbMasters(1),
+         dmaIbSlaves(0)  => dmaIbSlaves(1),
+         --------------
+         --  Core Ports
+         --------------
+         -- Extended PCIe Ports
+         pciRstL         => pciRstL,
+         pciRefClkP(0)   => pciRefClkP(1),
+         pciRefClkN(0)   => pciRefClkN(1),
+         pciRxP          => pciRxP(15 downto 8),
+         pciRxN          => pciRxN(15 downto 8),
+         pciTxP          => pciTxP(15 downto 8),
+         pciTxN          => pciTxN(15 downto 8));
 
    --------------------
    -- AXI-Lite Crossbar
@@ -253,8 +288,8 @@ begin
    U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
       generic map (
          TPD_G             => TPD_G,
-         DMA_SIZE_G        => 8,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         DMA_SIZE_G        => 2,
+         DMA_AXIS_CONFIG_G => HTSP_AXIS_CONFIG_C,
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
          -- Card Management Solution (CMS) Interface
@@ -272,25 +307,25 @@ begin
          axilWriteMaster  => axilWriteMasters(0),
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
-         eventClk         => pgpClkOut,
+         eventClk         => htspClkOut,
          eventTrigMsgCtrl => eventTrigMsgCtrl,
          -- AXI Stream Interface (axisClk domain)
-         axisClk          => (others => dmaClk),
-         axisRst          => (others => dmaRst),
+         axisClk          => dmaClk,
+         axisRst          => dmaRst,
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
 
-   GEN_LANE : for i in 7 downto 0 generate
-      pgpTxIn(i).locData(0) <= eventTrigMsgCtrl(i).pause;
+   GEN_LANE : for i in 1 downto 0 generate
+      htspTxIn(i).locData(0) <= eventTrigMsgCtrl(i).pause;
    end generate;
 
    U_Hardware : entity work.Hardware
       generic map (
-         TPD_G             => TPD_G,
-         RATE_G            => "15.46875Gbps",
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
+         TPD_G                 => TPD_G,
+         AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_C,
+         TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_C)
       port map (
          ------------------------
          --  Top Level Interfaces
@@ -305,14 +340,13 @@ begin
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
-         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => buffIbMasters,
          dmaIbSlaves     => buffIbSlaves,
-         -- Non-VC Interface (pgpClkOut domain)
-         pgpClkOut       => pgpClkOut,
-         pgpTxIn         => pgpTxIn,
+         -- Non-VC Interface (htspClkOut domain)
+         htspClkOut      => htspClkOut,
+         htspTxIn        => htspTxIn,
          ------------------
          --  Hardware Ports
          ------------------

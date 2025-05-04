@@ -69,11 +69,12 @@ end XilinxVariumC1100PrbsTester;
 
 architecture top_level of XilinxVariumC1100PrbsTester is
 
-   constant DMA_SIZE_C : positive := 8;
+   constant DMA_SIZE_C : positive := 2;
 
-   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  -- 8  Byte (64-bit)  tData interface
+   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  -- 8  Byte (64-bit)  tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -131,6 +132,7 @@ begin
          QSFP_CDR_DISABLE_G => true,
          BUILD_INFO_G       => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G  => DMA_AXIS_CONFIG_C,
+         DMA_BURST_BYTES_G  => 4096,
          DMA_SIZE_G         => DMA_SIZE_C)
       port map (
          ------------------------
@@ -218,6 +220,7 @@ begin
          cmsHbmCatTrip    => cmsHbmCatTrip,
          cmsHbmTemp       => cmsHbmTemp,
          -- HBM Interface
+         userClk          => userClk,
          hbmRefClk        => hbmRefClk,
          hbmCatTrip       => hbmCatTrip,
          -- AXI-Lite Interface (axilClk domain)
@@ -228,15 +231,17 @@ begin
          axilWriteMaster  => axilWriteMasters(0),
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
-         eventClk         => dmaClk,
+         eventClk         => (others => dmaClk),
          eventTrigMsgCtrl => open,
          -- AXI Stream Interface (axisClk domain)
-         axisClk          => dmaClk,
-         axisRst          => dmaRst,
+         axisClk          => (others => dmaClk),
+         axisRst          => (others => dmaRst),
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
+   -- dmaIbMasters <= buffIbMasters;
+   -- buffIbSlaves <= dmaIbSlaves;
 
    ---------------
    -- PRBS Modules
@@ -245,7 +250,8 @@ begin
       generic map (
          TPD_G             => TPD_G,
          DMA_SIZE_G        => DMA_SIZE_C,
-         NUM_VC_G          => 2,
+         NUM_VC_G          => 1,
+         -- NUM_VC_G          => 4,
          PRBS_SEED_SIZE_G  => 8*DMA_AXIS_CONFIG_C.TDATA_BYTES_C,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (
