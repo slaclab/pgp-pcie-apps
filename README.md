@@ -62,19 +62,21 @@ $ source /sdf/group/faders/tools/xilinx/2024.2/Vivado/2024.2/settings64.sh
 
 > Else you will need to install Vivado and install the Xilinx Licensing
 
-2) Go to the firmware's target directory:
+2) Go to the firmware's target directory (lots of targets...using XilinxVariumC1100Pgp4_6Gbps for illustration):
 
 ```bash
-$ cd pgp-pcie-apps/firmware/targets/XilinxKcu1500PrbsTester
+$ cd pgp-pcie-apps/firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps
 ```
 
-3) Build the firmware (two options available)
+3) Build the firmware
 
 ```bash
-# Option#1: Build the firmware in batch mode
 $ make
+```
 
-# Option#2: Build the firmware in GUI mode
+4) Optional: Review the results in GUI mode
+
+```bash
 $ make gui
 ```
 
