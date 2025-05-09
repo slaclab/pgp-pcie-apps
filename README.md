@@ -2,7 +2,9 @@
 
 [DOE Code](https://www.osti.gov/doecode/biblio/75501)
 
-<!--- ########################################################################################### -->
+<!--- ######################################################## -->
+
+# Clone the GIT repository
 
 Install git large filesystems (git-lfs) in your .gitconfig (1-time step per unix environment)
 ```bash
