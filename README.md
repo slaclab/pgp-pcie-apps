@@ -4,12 +4,6 @@
 
 <!--- ########################################################################################### -->
 
-# Before you clone the GIT repository
-
-https://confluence.slac.stanford.edu/x/vJmDFg
-
-<!--- ########################################################################################### -->
-
 Install git large filesystems (git-lfs) in your .gitconfig (1-time step per unix environment)
 ```bash
 $ git lfs install
