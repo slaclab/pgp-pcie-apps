@@ -124,7 +124,7 @@ class MyRoot(pr.Root):
             if (args.version == 4):
                 self.add(pgp.Pgp4AxiL(
                     name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000),
+                    offset  = (0x08000000 + lane*0x00100000),
                     memBase = self.memMap,
                     numVc   = args.numVc,
                     writeEn = True,
@@ -133,7 +133,7 @@ class MyRoot(pr.Root):
             elif (args.version == 3):
                 self.add(pgp.Pgp3AxiL(
                     name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000),
+                    offset  = (0x08000000 + lane*0x00100000),
                     memBase = self.memMap,
                     numVc   = args.numVc,
                     writeEn = True,
@@ -142,14 +142,14 @@ class MyRoot(pr.Root):
             else:
                 self.add(pgp.Pgp2bAxi(
                     name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000 + 0x1000),
+                    offset  = (0x08000000 + lane*0x00100000 + 0x1000),
                     memBase = self.memMap,
                     expand  = False,
                 ))
 
             self.add(axi.AxiStreamMonAxiL(
                 name        = (f'PgpTxAxisMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x3000),
+                offset      = (0x08000000 + lane*0x00100000 + 0x30000),
                 numberLanes = args.numVc,
                 memBase     = self.memMap,
                 expand      = False,
@@ -157,7 +157,7 @@ class MyRoot(pr.Root):
 
             self.add(axi.AxiStreamMonAxiL(
                 name        = (f'PgpRxAxisMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x4000),
+                offset      = (0x08000000 + lane*0x00100000 + 0x40000),
                 numberLanes = args.numVc,
                 memBase     = self.memMap,
                 expand      = False,

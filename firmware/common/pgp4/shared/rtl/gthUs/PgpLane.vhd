@@ -86,8 +86,28 @@ architecture mapping of PgpLane is
    constant TX_MON_INDEX_C : natural := 3;
    constant RX_MON_INDEX_C : natural := 4;
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 16, 12);
-
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
+      0               => (
+         baseAddr     => AXI_BASE_ADDR_G + x"0000_0000",
+         addrBits     => 16,
+         connectivity => x"FFFF"),
+      1               => (
+         baseAddr     => AXI_BASE_ADDR_G + x"0000_8000",
+         addrBits     => 16,
+         connectivity => x"FFFF"),
+      2               => (
+         baseAddr     => AXI_BASE_ADDR_G + x"0000_9000",
+         addrBits     => 16,
+         connectivity => x"FFFF"),
+      3               => (
+         baseAddr     => AXI_BASE_ADDR_G + x"0000_a000",
+         addrBits     => 16,
+         connectivity => x"FFFF"),
+      4               => (
+         baseAddr     => AXI_BASE_ADDR_G + x"0000_b000",
+         addrBits     => 16,
+         connectivity => x"FFFF"));
+         
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_OK_C);
    signal axilReadMasters  : AxiLiteReadMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
@@ -139,7 +159,7 @@ begin
       generic map (
          TPD_G            => TPD_G,
          RATE_G           => RATE_G,
-         EN_DRP_G         => false,
+         EN_DRP_G         => true,
          EN_PGP_MON_G     => true,
          NUM_VC_G         => NUM_VC_G,
          AXIL_CLK_FREQ_G  => 156.25E+6,

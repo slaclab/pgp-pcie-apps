@@ -33,7 +33,7 @@ class EyeGty(pr.Device):
             offset       =  0x03 << 2,
             bitSize      =  4,
             bitOffset    =  5,
-            mode         = "RW",
+            mode         = "RO",
             # enum         = {
                 # 0 : '-',
                 # 2 : '16',
@@ -45,128 +45,41 @@ class EyeGty(pr.Device):
                 # 8 : '128',
                 # 9 : '160'},
         ))
-
+        
         self.add(pr.RemoteVariable(
-            name         = "TESTREF",
-            offset       =  0x50,
-            bitSize      =  5,
-            mode         = "RW",
+            name         = "RXPMARST_TIME",
+            offset       =  0x05 << 2,
+            bitSize      =  4,
+            bitOffset    =  11,
+            mode         = "RO",
         ))
-
+        
         self.add(pr.RemoteVariable(
-            name         = "ES_PRESCALE",
-            offset       =  0xF0,
-            bitSize      =  5,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "ES_EYE_SCAN_EN",
-            offset       =  0xF1,
-            bitSize      =  1,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "RX_EYESCAN_VS_NEG_DIR",
-            offset       =  0x25D,
-            bitSize      =  1,
-            bitOffset    =  2,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "RX_EYESCAN_VS_UT_SIGN",
-            offset       =  0x25D,
-            bitSize      =  1,
-            bitOffset    =  1,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "RX_EYESCAN_VS_CODE",
-            offset       =  0x25C,
-            bitSize      =  7,
-            bitOffset    =  2,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "RX_EYESCAN_VS_RANGE",
-            offset       =  0x25C,
-            bitSize      =  2,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "ES_CLK_PHASE_SEL",
-            offset       =  0x251,
-            bitSize      =  1,
-            bitOffset    =  3,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "ES_PMA_CFG",
-            offset       =  0x144,
-            bitSize      =  10,
-            mode         = "RW",
-        ))
-
-        self.add(pr.RemoteVariable(
-            name         = "ES_HORZ_OFFSET",
-            offset       =  0x13C,
-            bitSize      =  12,
-            bitOffset    =  4,
-            mode         = "RW",
-        ))
-
-        self.addRemoteVariables(
-            name         = "ES_SDATA_MASK",
-            offset       =  0x124,
+            name         = "ES_RDATABYTE",
+            offset       =  0x258 << 2,
             bitSize      =  16,
-            mode         = "RW",
-            number       =  5,
-            stride       =  4,
-        )
-
-        self.addRemoteVariables(
-            name         = "ES_QUAL_MASK",
-            offset       =  0x110,
-            bitSize      =  16,
-            mode         = "RW",
-            number       =  5,
-            stride       =  4,
-        )
-
-        self.addRemoteVariables(
-            name         = "ES_QUALIFIER",
-            offset       =  0xFC,
-            bitSize      =  16,
-            mode         = "RW",
-            number       =  5,
-            stride       =  4,
-        )
+            mode         = "RO",
+        ))
+        
 
         self.add(pr.RemoteVariable(
             name         = "ES_CONTROL",
-            offset       =  0xF1,
+            offset       =  0x3C << 2,
             bitSize      =  6,
-            bitOffset    =  2,
+            bitOffset    =  10,
             mode         = "RW",
         ))
 
         self.add(pr.RemoteVariable(
             name         = "ES_ERRDET_EN",
-            offset       =  0xF1,
+            offset       =  0x3C << 2,
             bitSize      =  1,
-            bitOffset    =  1,
+            bitOffset    =  9,
             mode         = "RW",
         ))
-
         self.add(pr.RemoteVariable(
             name         = "ES_CONTROL_STATUS",
-            offset       =  0x94c,
+            offset       =  0x253 << 2,
             bitSize      =  4,
             bitOffset    =  0,
             mode         = "RW",
@@ -174,7 +87,7 @@ class EyeGty(pr.Device):
 
         self.add(pr.RemoteVariable(
             name         = "ES_SAMPLE_COUNT",
-            offset       =  0x948,
+            offset       =  0x252 << 2,
             bitSize      =  16,
             bitOffset    =  1,
             mode         = "RW",
@@ -182,11 +95,143 @@ class EyeGty(pr.Device):
 
         self.add(pr.RemoteVariable(
             name         = "ES_ERROR_COUNT",
-            offset       =  0x944,
+            offset       =  0x251 << 2,
             bitSize      =  16,
             bitOffset    =  1,
             mode         = "RW",
         ))
+
+        self.add(pr.RemoteVariable(
+            name         = "ES_CONTROL_STATUS_OLD",
+            offset       =  0x153 << 2,
+            bitSize      =  4,
+            bitOffset    =  0,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "ES_SAMPLE_COUNT_OLD",
+            offset       =  0x548,
+            bitSize      =  16,
+            bitOffset    =  1,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "ES_ERROR_COUNT_OLD",
+            offset       =  0x544,
+            bitSize      =  16,
+            bitOffset    =  1,
+            mode         = "RW",
+        ))
+        
+        self.add(pr.RemoteVariable(
+            name         = "ES_PRESCALE",
+            offset       =  0x3C << 2,
+            bitSize      =  5,
+            mode         = "RW",
+        ))
+        
+        self.add(pr.RemoteVariable(
+            name         = "ES_EYE_SCAN_EN",
+            offset       =  0x3C << 2,
+            bitSize      =  1,
+            bitOffset    =  8,
+            mode         = "RW",
+        ))
+
+        es_sdata_mask_addr = [0xf5, 0xf4, 0xf3, 0xf2, 0xf1, 0x4d, 0x4c, 0x4b, 0x4a, 0x49 ]
+        es_qual_addr = [0xeb, 0xea, 0xe9, 0xe8, 0xe7, 0x43, 0x42, 0x41, 0x40, 0x3f]
+        es_qual_mask_addr = [0xf0, 0xef, 0xee, 0xed, 0xec, 0x48, 0x47, 0x46, 0x45, 0x44]
+        
+        
+        for i in range(len(es_sdata_mask_addr)):
+            print("ES_QUAL_MASK[{}]: 0x{:X}".format(i, es_qual_mask_addr[len(es_sdata_mask_addr)-i-1]))
+            
+            self.add(pr.RemoteVariable(
+                name         = "ES_QUAL_MASK[{}]".format(i),
+                offset       =  es_qual_mask_addr[len(es_sdata_mask_addr)-i-1] << 2,
+                bitSize      =  16,
+                mode         = "RW"
+            ))
+
+            self.add(pr.RemoteVariable(
+                name         = "ES_QUALIFIER[{}]".format(i),
+                offset       =  es_qual_addr[len(es_sdata_mask_addr)-i-1] << 2,
+                bitSize      =  16,
+                mode         = "RW"
+            ))
+        
+            self.add(pr.RemoteVariable(
+                name         = "ES_SDATA_MASK[{}]".format(i),
+                offset       =  es_sdata_mask_addr[len(es_sdata_mask_addr)-i-1] << 2,
+                bitSize      =  16,
+                mode         = "RW"
+            ))
+
+        self.add(pr.RemoteVariable(
+            name         = "ES_HORZ_OFFSET",
+            offset       =  0x4F << 2,
+            bitSize      =  11,
+            bitOffset    =  4,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "ES_HORZ_OFFSET_CFG",
+            offset       =  0x4F << 2,
+            bitSize      =  1,
+            bitOffset    =  15,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "ES_PMA_CFG",
+            offset       =  0x51 << 2,
+            bitSize      =  10,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "ES_CLK_PHASE_SEL",
+            offset       =  0x94 << 2,
+            bitSize      =  1,
+            bitOffset    =  11,
+            mode         = "RW",
+        ))
+
+
+        self.add(pr.RemoteVariable(
+            name         = "RX_EYESCAN_VS_NEG_DIR",
+            offset       =  0x97 << 2,
+            bitSize      =  1,
+            bitOffset    =  10,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "RX_EYESCAN_VS_UT_SIGN",
+            offset       =  0x97 << 2,
+            bitSize      =  1,
+            bitOffset    =  9,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "RX_EYESCAN_VS_CODE",
+            offset       =  0x97 << 2,
+            bitSize      =  7,
+            bitOffset    =  2,
+            mode         = "RW",
+        ))
+
+        self.add(pr.RemoteVariable(
+            name         = "RX_EYESCAN_VS_RANGE",
+            offset       =  0x97 << 2,
+            bitSize      =  2,
+            mode         = "RW",
+        ))
+        
 
     def bathtubPlot(self, fname=None):
         bers = self.bathtub()
@@ -278,7 +323,7 @@ class EyeGty(pr.Device):
         y = 0
 
         for pos in range(-64, 64):
-            #print("[{}%] Eye measurement in progress          \r".format(round((float(64.0+pos)/256.0)*100)), end='')
+            print("[{}%] Eye measurement in progress       \r".format(round((float(64.0+pos)/256.0)*100)), end='')
             prev = ber
 
             currY = []
@@ -318,7 +363,7 @@ class EyeGty(pr.Device):
         y = 0
 
         for pos in range(-64, 64):
-            print("[{}%] Eye measurement in progress          \r".format(round((float(128.0+64.0+pos)/256.0)*100)), end='')
+            print("[{}%] Eye measurement in progress  \r".format(round((float(128.0+64.0+pos)/256.0)*100)), end='')
             prev = ber
 
             currY = []
@@ -364,21 +409,26 @@ class EyeGty(pr.Device):
 
     def getBERsample(self, prescale, x, y):
 
-        #self.ES_EYE_SCAN_EN.set(0x00)
-        #self.ES_ERRDET_EN.set(0x00)
+        self.ES_EYE_SCAN_EN.set(0x00)
+        self.ES_ERRDET_EN.set(0x00)
 
         ## This requires a PMA reset
         self.ES_EYE_SCAN_EN.set(0x01)
         self.ES_ERRDET_EN.set(0x01)
 
-        print("PRESCALE: {}".format(prescale))
+        #print("PRESCALE: {}".format(prescale))
         self.ES_PRESCALE.set(prescale)
 
-        self.ES_SDATA_MASK[0].set(0xffff)
-        self.ES_SDATA_MASK[1].set(0x000f)
+        self.ES_SDATA_MASK[0].set(0x0000)
+        self.ES_SDATA_MASK[1].set(0x0000)
         self.ES_SDATA_MASK[2].set(0xff00)
         self.ES_SDATA_MASK[3].set(0xffff)
         self.ES_SDATA_MASK[4].set(0xffff)
+        self.ES_SDATA_MASK[5].set(0xffff)
+        self.ES_SDATA_MASK[6].set(0xffff)
+        self.ES_SDATA_MASK[7].set(0xffff)
+        self.ES_SDATA_MASK[8].set(0xffff)
+        self.ES_SDATA_MASK[9].set(0xffff)
 
         for i in range(len(self.ES_QUAL_MASK)):
             self.ES_QUAL_MASK[i].set(0xffff)
@@ -396,39 +446,41 @@ class EyeGty(pr.Device):
             self.RX_EYESCAN_VS_CODE.set(-1*y)
 
         if x < 0:
-            tmp = 0xFFF & x
+            tmp = 0x7FF & x
             self.ES_HORZ_OFFSET.set(tmp)
         else:
             self.ES_HORZ_OFFSET.set(x)
 
+        #print('self.ES_HORZ_OFFSET: {}'.format(self.ES_HORZ_OFFSET.get()))
+        #print('self.ES_HORZ_OFFSET_CFG: {}'.format(self.ES_HORZ_OFFSET_CFG.get()))
+        
         #Wait for status being WAIT
         ts0 = time.perf_counter()
         status = self.ES_CONTROL_STATUS.get()
-        np = 0
+        
         while (status & 0x01) != 1:
             time.sleep(0.1)
             status = self.ES_CONTROL_STATUS.get()
-            np += 1
-        #print('Wait for WAIT status: {}(1) {}'.format(status,np))
+            errCount = self.ES_ERROR_COUNT.get()
+            sampleCount = self.ES_SAMPLE_COUNT.get()
+            #print('Wait for WAIT status: {}(1) {} [samples: {}, errors: {}]'.format(status,np, sampleCount, errCount))
 
         self.ES_CONTROL.set(0x01)
 
         #Wait for status being RESET
         status = self.ES_CONTROL_STATUS.get()
-        np = 0
         ts1 = time.perf_counter()
         while (status & 0x01) != 1:
             time.sleep(0.1)
             status = self.ES_CONTROL_STATUS.get()
-            np += 1
-        #print("Wait for ready status: {}(5) {}".format(status,np))
+            #print("Wait for ready status: {}(5) {}".format(status,np))
 
         ts2 = time.perf_counter()
         errCount = self.ES_ERROR_COUNT.get()
         sampleCount = self.ES_SAMPLE_COUNT.get()
         bitCount = 20*math.pow(2, 1+prescale)*sampleCount
 
-        #print(f'getBERsample {errCount} {bitCount} {sampleCount} {ts0} {ts1} {ts2}')
+        print(f'getBERsample {errCount} {bitCount} {sampleCount} {ts0} {ts1} {ts2}')
         return (errCount,bitCount)
 
     def getBER(self, berTarget, x, y):
