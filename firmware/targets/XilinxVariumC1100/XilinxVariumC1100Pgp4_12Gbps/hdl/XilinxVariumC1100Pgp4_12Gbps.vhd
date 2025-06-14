@@ -169,7 +169,7 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         QSFP_CDR_DISABLE_G   => false,  -- FALSE: 25.78125Gbps/12.5Gbps = 2.0625 = 2 + 1/16
+         QSFP_CDR_DISABLE_G   => false,  -- FALSE: 25G CDR does work with this line rate (within the QSFP's CDR margin)
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,

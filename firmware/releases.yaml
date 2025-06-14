@@ -76,10 +76,6 @@ Targets:
     ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps/images
     Extensions:
       - mcs
-  XilinxVariumC1100Pgp4_18Gbps:
-    ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps/images
-    Extensions:
-      - mcs
   XilinxVariumC1100Htsp100GbpsBifurcatedPcie:
     ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Htsp100GbpsBifurcatedPcie/images
     Extensions:
@@ -107,7 +103,6 @@ Releases:
       - XilinxVariumC1100Pgp4_6Gbps
       - XilinxVariumC1100Pgp4_10Gbps
       - XilinxVariumC1100Pgp4_15Gbps
-      - XilinxVariumC1100Pgp4_18Gbps
       - XilinxVariumC1100Htsp100GbpsBifurcatedPcie
       #######################################
     Types:

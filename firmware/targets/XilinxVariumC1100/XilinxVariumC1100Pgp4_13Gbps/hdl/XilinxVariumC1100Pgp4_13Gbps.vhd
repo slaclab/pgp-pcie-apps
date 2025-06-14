@@ -29,12 +29,12 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxVariumC1100Pgp4_6Gbps is
+entity XilinxVariumC1100Pgp4_13Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
       ROGUE_SIM_PORT_NUM_G : natural range 1024 to 49151 := 8000;
-      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 2, tIdBits => 3);  --- 8 Byte (64-bit) tData interface
+      DMA_AXIS_CONFIG_G    : AxiStreamConfigType         := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  --- 16 Byte (128-bit) tData interface
       BUILD_INFO_G         : BuildInfoType);
    port (
       ---------------------
@@ -83,9 +83,9 @@ entity XilinxVariumC1100Pgp4_6Gbps is
       pciRxN       : in    slv(7 downto 0);
       pciTxP       : out   slv(7 downto 0);
       pciTxN       : out   slv(7 downto 0));
-end XilinxVariumC1100Pgp4_6Gbps;
+end XilinxVariumC1100Pgp4_13Gbps;
 
-architecture top_level of XilinxVariumC1100Pgp4_6Gbps is
+architecture top_level of XilinxVariumC1100Pgp4_13Gbps is
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -291,7 +291,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
-         RATE_G            => "6.25Gbps",
+         RATE_G            => "13.75Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------

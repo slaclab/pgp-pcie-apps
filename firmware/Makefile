@@ -5,7 +5,6 @@ export TARGET_DIRS  = $(PWD)/targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_6Gbps \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_10Gbps \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps \
-                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_18Gbps \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Htsp100GbpsBifurcatedPcie
 
 .PHONY: all build clean
