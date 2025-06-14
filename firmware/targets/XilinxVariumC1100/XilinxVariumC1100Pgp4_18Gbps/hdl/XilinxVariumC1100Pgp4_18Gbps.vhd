@@ -29,7 +29,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxVariumC1100Pgp4_17Gbps is
+entity XilinxVariumC1100Pgp4_18Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -83,9 +83,9 @@ entity XilinxVariumC1100Pgp4_17Gbps is
       pciRxN       : in    slv(7 downto 0);
       pciTxP       : out   slv(7 downto 0);
       pciTxN       : out   slv(7 downto 0));
-end XilinxVariumC1100Pgp4_17Gbps;
+end XilinxVariumC1100Pgp4_18Gbps;
 
-architecture top_level of XilinxVariumC1100Pgp4_17Gbps is
+architecture top_level of XilinxVariumC1100Pgp4_18Gbps is
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -169,7 +169,7 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         QSFP_CDR_DISABLE_G   => true,  -- TRUE: 25G CDR doesn't work with this line rate (empirically determined)
+         QSFP_CDR_DISABLE_G   => false,  -- FALSE: 25.78125Gbps/18.75Gbps = 1.375 = 1 + 3/8
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
@@ -291,7 +291,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
-         RATE_G            => "17.1875Gbps",
+         RATE_G            => "18.75Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------
