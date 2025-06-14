@@ -169,7 +169,7 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         QSFP_CDR_DISABLE_G   => true,
+         QSFP_CDR_DISABLE_G   => false,  -- FALSE: 25.78125Gbps/6.25Gbps = 4.125 = 4 + 1/8
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
@@ -255,6 +255,8 @@ begin
          TPD_G             => TPD_G,
          DMA_SIZE_G        => 8,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         CLKFBOUT_MULT_G   => 10,       -- 1.0GHz = 10 x 100 MHz
+         CLKOUT0_DIVIDE_G  => 4,        -- 250MHz = 1.0GHz/4
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
          -- Card Management Solution (CMS) Interface
