@@ -29,7 +29,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxVariumC1100Pgp4_15Gbps is
+entity XilinxVariumC1100Pgp4_20Gbps is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -83,9 +83,9 @@ entity XilinxVariumC1100Pgp4_15Gbps is
       pciRxN       : in    slv(7 downto 0);
       pciTxP       : out   slv(7 downto 0);
       pciTxN       : out   slv(7 downto 0));
-end XilinxVariumC1100Pgp4_15Gbps;
+end XilinxVariumC1100Pgp4_20Gbps;
 
-architecture top_level of XilinxVariumC1100Pgp4_15Gbps is
+architecture top_level of XilinxVariumC1100Pgp4_20Gbps is
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -291,7 +291,7 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
-         RATE_G            => "15.46875Gbps",
+         RATE_G            => "20.625Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------

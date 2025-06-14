@@ -169,7 +169,7 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         QSFP_CDR_DISABLE_G   => true,  -- TRUE: 25G CDR designed to reject 40GbE (10.3125Gb/s/lane)
+         QSFP_CDR_DISABLE_G   => true,  -- TRUE: 25G CDR doesn't work with this line rate (CDR margin is too large)
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
