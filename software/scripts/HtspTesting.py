@@ -91,6 +91,14 @@ parser.add_argument(
     help     = "Enable read all variables at start",
 )
 
+parser.add_argument(
+    "--boardType",
+    type     = str,
+    required = False,
+    default  = None,
+    help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or SlacPgpCardG4, Kcu1500, etc]",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -120,6 +128,7 @@ class MyRoot(pr.Root):
             offset     = 0x00000000,
             memBase     = self.memMap,
             numDmaLanes = args.numLane,
+            boardType    = args.boardType,
             expand      = False,
         ))
 

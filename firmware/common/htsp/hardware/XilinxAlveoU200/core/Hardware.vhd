@@ -22,6 +22,7 @@ library surf;
 use surf.StdRtlPkg.all;
 use surf.AxiLitePkg.all;
 use surf.AxiStreamPkg.all;
+use surf.HtspPkg.all;
 
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
@@ -55,6 +56,9 @@ entity Hardware is
       dmaObSlaves     : out AxiStreamSlaveArray(1 downto 0);
       dmaIbMasters    : out AxiStreamMasterArray(1 downto 0);
       dmaIbSlaves     : in  AxiStreamSlaveArray(1 downto 0);
+      -- Non-VC Interface (htspClkOut domain)
+      htspClkOut      : out slv(1 downto 0);
+      htspTxIn        : in  HtspTxInArray(1 downto 0);
       ---------------------
       --  Hardware Ports
       ---------------------
@@ -172,6 +176,9 @@ begin
          dmaObSlave      => dmaObSlaves(0),
          dmaIbMaster     => dmaIbMasters(0),
          dmaIbSlave      => dmaIbSlaves(0),
+         -- Non-VC Interface (htspClkOut domain)
+         htspClkOut      => htspClkOut(0),
+         htspTxIn        => htspTxIn(0),
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilReset,
@@ -206,6 +213,9 @@ begin
          dmaObSlave      => dmaObSlaves(1),
          dmaIbMaster     => dmaIbMasters(1),
          dmaIbSlave      => dmaIbSlaves(1),
+         -- Non-VC Interface (htspClkOut domain)
+         htspClkOut      => htspClkOut(1),
+         htspTxIn        => htspTxIn(1),
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilReset,
