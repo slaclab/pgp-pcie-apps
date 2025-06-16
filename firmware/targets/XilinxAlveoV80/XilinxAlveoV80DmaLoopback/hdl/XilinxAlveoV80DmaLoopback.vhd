@@ -37,22 +37,35 @@ entity XilinxAlveoV80DmaLoopback is
       --  Application Ports
       ---------------------
       -- -- QSFP[0] Ports
-      -- qsfp0RefClkP : in  slv(1 downto 0);
-      -- qsfp0RefClkN : in  slv(1 downto 0);
+      -- qsfp0RefClkP : in  sl; -- 322 MHz
+      -- qsfp0RefClkN : in  sl; -- 322 MHz
       -- qsfp0RxP     : in  slv(3 downto 0);
       -- qsfp0RxN     : in  slv(3 downto 0);
       -- qsfp0TxP     : out slv(3 downto 0);
       -- qsfp0TxN     : out slv(3 downto 0);
       -- -- QSFP[1] Ports
-      -- qsfp1RefClkP : in  slv(1 downto 0);
-      -- qsfp1RefClkN : in  slv(1 downto 0);
       -- qsfp1RxP     : in  slv(3 downto 0);
       -- qsfp1RxN     : in  slv(3 downto 0);
       -- qsfp1TxP     : out slv(3 downto 0);
       -- qsfp1TxN     : out slv(3 downto 0);
+      -- -- QSFP[2] Ports
+      -- qsfp2RefClkP : in  sl; -- 322 MHz
+      -- qsfp2RefClkN : in  sl; -- 322 MHz
+      -- qsfp2RxP     : in  slv(3 downto 0);
+      -- qsfp2RxN     : in  slv(3 downto 0);
+      -- qsfp2TxP     : out slv(3 downto 0);
+      -- qsfp2TxN     : out slv(3 downto 0);
+      -- -- QSFP[3] Ports
+      -- qsfp3RxP     : in  slv(3 downto 0);
+      -- qsfp3RxN     : in  slv(3 downto 0);
+      -- qsfp3TxP     : out slv(3 downto 0);
+      -- qsfp3TxN     : out slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
+      -- System Ports
+      userClkP    : in    sl;           -- 100 MHz
+      userClkN    : in    sl;           -- 100 MHz
       -- PS DDR Ports
       psDdrDq     : inout slv(71 downto 0);
       psDdrDqsT   : inout slv(8 downto 0);
@@ -93,12 +106,33 @@ architecture top_level of XilinxAlveoV80DmaLoopback is
    signal dmaMasters : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
    signal dmaSlaves  : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
 
+   signal userClk         : sl;
+   signal axilClk         : sl;
+   signal axilRst         : sl;
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType  := AXI_LITE_READ_SLAVE_EMPTY_OK_C;
    signal axilWriteMaster : AxiLiteWriteMasterType;
    signal axilWriteSlave  : AxiLiteWriteSlaveType := AXI_LITE_WRITE_SLAVE_EMPTY_OK_C;
 
 begin
+
+   U_axilClk : entity surf.ClockManagerVersal
+      generic map(
+         TPD_G            => TPD_G,
+         TYPE_G           => "PLL",
+         NUM_CLOCKS_G     => 1,
+         -- MMCM attributes
+         CLKIN_PERIOD_G   => 10.0,      -- 100MHz
+         CLKFBOUT_MULT_G  => 25,        -- 2.5GHz = 100MHz x 25
+         CLKOUT0_DIVIDE_G => 16)        -- 156.25MHz = 2.5GHz/16
+      port map(
+         -- Clock Input
+         clkIn     => userClk,
+         rstIn     => dmaRst,
+         -- Clock Outputs
+         clkOut(0) => axilClk,
+         -- Reset Outputs
+         rstOut(0) => axilRst);
 
    U_Core : entity axi_pcie_core.XilinxAlveoV80Core
       generic map (
@@ -110,6 +144,7 @@ begin
          ------------------------
          --  Top Level Interfaces
          ------------------------
+         userClk        => userClk,
          -- DMA Interfaces
          dmaClk         => dmaClk,
          dmaRst         => dmaRst,
@@ -118,8 +153,8 @@ begin
          dmaIbMasters   => dmaMasters,
          dmaIbSlaves    => dmaSlaves,
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
-         appClk         => dmaClk,
-         appRst         => dmaRst,
+         appClk         => axilClk,
+         appRst         => axilRst,
          appReadMaster  => axilReadMaster,
          appReadSlave   => axilReadSlave,
          appWriteMaster => axilWriteMaster,
@@ -127,6 +162,9 @@ begin
          --------------
          --  Core Ports
          --------------
+         -- System Ports
+         userClkP       => userClkP,
+         userClkN       => userClkN,
          -- PS DDR Ports
          psDdrDq        => psDdrDq,
          psDdrDqsT      => psDdrDqsT,
