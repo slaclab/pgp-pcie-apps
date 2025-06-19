@@ -134,6 +134,9 @@ begin
          -- Reset Outputs
          rstOut(0) => axilRst);
 
+   -- axilClk <= dmaClk;
+   -- axilRst <= dmaRst;
+
    U_Core : entity axi_pcie_core.XilinxAlveoV80Core
       generic map (
          TPD_G             => TPD_G,
