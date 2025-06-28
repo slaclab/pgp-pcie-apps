@@ -14,5 +14,4 @@ loadConstraints -dir "$::DIR_PATH/hdl"
 set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]
 
 # Set top level simulation
-set_property top {Pgp4Tb} [get_filesets sim_1]
-
+set_property top {Pgp4FecTb} [get_filesets sim_1]
