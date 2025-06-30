@@ -292,7 +292,7 @@ begin
       generic map (
          TPD_G             => TPD_G,
          PGP_FEC_ENABLE_G  => true,     -- Enable RS-FEC
-         RATE_G            => "25.625Gbps",
+         RATE_G            => "25.0Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------
