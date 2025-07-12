@@ -44,27 +44,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--numLane",
-    type     = int,
-    required = False,
-    default  = 1,
-    help     = "# of DMA Lanes",
-)
-
-parser.add_argument(
     "--numVc",
     type     = int,
     required = False,
     default  = 1,
     help     = "# of VC (virtual channels)",
-)
-
-parser.add_argument(
-    "--perf",
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Sets whether we are in performance testing config",
 )
 
 parser.add_argument(
@@ -96,7 +80,7 @@ parser.add_argument(
     type     = str,
     required = False,
     default  = None,
-    help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or SlacPgpCardG4, Kcu1500, etc]",
+    help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or XilinxVariumC1100, XilinxAlveoU200, etc]",
 )
 
 # Get the arguments
@@ -116,39 +100,24 @@ class MyRoot(pr.Root):
 
         # Create PCIE memory mapped interface
         self.memMap = rogue.hardware.axi.AxiMemMap(args.dev)
-        self.perf = args.perf
 
-        if (self.perf is False):
-            self.dmaStream   = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-            self.prbsRx      = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-            self.prbsTx      = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+        # Create arrays to be filled
+        self.dmaStream   = [[None for _ in range(args.numVc)] for _ in range(2)]
+        self.prbsRx      = [[None for _ in range(args.numVc)] for _ in range(2)]
+        self.prbsTx      = [[None for _ in range(args.numVc)] for _ in range(2)]
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
-            offset     = 0x00000000,
+            offset      = 0x00000000,
             memBase     = self.memMap,
-            numDmaLanes = args.numLane,
-            boardType    = args.boardType,
+            numDmaLanes = 2,
+            boardType   = args.boardType,
             expand      = False,
         ))
 
-        if (self.perf is True):
-
-            self.add(ssi.SsiPrbsTx(
-                offset  = (0x0040_0000 + 1*0x1_0000),
-                memBase = self.memMap,
-                expand  = True,
-            ))
-
-            self.add(ssi.SsiPrbsRx(
-                offset      = (0x0040_0000 + 2*0x1_0000),
-                memBase     = self.memMap,
-                rxClkPeriod = 4.0e-9,
-                expand      = True,
-            ))
-
         # Add devices
-        for lane in range(args.numLane):
+        for lane in range(2):
+
             self.add(htsp.HtspAxiL(
                 name    = f'Lane[{lane}]',
                 offset  = (0x00800000 + lane*0x1_0000),
@@ -174,31 +143,29 @@ class MyRoot(pr.Root):
                 expand      = False,
             ))
 
-            if (self.perf is False):
+            # Loop through the virtual channels
+            for vc in range(args.numVc):
 
-                # Loop through the virtual channels
-                for vc in range(args.numVc):
+                self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
 
-                    self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+                # Connect the SW PRBS Receiver module
+                self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
+                    name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
+                    width        = args.prbsWidth,
+                    checkPayload = True,
+                    expand       = True,
+                )
+                self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
+                self.add(self.prbsRx[lane][vc])
 
-                    # Connect the SW PRBS Receiver module
-                    self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
-                        name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
-                        width        = args.prbsWidth,
-                        checkPayload = True,
-                        expand       = True,
-                    )
-                    self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
-                    self.add(self.prbsRx[lane][vc])
-
-                    # Connect the SW PRBS Transmitter module
-                    self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
-                        name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
-                        width   = args.prbsWidth,
-                        expand  = False,
-                    )
-                    self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
-                    self.add(self.prbsTx[lane][vc])
+                # Connect the SW PRBS Transmitter module
+                self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
+                    name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
+                    width   = args.prbsWidth,
+                    expand  = False,
+                )
+                self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
+                self.add(self.prbsTx[lane][vc])
 
         @self.command()
         def EnableAllSwTx():
@@ -213,6 +180,46 @@ class MyRoot(pr.Root):
                 swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
                 for tx in swTxDevices:
                     tx.txEnable.set(False)
+
+    def start(self, **kwargs):
+        super().start(**kwargs)
+
+        # Check for Bifurcated Pcie
+        if self.AxiPcieCore.AxiVersion.ImageName.getDisp() == 'XilinxVariumC1100Htsp100GbpsBifurcatedPcie':
+
+            # Check for 2nd endpoint
+            if self.AxiPcieCore.AxiVersion.BOOT_PROM_G.getDisp() == 'UNDEFINED':
+                # Disable and hide index = 0
+                disableIndex = 0
+
+            # Else it's the 1st endpoint
+            else:
+                # Disable and hide index = 1
+                disableIndex = 1
+
+        # Hide and disable
+        self.Lane[disableIndex].hidden = True
+        self.Lane[disableIndex].enable._value = False
+
+        self.TxAxisMon[disableIndex].hidden = True
+        self.TxAxisMon[disableIndex].enable._value = False
+
+        self.RxAxisMon[disableIndex].hidden = True
+        self.RxAxisMon[disableIndex].enable._value = False
+
+        # DMA always connected to physical lane=0 in Bifurcated Pcie
+        self.AxiPcieCore.DmaIbAxisMon.Ch[1].hidden = True
+        self.AxiPcieCore.DmaIbAxisMon.Ch[1].enable._value = False
+
+        self.AxiPcieCore.DmaObAxisMon.Ch[1].hidden = True
+        self.AxiPcieCore.DmaObAxisMon.Ch[1].enable._value = False
+
+        for vc in range(args.numVc):
+            self.SwPrbsTx[1][vc].hidden = True
+            self.SwPrbsTx[1][vc].enable._value = False
+
+            self.SwPrbsRx[1][vc].hidden = True
+            self.SwPrbsRx[1][vc].enable._value = False
 
 #################################################################
 
