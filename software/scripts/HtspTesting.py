@@ -197,29 +197,29 @@ class MyRoot(pr.Root):
                 # Disable and hide index = 1
                 disableIndex = 1
 
-        # Hide and disable
-        self.Lane[disableIndex].hidden = True
-        self.Lane[disableIndex].enable._value = False
+            # Hide and disable
+            self.Lane[disableIndex].hidden = True
+            self.Lane[disableIndex].enable._value = False
 
-        self.TxAxisMon[disableIndex].hidden = True
-        self.TxAxisMon[disableIndex].enable._value = False
+            self.TxAxisMon[disableIndex].hidden = True
+            self.TxAxisMon[disableIndex].enable._value = False
 
-        self.RxAxisMon[disableIndex].hidden = True
-        self.RxAxisMon[disableIndex].enable._value = False
+            self.RxAxisMon[disableIndex].hidden = True
+            self.RxAxisMon[disableIndex].enable._value = False
 
-        # DMA always connected to physical lane=0 in Bifurcated Pcie
-        self.AxiPcieCore.DmaIbAxisMon.Ch[1].hidden = True
-        self.AxiPcieCore.DmaIbAxisMon.Ch[1].enable._value = False
+            # DMA always connected to physical lane=0 in Bifurcated Pcie
+            self.AxiPcieCore.DmaIbAxisMon.Ch[1].hidden = True
+            self.AxiPcieCore.DmaIbAxisMon.Ch[1].enable._value = False
 
-        self.AxiPcieCore.DmaObAxisMon.Ch[1].hidden = True
-        self.AxiPcieCore.DmaObAxisMon.Ch[1].enable._value = False
+            self.AxiPcieCore.DmaObAxisMon.Ch[1].hidden = True
+            self.AxiPcieCore.DmaObAxisMon.Ch[1].enable._value = False
 
-        for vc in range(args.numVc):
-            self.SwPrbsTx[1][vc].hidden = True
-            self.SwPrbsTx[1][vc].enable._value = False
+            for vc in range(args.numVc):
+                self.SwPrbsTx[1][vc].hidden = True
+                self.SwPrbsTx[1][vc].enable._value = False
 
-            self.SwPrbsRx[1][vc].hidden = True
-            self.SwPrbsRx[1][vc].enable._value = False
+                self.SwPrbsRx[1][vc].hidden = True
+                self.SwPrbsRx[1][vc].enable._value = False
 
 #################################################################
 
