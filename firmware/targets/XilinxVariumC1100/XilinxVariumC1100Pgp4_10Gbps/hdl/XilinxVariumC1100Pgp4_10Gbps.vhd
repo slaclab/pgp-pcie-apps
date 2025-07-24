@@ -260,6 +260,7 @@ begin
          cmsHbmCatTrip    => cmsHbmCatTrip,
          cmsHbmTemp       => cmsHbmTemp,
          -- HBM Interface
+         userClk          => userClk,
          hbmRefClk        => hbmRefClk,
          hbmCatTrip       => hbmCatTrip,
          -- AXI-Lite Interface (axilClk domain)
@@ -270,11 +271,11 @@ begin
          axilWriteMaster  => axilWriteMasters(0),
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
-         eventClk         => axilClk,
+         eventClk         => (others => axilClk),
          eventTrigMsgCtrl => eventTrigMsgCtrl,
          -- AXI Stream Interface (axisClk domain)
-         axisClk          => dmaClk,
-         axisRst          => dmaRst,
+         axisClk          => (others => dmaClk),
+         axisRst          => (others => dmaRst),
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
          mAxisMasters     => dmaIbMasters,
