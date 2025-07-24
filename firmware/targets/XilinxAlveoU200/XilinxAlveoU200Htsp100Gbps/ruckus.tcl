@@ -9,3 +9,6 @@ loadRuckusTcl $::env(PROJ_DIR)/../../../common/htsp/hardware/XilinxAlveoU200
 # Load local source Code and constraints
 loadSource      -dir "$::DIR_PATH/hdl"
 loadConstraints -dir "$::DIR_PATH/hdl"
+
+# Update impl_1 strategy
+set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs impl_1]

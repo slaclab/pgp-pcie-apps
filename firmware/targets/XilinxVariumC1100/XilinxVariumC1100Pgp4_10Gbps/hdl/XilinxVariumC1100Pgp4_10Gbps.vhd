@@ -169,6 +169,7 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
+         QSFP_CDR_DISABLE_G   => true,  -- TRUE: 25G CDR doesn't work with this line rate (CDR margin is too large)
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
@@ -254,6 +255,8 @@ begin
          TPD_G             => TPD_G,
          DMA_SIZE_G        => 8,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         CLKFBOUT_MULT_G   => 10,       -- 1.0GHz = 10 x 100 MHz
+         CLKOUT0_DIVIDE_G  => 4,        -- 250MHz = 1.0GHz/4
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
          -- Card Management Solution (CMS) Interface
@@ -271,7 +274,7 @@ begin
          axilWriteMaster  => axilWriteMasters(0),
          axilWriteSlave   => axilWriteSlaves(0),
          -- Trigger Event streams (eventClk domain)
-         eventClk         => (others => axilClk),
+         eventClk         => pgpClkOut,
          eventTrigMsgCtrl => eventTrigMsgCtrl,
          -- AXI Stream Interface (axisClk domain)
          axisClk          => (others => dmaClk),
@@ -282,13 +285,7 @@ begin
          mAxisSlaves      => dmaIbSlaves);
 
    GEN_LANE : for i in 7 downto 0 generate
-      U_remoteDmaPause : entity surf.Synchronizer
-         generic map (
-            TPD_G => TPD_G)
-         port map (
-            clk     => pgpClkOut(i),
-            dataIn  => eventTrigMsgCtrl(i).pause,
-            dataOut => pgpTxIn(i).locData(0));
+      pgpTxIn(i).locData(0) <= eventTrigMsgCtrl(i).pause;
    end generate;
 
    U_Hardware : entity work.Hardware
