@@ -146,7 +146,7 @@ class EyeGty(pr.Device):
         
         
         for i in range(len(es_sdata_mask_addr)):
-            print("ES_QUAL_MASK[{}]: 0x{:X}".format(i, es_qual_mask_addr[len(es_sdata_mask_addr)-i-1]))
+            #print("ES_QUAL_MASK[{}]: 0x{:X}".format(i, es_qual_mask_addr[len(es_sdata_mask_addr)-i-1]))
             
             self.add(pr.RemoteVariable(
                 name         = "ES_QUAL_MASK[{}]".format(i),
@@ -301,7 +301,7 @@ class EyeGty(pr.Device):
         bers = []
 
         for pos in range(-64, 0):
-            ber = self.getBERFast(1e-9, pos, y)
+            ber = self.getBERFast(1e-8, pos, y)
             if ber != 0:
                 bers.append(ber)
             else:
@@ -377,11 +377,12 @@ class EyeGty(pr.Device):
                 ber = self.getBER(target, pos, y)
 
                 if ber > target:
-                    y += 1 if pos < 0 else 10
+                    y += 1 #if pos < 0 else 10
                 else:
-                    y -= 1 if pos > 0 else 10
+                    y -= 1 #if pos > 0 else 10
 
                 if y < -127:
+                    print('LOWER THAN 127')
                     y = -127
                     negativeY.append(-127)
                     break
@@ -409,18 +410,18 @@ class EyeGty(pr.Device):
 
     def getBERsample(self, prescale, x, y):
 
-        self.ES_EYE_SCAN_EN.set(0x00)
-        self.ES_ERRDET_EN.set(0x00)
+        #self.ES_EYE_SCAN_EN.set(0x00)
+        #self.ES_ERRDET_EN.set(0x00)
 
         ## This requires a PMA reset
-        self.ES_EYE_SCAN_EN.set(0x01)
-        self.ES_ERRDET_EN.set(0x01)
+        #self.ES_EYE_SCAN_EN.set(0x01)
+        #self.ES_ERRDET_EN.set(0x01)
 
         #print("PRESCALE: {}".format(prescale))
         self.ES_PRESCALE.set(prescale)
 
-        self.ES_SDATA_MASK[0].set(0x0000)
-        self.ES_SDATA_MASK[1].set(0x0000)
+        self.ES_SDATA_MASK[0].set(0xffff)
+        self.ES_SDATA_MASK[1].set(0x00ff)
         self.ES_SDATA_MASK[2].set(0xff00)
         self.ES_SDATA_MASK[3].set(0xffff)
         self.ES_SDATA_MASK[4].set(0xffff)
@@ -441,12 +442,12 @@ class EyeGty(pr.Device):
             self.RX_EYESCAN_VS_UT_SIGN.set(0x01)
             self.RX_EYESCAN_VS_CODE.set(y)
         else:
-            self.RX_EYESCAN_VS_NEG_DIR.set(0x00)
-            self.RX_EYESCAN_VS_UT_SIGN.set(0x00)
-            self.RX_EYESCAN_VS_CODE.set(-1*y)
+            self.RX_EYESCAN_VS_NEG_DIR.set(0x01)
+            self.RX_EYESCAN_VS_UT_SIGN.set(0x01)
+            self.RX_EYESCAN_VS_CODE.set((-1*y))
 
         if x < 0:
-            tmp = 0x7FF & x
+            tmp =  x & ((1 << 11) - 1)
             self.ES_HORZ_OFFSET.set(tmp)
         else:
             self.ES_HORZ_OFFSET.set(x)
@@ -463,7 +464,9 @@ class EyeGty(pr.Device):
             status = self.ES_CONTROL_STATUS.get()
             errCount = self.ES_ERROR_COUNT.get()
             sampleCount = self.ES_SAMPLE_COUNT.get()
-            #print('Wait for WAIT status: {}(1) {} [samples: {}, errors: {}]'.format(status,np, sampleCount, errCount))
+        #    #print('Wait for WAIT status: {}(1) {} [samples: {}, errors: {}]'.format(status,np, sampleCount, errCount))
+
+        #print('ES_STATUS: {:02x}'.format(status))
 
         self.ES_CONTROL.set(0x01)
 
@@ -471,7 +474,7 @@ class EyeGty(pr.Device):
         status = self.ES_CONTROL_STATUS.get()
         ts1 = time.perf_counter()
         while (status & 0x01) != 1:
-            time.sleep(0.1)
+            #time.sleep(0.1)
             status = self.ES_CONTROL_STATUS.get()
             #print("Wait for ready status: {}(5) {}".format(status,np))
 
@@ -480,7 +483,7 @@ class EyeGty(pr.Device):
         sampleCount = self.ES_SAMPLE_COUNT.get()
         bitCount = 20*math.pow(2, 1+prescale)*sampleCount
 
-        print(f'getBERsample {errCount} {bitCount} {sampleCount} {ts0} {ts1} {ts2}')
+        #print(f'getBERsample {errCount} {bitCount} {sampleCount} {ts0} {ts1} {ts2}')
         return (errCount,bitCount)
 
     def getBER(self, berTarget, x, y):
@@ -546,7 +549,7 @@ class EyeGty(pr.Device):
                 break
 
         ts2 = time.perf_counter()
-        print('[{}/{}] Err = {}, Bit = {}, T = {}'.format(x,y, errSum, bitSum, ts2-ts1))
+        #print('[{}/{}] Err = {}, Bit = {}, T = {}'.format(x,y, errSum, bitSum, ts2-ts1))
 
         if bitSum == 0:
             return 1
