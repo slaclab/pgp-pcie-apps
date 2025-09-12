@@ -21,11 +21,9 @@ import pyrogue as pr
 import pyrogue.pydm
 import pyrogue.utilities.prbs
 
-import axipcie            as pcie
-import surf.axi           as axi
-import surf.protocols.pgp as pgp
-
-#rogue.Logging.setLevel(rogue.Logging.Debug)
+import axipcie             as pcie
+import surf.axi            as axi
+import surf.protocols.htsp as htsp
 
 #################################################################
 
@@ -48,7 +46,7 @@ parser.add_argument(
     "--numLane",
     type     = int,
     required = False,
-    default  = 4,
+    default  = 2,
     help     = "# of DMA Lanes",
 )
 
@@ -58,14 +56,6 @@ parser.add_argument(
     required = False,
     default  = 4,
     help     = "# of VC (virtual channels)",
-)
-
-parser.add_argument(
-    "--version",
-    type     = int,
-    required = False,
-    default  = 4,
-    help     = "PGP Protocol Version",
 )
 
 parser.add_argument(
@@ -89,7 +79,7 @@ parser.add_argument(
     type     = str,
     required = False,
     default  = None,
-    help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or SlacPgpCardG4, Kcu1500, etc]",
+    help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or XilinxVariumC1100, XilinxAlveoU200, etc]",
 )
 
 # Get the arguments
@@ -112,60 +102,37 @@ class MyRoot(pr.Root):
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
-            offset     = 0x00000000,
+            offset      = 0x00000000,
             memBase     = self.memMap,
-            numDmaLanes = args.numLane,
+            numDmaLanes = 2,
             boardType   = args.boardType,
-            expand      = True,
+            expand      = False,
         ))
 
-        # Add PGP Core
-        for lane in range(args.numLane):
-            if (args.version == 4):
-                self.add(pgp.Pgp4AxiL(
-                    name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000),
-                    memBase = self.memMap,
-                    numVc   = args.numVc,
-                    writeEn = True,
-                    expand  = True,
-                ))
-            elif (args.version == 3):
-                self.add(pgp.Pgp3AxiL(
-                    name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000),
-                    memBase = self.memMap,
-                    numVc   = args.numVc,
-                    writeEn = True,
-                    expand  = False,
-                ))
-            else:
-                self.add(pgp.Pgp2bAxi(
-                    name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000 + 0x1000),
-                    memBase = self.memMap,
-                    expand  = False,
-                ))
+        # Add devices
+        for lane in range(2):
+
+            self.add(htsp.HtspAxiL(
+                name    = f'Lane[{lane}]',
+                offset  = (0x00800000 + lane*0x1_0000),
+                memBase = self.memMap,
+                numVc   = args.numVc,
+                writeEn = True,
+                expand  = True,
+            ))
 
             self.add(axi.AxiStreamMonAxiL(
-                name        = (f'PgpTxAxisMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x3000),
+                name        = (f'TxVcMon[{lane}]'),
+                offset      = (0x00800000 + lane*0x00010000 + 0x1000),
                 numberLanes = args.numVc,
                 memBase     = self.memMap,
                 expand      = False,
             ))
 
             self.add(axi.AxiStreamMonAxiL(
-                name        = (f'PgpRxAxisMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x4000),
+                name        = (f'RxVcMon[{lane}]'),
+                offset      = (0x00800000 + lane*0x00010000 + 0x2000),
                 numberLanes = args.numVc,
-                memBase     = self.memMap,
-                expand      = False,
-            ))
-        for lane in range(args.numLane):
-            self.add(axi.AxiStreamDmaV2Fifo(
-                name        = (f'AxiStreamDmaV2Fifo[{lane}]'),
-                offset      = (0x0010_0000 + lane*0x100),
                 memBase     = self.memMap,
                 expand      = False,
             ))

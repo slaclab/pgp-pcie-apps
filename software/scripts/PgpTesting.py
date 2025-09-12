@@ -124,7 +124,7 @@ class MyRoot(pr.Root):
             name        = "pciServer",
             description = "DMA Loopback Testing",
             **kwargs):
-        super().__init__(name=name, description=description, **kwargs)
+        super().__init__(timeout=5.0, **kwargs)
 
         self.zmqServer = pyrogue.interfaces.ZmqServer(root=self, addr='127.0.0.1', port=0)
         self.addInterface(self.zmqServer)
