@@ -13,6 +13,52 @@ set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_HbmDmaBuffer}]
 
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
 
+######################################
+# Physical Constraints - PGP_PHY_GRP_A
+######################################
+
+create_pblock PGP_PHY_GRP_A
+
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[0].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[1].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[2].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[3].U_Lane/U_Pgp/U_Pgp4Core_1]]
+
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[0].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[1].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[2].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[3].U_Lane/U_AXIS_RX_MON]]
+
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[0].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[1].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[2].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_A] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[3].U_Lane/U_AXIS_TX_MON]]
+
+resize_pblock [get_pblocks PGP_PHY_GRP_A] -add {CLOCKREGION_X0Y4:CLOCKREGION_X3Y7}
+
+######################################
+# Physical Constraints - PGP_PHY_GRP_B
+######################################
+
+create_pblock PGP_PHY_GRP_B
+
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_Pgp/U_Pgp4Core_1]]
+
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_AXIS_RX_MON]]
+
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks PGP_PHY_GRP_B] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_AXIS_TX_MON]]
+
+resize_pblock [get_pblocks PGP_PHY_GRP_B] -add {CLOCKREGION_X4Y4:CLOCKREGION_X7Y7}
+
 #######
 # PGP #
 #######
