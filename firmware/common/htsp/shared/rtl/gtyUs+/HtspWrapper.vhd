@@ -161,7 +161,6 @@ begin
          TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_G,
          -- AXI-Lite Settings
          AXIL_WRITE_EN_G       => true,
-         AXIL_BASE_ADDR_G      => AXIL_CONFIG_C(0).baseAddr,
          AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_G)
       port map (
          -- Stable Clock and Reset
