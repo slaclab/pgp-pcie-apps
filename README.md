@@ -5,12 +5,16 @@
 <!--- ######################################################## -->
 
 ## Description
+
 This is a firmware and software repository that moves data between PGP protocol links (commonly an optical interface connected to detectors) and the PCIe DMA engine. Virtual channels (VCs) and higher-level routing are defined by the software stack; the firmware provides the PGP <-> DMA/AXI-PCIe plumbing and board-specific target designs.
 
-This repository is hardware-agnostic and supports multiple Xilinx targets via the `firmware/targets/` tree.
+![Top Level Diagram](firmware/docs/top-level-diagram.png)
+
+
+This repository is hardware-agnostic and supports multiple Xilinx targets via the [firmware/targets/](firmware/targets/) tree.
 
 ### Features
-- PGP protocol lane handlers (PGP2b/PGP4) via SURF
+- Protocol lane handlers (e.g PGP2b/3/4, HTSP) via SURF
 - AXI-PCIe DMA integration (axi-pcie-core)
 - Scripts to update FPGA image via Rogue
 
