@@ -163,7 +163,6 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         SI5394_INIT_FILE_G   => "Si5394A_GT_REFCLK_161MHz.mem",
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
@@ -281,7 +280,7 @@ begin
    ----------------------------
    -- DMA Inbound Large Buffer
    ----------------------------
-   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
+   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBufferV2
       generic map (
          TPD_G             => TPD_G,
          DMA_SIZE_G        => 2,
