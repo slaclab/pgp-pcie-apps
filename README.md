@@ -24,11 +24,11 @@ This repository is hardware-agnostic and supports multiple Xilinx targets via th
 
 Install git large filesystems (git-lfs) in your .gitconfig (1-time step per unix environment)
 ```bash
-$ git lfs install
+git lfs install
 ```
 Clone the git repo with git-lfs enabled
 ```bash
-$ git clone --recursive https://github.com/slaclab/pgp-pcie-apps.git
+git clone --recursive https://github.com/slaclab/pgp-pcie-apps.git
 ```
 
 Note: `recursive` flag used to initialize all submodules within the clone
