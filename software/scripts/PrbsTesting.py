@@ -55,7 +55,7 @@ parser.add_argument(
     "--prbsWidth",
     type     = int,
     required = False,
-    default  = 64,
+    default  = 512,
     help     = "# of DMA Lanes",
 )
 

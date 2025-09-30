@@ -280,7 +280,7 @@ begin
    ----------------------------
    -- DMA Inbound Large Buffer
    ----------------------------
-   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
+   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBufferV2
       generic map (
          TPD_G             => TPD_G,
          DMA_SIZE_G        => 2,

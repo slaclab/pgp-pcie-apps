@@ -15,10 +15,17 @@
 set_property USER_SLR_ASSIGNMENT SLR1 [get_cells {U_Hardware}]
 set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_HbmDmaBuffer}]
 
-create_pblock CMACE4_GRP
-add_cells_to_pblock [get_pblocks CMACE4_GRP] [get_cells [list U_Hardware/U_QSFP0/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK156MHz.U_CAUI4]]
-add_cells_to_pblock [get_pblocks CMACE4_GRP] [get_cells [list U_Hardware/U_QSFP1/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK156MHz.U_CAUI4]]
-resize_pblock [get_pblocks CMACE4_GRP] -add {CLOCKREGION_X0Y4:CLOCKREGION_X7Y7}
+# SLR1: Left Side = NORTH_WEST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+add_cells_to_pblock [get_pblocks NORTH_WEST_GRP] [get_cells [list U_Hardware/U_QSFP0/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK156MHz.U_CAUI4]]
+add_cells_to_pblock [get_pblocks NORTH_WEST_GRP] [get_cells [list U_Hardware/U_QSFP1/U_Htsp/REAL_HTSP.U_IP/USE_REFCLK156MHz.U_CAUI4]]
+
+# SLR1: Right Side = NORTH_EAST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+
+# SLR0: Left Side = SOUTH_WEST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[0].U_HbmAxiFifo]]
+
+# SLR0: Right Side = SOUTH_EAST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[1].U_HbmAxiFifo]]
 
 ######################
 # Timing Constraints #
