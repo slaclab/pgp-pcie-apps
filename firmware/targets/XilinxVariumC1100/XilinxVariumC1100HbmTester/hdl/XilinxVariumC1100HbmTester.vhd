@@ -229,11 +229,14 @@ begin
          -- Trigger Event streams (eventClk domain)
          eventClk         => (others => dmaClk),
          eventTrigMsgCtrl => open,
-         -- AXI Stream Interface (axisClk domain)
-         axisClk          => (others => dmaClk),
-         axisRst          => (others => dmaRst),
+         -- Inbound AXIS Interface (sAxisClk domain)
+         sAxisClk         => (others => dmaClk),
+         sAxisRst         => (others => dmaRst),
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
+         -- Outbound AXIS Interface (sAxisClk domain)
+         mAxisClk         => (others => dmaClk),
+         mAxisRst         => (others => dmaRst),
          mAxisMasters     => dmaObMasters,
          mAxisSlaves      => dmaObSlaves);
 

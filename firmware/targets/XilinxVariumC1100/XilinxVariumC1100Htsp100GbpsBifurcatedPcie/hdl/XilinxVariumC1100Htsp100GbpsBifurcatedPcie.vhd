@@ -304,11 +304,14 @@ begin
          -- Trigger Event streams (eventClk domain)
          eventClk         => htspClkOut,
          eventTrigMsgCtrl => eventTrigMsgCtrl,
-         -- AXI Stream Interface (axisClk domain)
-         axisClk          => dmaClk,
-         axisRst          => dmaRst,
+         -- Inbound AXIS Interface (sAxisClk domain)
+         sAxisClk         => dmaClk,
+         sAxisRst         => dmaRst,
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
+         -- Outbound AXIS Interface (sAxisClk domain)
+         mAxisClk         => dmaClk,
+         mAxisRst         => dmaRst,
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
 

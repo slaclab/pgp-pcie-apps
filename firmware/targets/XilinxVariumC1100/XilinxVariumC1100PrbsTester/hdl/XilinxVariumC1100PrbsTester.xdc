@@ -8,7 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-set_property USER_SLR_ASSIGNMENT SLR1 [get_cells {U_Hardware}]
+#set_property USER_SLR_ASSIGNMENT SLR1 [get_cells {U_Hardware}]
 set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_HbmDmaBuffer}]
 
-set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_HbmDmaBuffer/U_hbmClk/PllGen.U_Pll/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_HbmDmaBuffer/U_hbmClk/PllGen.U_Pll/CLKOUT1]]

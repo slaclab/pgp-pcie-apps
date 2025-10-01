@@ -33,4 +33,4 @@ add_cells_to_pblock [get_pblocks HBM1_GRP] [get_cells [list U_HbmDmaBuffer/GEN_F
 add_cells_to_pblock [get_pblocks HBM1_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[7].U_HbmAxiFifo]]
 resize_pblock [get_pblocks HBM1_GRP] -add {CLOCKREGION_X4Y0:CLOCKREGION_X7Y3}
 
-set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_HbmDmaBuffer/U_hbmClk/PllGen.U_Pll/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_HbmDmaBuffer/U_hbmClk/PllGen.U_Pll/CLKOUT1]]
