@@ -34,6 +34,7 @@ entity Hardware is
    generic (
       TPD_G             : time             := 1 ns;
       DMA_AXIS_CONFIG_G : AxiStreamConfigType;
+      PGP_FEC_ENABLE_G  : boolean          := false;
       RATE_G            : string           := "10.3125Gbps";  -- or "6.25Gbps" or "3.125Gbps"
       AXI_BASE_ADDR_G   : slv(31 downto 0) := x"0080_0000");
    port (
@@ -95,6 +96,7 @@ begin
    U_Pgp : entity work.PgpGtyLaneWrapper
       generic map (
          TPD_G             => TPD_G,
+         PGP_FEC_ENABLE_G  => PGP_FEC_ENABLE_G,
          RATE_G            => RATE_G,
          REFCLK_WIDTH_G    => 1,
          NUM_VC_G          => 4,
