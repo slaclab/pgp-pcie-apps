@@ -8,10 +8,63 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 
-set_property USER_SLR_ASSIGNMENT SLR1 [get_cells {U_Hardware}]
-set_property USER_SLR_ASSIGNMENT SLR0 [get_cells {U_HbmDmaBuffer}]
+#######################
+# Placement Constraints
+#######################
 
-set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
+# SLR1: Left Side = NORTH_WEST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+add_cells_to_pblock [get_pblocks NORTH_WEST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[0].U_Lane]]
+add_cells_to_pblock [get_pblocks NORTH_WEST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[1].U_Lane]]
+add_cells_to_pblock [get_pblocks NORTH_WEST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[2].U_Lane]]
+add_cells_to_pblock [get_pblocks NORTH_WEST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[3].U_Lane]]
+
+# SLR1: Right Side = NORTH_EAST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_Pgp/U_Pgp4Core_1]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_Pgp/U_Pgp4Core_1]]
+
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_AXIS_RX_MON]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_AXIS_RX_MON]]
+
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_AXIS_TX_MON]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_AXIS_TX_MON]]
+
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_Rx]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_Rx]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_Rx]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_Rx]]
+
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[4].U_Lane/U_Tx]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[5].U_Lane/U_Tx]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[6].U_Lane/U_Tx]]
+add_cells_to_pblock [get_pblocks NORTH_EAST_GRP] [get_cells [list U_Hardware/U_Pgp/GEN_LANE[7].U_Lane/U_Tx]]
+
+# SLR0: Left Side = SOUTH_WEST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[0].U_AxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[1].U_AxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[2].U_AxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[3].U_AxiFifo]]
+
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[0].U_HbmAxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[1].U_HbmAxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[2].U_HbmAxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_WEST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[3].U_HbmAxiFifo]]
+
+# SLR0: Right Side = SOUTH_EAST_GRP (region defined in XilinxAlveoU55cCore.xdc)
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[4].U_AxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[5].U_AxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[6].U_AxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[7].U_AxiFifo]]
+
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[4].U_HbmAxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[5].U_HbmAxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[6].U_HbmAxiFifo]]
+add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer/GEN_FIFO[7].U_HbmAxiFifo]]
 
 #######
 # PGP #
@@ -47,6 +100,8 @@ create_generated_clock -name pgp3PhyTxPcsClk7 [get_pins {U_Hardware/U_Pgp/GEN_LA
 ######################
 # Timing Constraints #
 ######################
+
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
 
 set_clock_groups -asynchronous -group [get_clocks -include_generated_clocks {pgp3PhyRxClk0}] -group [get_clocks -include_generated_clocks {pgp3PhyTxClk0}] -group [get_clocks -include_generated_clocks {qsfp0RefClkP1}] -group [get_clocks -include_generated_clocks {pciRefClkP}] -group [get_clocks -include_generated_clocks {userClkP}]
 set_clock_groups -asynchronous -group [get_clocks -include_generated_clocks {pgp3PhyRxClk1}] -group [get_clocks -include_generated_clocks {pgp3PhyTxClk1}] -group [get_clocks -include_generated_clocks {qsfp0RefClkP1}] -group [get_clocks -include_generated_clocks {pciRefClkP}] -group [get_clocks -include_generated_clocks {userClkP}]

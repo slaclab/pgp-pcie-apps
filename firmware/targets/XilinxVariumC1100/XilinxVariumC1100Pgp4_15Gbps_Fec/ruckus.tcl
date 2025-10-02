@@ -1,6 +1,9 @@
 # Load RUCKUS environment and library
 source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
 
+# Check for version between 2025.1 and 2026.2
+if { [VersionRangeCheck 2025.1 2026.2] < 0 } {exit -1}
+
 # Load common and sub-module ruckus.tcl files
 loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/surf
 loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/XilinxVariumC1100
