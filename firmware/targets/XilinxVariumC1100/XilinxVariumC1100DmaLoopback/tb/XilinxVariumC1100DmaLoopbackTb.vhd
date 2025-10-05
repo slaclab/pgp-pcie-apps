@@ -89,8 +89,8 @@ begin
          si5394RstL   => open,
          -- PCIe Ports
          pciRstL      => '1',
-         pciRefClkP   => '0',
-         pciRefClkN   => '1',
+         pciRefClkP   => (others => '0'),
+         pciRefClkN   => (others => '1'),
          pciRxP       => (others => '0'),
          pciRxN       => (others => '1'),
          pciTxP       => open,
