@@ -8,3 +8,7 @@ loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/Xilinx
 # Load local source Code and constraints
 loadSource      -dir "$::DIR_PATH/hdl"
 loadConstraints -dir "$::DIR_PATH/hdl"
+
+# Load the simulation testbed
+loadSource -sim_only -dir "$::DIR_PATH/tb"
+set_property top {XilinxVariumC1100DmaLoopbackTb} [get_filesets sim_1]

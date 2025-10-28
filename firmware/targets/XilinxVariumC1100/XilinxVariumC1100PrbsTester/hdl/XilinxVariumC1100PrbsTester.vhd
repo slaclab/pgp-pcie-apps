@@ -69,7 +69,7 @@ end XilinxVariumC1100PrbsTester;
 
 architecture top_level of XilinxVariumC1100PrbsTester is
 
-   constant DMA_SIZE_C : positive := 2;
+   constant DMA_SIZE_C : positive := 1;
 
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  -- 8  Byte (64-bit)  tData interface
    -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
@@ -209,7 +209,7 @@ begin
    ----------------------------
    -- DMA Inbound Large Buffer
    ----------------------------
-   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
+   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBufferV2
       generic map (
          TPD_G             => TPD_G,
          DMA_SIZE_G        => DMA_SIZE_C,
@@ -233,15 +233,16 @@ begin
          -- Trigger Event streams (eventClk domain)
          eventClk         => (others => dmaClk),
          eventTrigMsgCtrl => open,
-         -- AXI Stream Interface (axisClk domain)
-         axisClk          => (others => dmaClk),
-         axisRst          => (others => dmaRst),
+         -- Inbound AXIS Interface (sAxisClk domain)
+         sAxisClk         => (others => dmaClk),
+         sAxisRst         => (others => dmaRst),
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
+         -- Outbound AXIS Interface (sAxisClk domain)
+         mAxisClk         => (others => dmaClk),
+         mAxisRst         => (others => dmaRst),
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
-   -- dmaIbMasters <= buffIbMasters;
-   -- buffIbSlaves <= dmaIbSlaves;
 
    ---------------
    -- PRBS Modules
@@ -251,7 +252,6 @@ begin
          TPD_G             => TPD_G,
          DMA_SIZE_G        => DMA_SIZE_C,
          NUM_VC_G          => 1,
-         -- NUM_VC_G          => 4,
          PRBS_SEED_SIZE_G  => 8*DMA_AXIS_CONFIG_C.TDATA_BYTES_C,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C)
       port map (

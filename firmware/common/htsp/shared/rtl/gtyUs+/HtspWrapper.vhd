@@ -33,6 +33,7 @@ use unisim.vcomponents.all;
 entity HtspWrapper is
    generic (
       TPD_G                 : time             := 1 ns;
+      REFCLK_TYPE_G         : string;   -- "161MHz" or "156.25MHz"
       AXIL_BASE_ADDR_G      : slv(31 downto 0) := x"0080_0000";
       AXIL_CLK_FREQ_G       : real             := 156.25E+6;
       NUM_VC_G              : positive         := 4;
@@ -159,9 +160,9 @@ begin
          -- HTSP Settings
          NUM_VC_G              => NUM_VC_G,
          TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_G,
+         REFCLK_TYPE_G         => REFCLK_TYPE_G,
          -- AXI-Lite Settings
          AXIL_WRITE_EN_G       => true,
-         AXIL_BASE_ADDR_G      => AXIL_CONFIG_C(0).baseAddr,
          AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_G)
       port map (
          -- Stable Clock and Reset

@@ -1,26 +1,8 @@
 
 GitBase: ..
 
-TopRoguePackage: pgp_pcie_apps
-
-RoguePackages:
-  - submodules/axi-pcie-core/python
-  - submodules/surf/python
-  - ../software/python
-
-RogueConfig:
-
-RogueScripts:
-  - ../software/scripts/LoopbackTesting.py
-  - ../software/scripts/PgpTesting.py
-  - ../software/scripts/PrbsTesting.py
-
 Targets:
 ################################################################################
-  SlacPgpCardG4Pgp2b:
-    ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp2b/images
-    Extensions:
-      - mcs
   SlacPgpCardG4Pgp4_6Gbps:
     ImageDir: targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_6Gbps/images
     Extensions:
@@ -30,10 +12,6 @@ Targets:
     Extensions:
       - mcs
 ################################################################################
-  XilinxKcu1500Pgp2b:
-    ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp2b/images
-    Extensions:
-      - mcs
   XilinxKcu1500Pgp4_6Gbps:
     ImageDir: targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps/images
     Extensions:
@@ -43,27 +21,6 @@ Targets:
     Extensions:
       - mcs
 ################################################################################
-  XilinxAlveoU200Pgp2b:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp2b/images
-    Extensions:
-      - mcs
-  XilinxAlveoU200Pgp4_6Gbps:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_6Gbps/images
-    Extensions:
-      - mcs
-  XilinxAlveoU200Pgp4_10Gbps:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_10Gbps/images
-    Extensions:
-      - mcs
-  XilinxAlveoU200Pgp4_15Gbps:
-    ImageDir: targets/XilinxAlveoU200/XilinxAlveoU200Pgp4_15Gbps/images
-    Extensions:
-      - mcs
-################################################################################
-  XilinxVariumC1100Pgp2b:
-    ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp2b/images
-    Extensions:
-      - mcs
   XilinxVariumC1100Pgp4_6Gbps:
     ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps/images
     Extensions:
@@ -76,6 +33,10 @@ Targets:
     ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps/images
     Extensions:
       - mcs
+  XilinxVariumC1100Pgp4_25Gbps_Fec:
+    ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_25Gbps_Fec/images
+    Extensions:
+      - mcs
   XilinxVariumC1100Htsp100GbpsBifurcatedPcie:
     ImageDir: targets/XilinxVariumC1100/XilinxVariumC1100Htsp100GbpsBifurcatedPcie/images
     Extensions:
@@ -86,23 +47,16 @@ Releases:
     Primary: True
     Targets:
       #######################################
-      # - SlacPgpCardG4Pgp2b
       - SlacPgpCardG4Pgp4_6Gbps
       - SlacPgpCardG4Pgp4_10Gbps
       #######################################
-      # - XilinxKcu1500Pgp2b
       - XilinxKcu1500Pgp4_6Gbps
       - XilinxKcu1500Pgp4_10Gbps
       #######################################
-      # - XilinxAlveoU200Pgp2b
-      # - XilinxAlveoU200Pgp4_6Gbps
-      # - XilinxAlveoU200Pgp4_10Gbps
-      # - XilinxAlveoU200Pgp4_15Gbps
-      #######################################
-      # - XilinxVariumC1100Pgp2b
       - XilinxVariumC1100Pgp4_6Gbps
       - XilinxVariumC1100Pgp4_10Gbps
       - XilinxVariumC1100Pgp4_15Gbps
+      - XilinxVariumC1100Pgp4_25Gbps_Fec
       - XilinxVariumC1100Htsp100GbpsBifurcatedPcie
       #######################################
     Types:

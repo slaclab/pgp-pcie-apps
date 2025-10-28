@@ -93,39 +93,28 @@ architecture top_level of XilinxVariumC1100Htsp100GbpsBifurcatedPcie is
 
    constant AXIL_CLK_FREQ_C : real := 156.25E+6;  -- units of Hz
 
-   constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
+   constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(1 downto 0) := (
       0               => (
          baseAddr     => x"0010_0000",
          addrBits     => 20,
          connectivity => x"FFFF"),
       1               => (
-         baseAddr     => x"0020_0000",
-         addrBits     => 20,
-         connectivity => x"FFFF"),
-      2               => (
-         baseAddr     => x"0030_0000",
-         addrBits     => 20,
-         connectivity => x"FFFF"),
-      3               => (
-         baseAddr     => x"0040_0000",
-         addrBits     => 20,
-         connectivity => x"FFFF"),
-      4               => (
          baseAddr     => x"0080_0000",
          addrBits     => 23,
          connectivity => x"FFFF"));
 
-   signal axilClk         : sl;
-   signal axilRst         : sl;
-   signal axilReadMaster  : AxiLiteReadMasterType;
-   signal axilReadSlave   : AxiLiteReadSlaveType;
-   signal axilWriteMaster : AxiLiteWriteMasterType;
-   signal axilWriteSlave  : AxiLiteWriteSlaveType;
+   signal axilClk : sl;
+   signal axilRst : sl;
 
-   signal axilReadMasters  : AxiLiteReadMasterArray(4 downto 0);
-   signal axilReadSlaves   : AxiLiteReadSlaveArray(4 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
-   signal axilWriteMasters : AxiLiteWriteMasterArray(4 downto 0);
-   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(4 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
+   signal mAxilReadMasters  : AxiLiteReadMasterArray(1 downto 0);
+   signal mAxilReadSlaves   : AxiLiteReadSlaveArray(1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal mAxilWriteMasters : AxiLiteWriteMasterArray(1 downto 0);
+   signal mAxilWriteSlaves  : AxiLiteWriteSlaveArray(1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
+
+   signal axilReadMasters  : AxiLiteReadMasterArray(1 downto 0);
+   signal axilReadSlaves   : AxiLiteReadSlaveArray(1 downto 0)  := (others => AXI_LITE_READ_SLAVE_EMPTY_SLVERR_C);
+   signal axilWriteMasters : AxiLiteWriteMasterArray(1 downto 0);
+   signal axilWriteSlaves  : AxiLiteWriteSlaveArray(1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_SLVERR_C);
 
    signal dmaClk        : slv(1 downto 0);
    signal dmaRst        : slv(1 downto 0);
@@ -174,7 +163,6 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         SI5394_INIT_FILE_G   => "Si5394A_GT_REFCLK_161MHz.mem",
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
@@ -197,10 +185,10 @@ begin
          -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
          appClk          => axilClk,
          appRst          => axilRst,
-         appReadMaster   => axilReadMaster,
-         appReadSlave    => axilReadSlave,
-         appWriteMaster  => axilWriteMaster,
-         appWriteSlave   => axilWriteSlave,
+         appReadMaster   => mAxilReadMasters(0),
+         appReadSlave    => mAxilReadSlaves(0),
+         appWriteMaster  => mAxilWriteMasters(0),
+         appWriteSlave   => mAxilWriteSlaves(0),
          --------------
          --  Core Ports
          --------------
@@ -249,6 +237,13 @@ begin
          dmaObSlaves(0)  => dmaObSlaves(1),
          dmaIbMasters(0) => dmaIbMasters(1),
          dmaIbSlaves(0)  => dmaIbSlaves(1),
+         -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
+         appClk          => axilClk,
+         appRst          => axilRst,
+         appReadMaster   => mAxilReadMasters(1),
+         appReadSlave    => mAxilReadSlaves(1),
+         appWriteMaster  => mAxilWriteMasters(1),
+         appWriteSlave   => mAxilWriteSlaves(1),
          --------------
          --  Core Ports
          --------------
@@ -267,25 +262,25 @@ begin
    U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
-         NUM_SLAVE_SLOTS_G  => 1,
-         NUM_MASTER_SLOTS_G => 5,
+         NUM_SLAVE_SLOTS_G  => 2,
+         NUM_MASTER_SLOTS_G => 2,
          MASTERS_CONFIG_G   => AXIL_XBAR_CONFIG_C)
       port map (
-         axiClk              => axilClk,
-         axiClkRst           => axilRst,
-         sAxiWriteMasters(0) => axilWriteMaster,
-         sAxiWriteSlaves(0)  => axilWriteSlave,
-         sAxiReadMasters(0)  => axilReadMaster,
-         sAxiReadSlaves(0)   => axilReadSlave,
-         mAxiWriteMasters    => axilWriteMasters,
-         mAxiWriteSlaves     => axilWriteSlaves,
-         mAxiReadMasters     => axilReadMasters,
-         mAxiReadSlaves      => axilReadSlaves);
+         axiClk           => axilClk,
+         axiClkRst        => axilRst,
+         sAxiWriteMasters => mAxilWriteMasters,
+         sAxiWriteSlaves  => mAxilWriteSlaves,
+         sAxiReadMasters  => mAxilReadMasters,
+         sAxiReadSlaves   => mAxilReadSlaves,
+         mAxiWriteMasters => axilWriteMasters,
+         mAxiWriteSlaves  => axilWriteSlaves,
+         mAxiReadMasters  => axilReadMasters,
+         mAxiReadSlaves   => axilReadSlaves);
 
    ----------------------------
    -- DMA Inbound Large Buffer
    ----------------------------
-   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
+   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBufferV2
       generic map (
          TPD_G             => TPD_G,
          DMA_SIZE_G        => 2,
@@ -309,11 +304,14 @@ begin
          -- Trigger Event streams (eventClk domain)
          eventClk         => htspClkOut,
          eventTrigMsgCtrl => eventTrigMsgCtrl,
-         -- AXI Stream Interface (axisClk domain)
-         axisClk          => dmaClk,
-         axisRst          => dmaRst,
+         -- Inbound AXIS Interface (sAxisClk domain)
+         sAxisClk         => dmaClk,
+         sAxisRst         => dmaRst,
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
+         -- Outbound AXIS Interface (sAxisClk domain)
+         mAxisClk         => dmaClk,
+         mAxisRst         => dmaRst,
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
 
@@ -325,6 +323,7 @@ begin
       generic map (
          TPD_G                 => TPD_G,
          AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_C,
+         AXIL_BASE_ADDR_G      => AXIL_XBAR_CONFIG_C(1).baseAddr,
          TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_C)
       port map (
          ------------------------
@@ -333,10 +332,10 @@ begin
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(4),
-         axilReadSlave   => axilReadSlaves(4),
-         axilWriteMaster => axilWriteMasters(4),
-         axilWriteSlave  => axilWriteSlaves(4),
+         axilReadMaster  => axilReadMasters(1),
+         axilReadSlave   => axilReadSlaves(1),
+         axilWriteMaster => axilWriteMasters(1),
+         axilWriteSlave  => axilWriteSlaves(1),
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,

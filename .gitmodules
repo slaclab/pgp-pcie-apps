@@ -1,9 +1,9 @@
 [submodule "firmware/submodules/ruckus"]
 	path = firmware/submodules/ruckus
-	url = https://github.com/slaclab/ruckus
+	url = ../ruckus.git
 [submodule "firmware/submodules/surf"]
 	path = firmware/submodules/surf
-	url = https://github.com/slaclab/surf
+	url = ../surf.git
 [submodule "firmware/submodules/axi-pcie-core"]
 	path = firmware/submodules/axi-pcie-core
-	url = https://github.com/slaclab/axi-pcie-core
+	url = ../axi-pcie-core.git

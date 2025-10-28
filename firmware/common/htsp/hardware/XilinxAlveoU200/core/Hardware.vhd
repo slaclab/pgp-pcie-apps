@@ -156,6 +156,7 @@ begin
    U_QSFP0 : entity work.HtspWrapper
       generic map (
          TPD_G                 => TPD_G,
+         REFCLK_TYPE_G         => "161MHz",
          AXIL_BASE_ADDR_G      => AXIL_CONFIG_C(0).baseAddr,
          AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_G,
          NUM_VC_G              => NUM_VC_G,
@@ -193,6 +194,7 @@ begin
    U_QSFP1 : entity work.HtspWrapper
       generic map (
          TPD_G                 => TPD_G,
+         REFCLK_TYPE_G         => "161MHz",
          AXIL_BASE_ADDR_G      => AXIL_CONFIG_C(1).baseAddr,
          AXIL_CLK_FREQ_G       => AXIL_CLK_FREQ_G,
          NUM_VC_G              => NUM_VC_G,

@@ -29,7 +29,7 @@ use axi_pcie_core.AxiPciePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity XilinxVariumC1100Pgp4_20Gbps is
+entity XilinxVariumC1100Pgp4_25Gbps_Fec is
    generic (
       TPD_G                : time                        := 1 ns;
       ROGUE_SIM_EN_G       : boolean                     := false;
@@ -83,9 +83,9 @@ entity XilinxVariumC1100Pgp4_20Gbps is
       pciRxN       : in    slv(7 downto 0);
       pciTxP       : out   slv(7 downto 0);
       pciTxN       : out   slv(7 downto 0));
-end XilinxVariumC1100Pgp4_20Gbps;
+end XilinxVariumC1100Pgp4_25Gbps_Fec;
 
-architecture top_level of XilinxVariumC1100Pgp4_20Gbps is
+architecture top_level of XilinxVariumC1100Pgp4_25Gbps_Fec is
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
       0               => (
@@ -169,7 +169,7 @@ begin
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
          TPD_G                => TPD_G,
-         QSFP_CDR_DISABLE_G   => true,  -- TRUE: 25G CDR doesn't work with this line rate (CDR margin is too large)
+         QSFP_CDR_DISABLE_G   => false,  -- FALSE: 25G CDR does work with this line rate (within the QSFP's CDR margin)
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
          ROGUE_SIM_PORT_NUM_G => ROGUE_SIM_PORT_NUM_G,
          BUILD_INFO_G         => BUILD_INFO_G,
@@ -255,8 +255,6 @@ begin
          TPD_G             => TPD_G,
          DMA_SIZE_G        => 8,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-         CLKFBOUT_MULT_G   => 10,       -- 1.0GHz = 10 x 100 MHz
-         CLKOUT0_DIVIDE_G  => 4,        -- 250MHz = 1.0GHz/4
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
          -- Card Management Solution (CMS) Interface
@@ -291,7 +289,8 @@ begin
    U_Hardware : entity work.Hardware
       generic map (
          TPD_G             => TPD_G,
-         RATE_G            => "20.625Gbps",
+         PGP_FEC_ENABLE_G  => true,     -- Enable RS-FEC
+         RATE_G            => "25.0Gbps",
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G)
       port map (
          ------------------------

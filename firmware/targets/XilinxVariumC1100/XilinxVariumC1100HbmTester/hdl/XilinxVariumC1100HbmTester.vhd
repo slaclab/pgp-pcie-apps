@@ -71,9 +71,6 @@ architecture top_level of XilinxVariumC1100HbmTester is
 
    constant DMA_SIZE_C : positive := 2;
 
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 8, tDestBits => 8, tIdBits => 3);  -- 8  Byte (64-bit)  tData interface
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 16, tDestBits => 8, tIdBits => 3);  -- 16 Byte (128-bit) tData interface
-   -- constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 32, tDestBits => 8, tIdBits => 3);  -- 32 Byte (256-bit) tData interface
    constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(dataBytes => 64, tDestBits => 8, tIdBits => 3);  -- 64 Byte (512-bit) tData interface
 
    constant AXIL_XBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(4 downto 0) := (
@@ -208,7 +205,7 @@ begin
    ----------------------------
    -- DMA Inbound Large Buffer
    ----------------------------
-   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBuffer
+   U_HbmDmaBuffer : entity axi_pcie_core.HbmDmaBufferV2
       generic map (
          TPD_G             => TPD_G,
          DMA_SIZE_G        => DMA_SIZE_C,
@@ -232,11 +229,14 @@ begin
          -- Trigger Event streams (eventClk domain)
          eventClk         => (others => dmaClk),
          eventTrigMsgCtrl => open,
-         -- AXI Stream Interface (axisClk domain)
-         axisClk          => (others => dmaClk),
-         axisRst          => (others => dmaRst),
+         -- Inbound AXIS Interface (sAxisClk domain)
+         sAxisClk         => (others => dmaClk),
+         sAxisRst         => (others => dmaRst),
          sAxisMasters     => buffIbMasters,
          sAxisSlaves      => buffIbSlaves,
+         -- Outbound AXIS Interface (sAxisClk domain)
+         mAxisClk         => (others => dmaClk),
+         mAxisRst         => (others => dmaRst),
          mAxisMasters     => dmaObMasters,
          mAxisSlaves      => dmaObSlaves);
 

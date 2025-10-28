@@ -253,8 +253,6 @@ begin
          TPD_G             => TPD_G,
          DMA_SIZE_G        => 8,
          DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-         CLKFBOUT_MULT_G   => 10,       -- 1.0GHz = 10 x 100 MHz
-         CLKOUT0_DIVIDE_G  => 4,        -- 250MHz = 1.0GHz/4
          AXIL_BASE_ADDR_G  => AXIL_XBAR_CONFIG_C(0).baseAddr)
       port map (
          -- Card Management Solution (CMS) Interface

@@ -4,22 +4,38 @@
 
 <!--- ######################################################## -->
 
-# Clone the GIT repository
+## Description
 
-Install git large filesystems (git-lfs) in your .gitconfig (1-time step per unix environment)
-```bash
-$ git lfs install
-```
-Clone the git repo with git-lfs enabled
-```bash
-$ git clone --recursive https://github.com/slaclab/pgp-pcie-apps.git
-```
+This is a firmware and software repository that moves data between PGP protocol links (commonly an optical interface connected to detectors) and the PCIe DMA engine. Virtual channels (VCs) and higher-level routing are defined by the software stack; the firmware provides the PGP <-> DMA/AXI-PCIe plumbing and board-specific target designs.
 
-Note: `recursive flag` used to initialize all submodules within the clone
+![Top Level Diagram](firmware/docs/top-level-diagram.png)
+
+
+This repository is hardware-agnostic and supports multiple Xilinx targets via the [firmware/targets/](firmware/targets/) tree.
+
+### Features
+- Protocol lane handlers (e.g PGP2b/3/4, HTSP) via SURF
+- AXI-PCIe DMA integration (axi-pcie-core)
+- Scripts to update FPGA image via Rogue
 
 <!--- ######################################################## -->
 
-# How to load the driver
+## Clone the GIT repository
+
+Install git large filesystems (git-lfs) in your .gitconfig (1-time step per unix environment)
+```bash
+git lfs install
+```
+Clone the git repo with git-lfs enabled
+```bash
+git clone --recursive https://github.com/slaclab/pgp-pcie-apps.git
+```
+
+Note: `recursive` flag used to initialize all submodules within the clone
+
+<!--- ######################################################## -->
+
+## How to load the driver
 
 ```bash
 # Confirm that you have the board the computer with VID=1a4a ("SLAC") and PID=2030 ("AXI Stream DAQ")
@@ -39,16 +55,16 @@ $ make
 $ sudo /sbin/insmod ./datadev.ko cfgSize=0x50000 cfgRxCount=256 cfgTxCount=16
 
 # Give appropriate group/permissions
-$ sudo chmod 666 /dev/data_dev*
+$ sudo chmod 666 /proc/datadev_*
 
 # Check for the loaded device
-$ cat /proc/data_dev0
+$ cat /proc/datadev_0
 
 ```
 
 <!--- ######################################################## -->
 
-# Example of How to build the firmware
+## Example of How to build the firmware
 
 In this example, we will build the pseudorandom binary sequence (PRBS) data generator on a Xilinx KCU1500 PCIe card.
 
@@ -56,8 +72,8 @@ In this example, we will build the pseudorandom binary sequence (PRBS) data gene
 
 > If you are on the SLAC S3DF network:
 
-```
-$ source /sdf/group/faders/tools/xilinx/2024.2/Vivado/2024.2/settings64.sh
+```bash
+$ source /sdf/group/faders/tools/xilinx/2025.1/Vivado/2025.1/settings64.sh
 ```
 
 > Else you will need to install Vivado and install the Xilinx Licensing
@@ -86,12 +102,12 @@ https://confluence.slac.stanford.edu/x/n4-jCg
 
 <!--- ######################################################## -->
 
-# How to install the Rogue With miniforge
+## How to install the Rogue with Miniforge
 
 > https://slaclab.github.io/rogue/installing/miniforge.html
 
 <!--- ######################################################## -->
-# How to reprogram the PCIe firmware via Rogue software
+## How to reprogram the PCIe firmware via Rogue software
 
 1) Setup the rogue environment (assumes that you are on SLAC S3DF network)
 
@@ -108,7 +124,7 @@ where <PATH_TO_IMAGE_DIR> is path to image directory (example: ../firmware/targe
 
 3) Reboot the computer
 ```bash
-sudo reboot
+$ sudo reboot
 ```
 
 <!--- ########################################################################################### -->
