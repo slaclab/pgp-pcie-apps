@@ -14,8 +14,13 @@
 *.pyc
 *.bin
 *.ld
-*.a
-*.save
+*.dat
+*.htm
+*.log
+
+# Matlab
+*.autosave
+*.slxc
 
 # OS files
 .DS_Store
@@ -25,11 +30,18 @@
 .Trashes
 ehthumbs.db
 Thumps.db
+*.swp
 build.info
 
-# Vivado Build
+# Build directories 
 build*
-release*
+images*
+bin*
+.Xil*
+.obj*
+.ipynb_checkpoints*
+*.jou
+slprj*
 
 # Only .bit.gz and .mcs.gz should be committed to git
 *.bit
@@ -37,4 +49,9 @@ release*
 *.gz
 *.ltx
 *.hdf
+*.vho
+*.zip
 *.xsa
+*.pdi
+*.bif
+*.elf
