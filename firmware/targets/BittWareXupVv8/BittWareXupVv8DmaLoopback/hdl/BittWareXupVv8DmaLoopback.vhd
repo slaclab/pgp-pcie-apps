@@ -38,28 +38,30 @@ entity BittWareXupVv8DmaLoopback is
       --  Application Ports
       ---------------------
       -- QSFP[31:0] Ports
-      qsfpRefClkP    : in  slv(7 downto 0); -- 322.265625 MHz Clocks
-      qsfpRefClkN    : in  slv(7 downto 0);
-      qsfpRxP        : in  slv(31 downto 0);
-      qsfpRxN        : in  slv(31 downto 0);
-      qsfpTxP        : out slv(31 downto 0);
-      qsfpTxN        : out slv(31 downto 0);
+      qsfpRefClkP    : in    slv(7 downto 0);  -- 322.265625 MHz Clocks
+      qsfpRefClkN    : in    slv(7 downto 0);
+      qsfpRxP        : in    slv(31 downto 0);
+      qsfpRxN        : in    slv(31 downto 0);
+      qsfpTxP        : out   slv(31 downto 0);
+      qsfpTxN        : out   slv(31 downto 0);
       --------------
       --  Core Ports
       --------------
       -- FPGA I2C Master
-      fpgaI2cMasterL : out sl;
+      fpgaI2cMasterL : out   sl;
+      i2cScl         : inout sl;
+      i2cSda         : inout sl;
       -- System Ports
-      userClkP       : in  sl;
-      userClkN       : in  sl;
+      userClkP       : in    sl;
+      userClkN       : in    sl;
       -- PCIe Ports
-      pciRstL        : in  sl;
-      pciRefClkP     : in  sl;
-      pciRefClkN     : in  sl;
-      pciRxP         : in  slv(15 downto 0);
-      pciRxN         : in  slv(15 downto 0);
-      pciTxP         : out slv(15 downto 0);
-      pciTxN         : out slv(15 downto 0));
+      pciRstL        : in    sl;
+      pciRefClkP     : in    sl;
+      pciRefClkN     : in    sl;
+      pciRxP         : in    slv(15 downto 0);
+      pciRxN         : in    slv(15 downto 0);
+      pciTxP         : out   slv(15 downto 0);
+      pciTxN         : out   slv(15 downto 0));
 end BittWareXupVv8DmaLoopback;
 
 architecture top_level of BittWareXupVv8DmaLoopback is
@@ -138,6 +140,8 @@ begin
          --------------
          -- FPGA I2C Master
          fpgaI2cMasterL => fpgaI2cMasterL,
+         i2cScl         => i2cScl,
+         i2cSda         => i2cSda,
          -- System Ports
          userClkP       => userClkP,
          userClkN       => userClkN,

@@ -49,6 +49,8 @@ entity BittWareXupVv8PrbsTester is
       --------------
       -- FPGA I2C Master
       fpgaI2cMasterL : out   sl;
+      i2cScl         : inout sl;
+      i2cSda         : inout sl;
       -- System Ports
       userClkP       : in    sl;
       userClkN       : in    sl;
@@ -160,6 +162,8 @@ begin
          --------------
          -- FPGA I2C Master
          fpgaI2cMasterL  => fpgaI2cMasterL,
+         i2cScl          => i2cScl,
+         i2cSda          => i2cSda,
          -- System Ports
          userClkP        => userClkP,
          userClkN        => userClkN,
