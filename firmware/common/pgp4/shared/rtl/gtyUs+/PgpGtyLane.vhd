@@ -210,11 +210,22 @@ begin
    --------------
    U_Rx : entity work.PgpLaneRx
       generic map (
-         TPD_G             => TPD_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
-         MEMORY_TYPE_G     => "ultra",
-         LANE_G            => LANE_G,
-         NUM_VC_G          => NUM_VC_G)
+         TPD_G               => TPD_G,
+         DMA_AXIS_CONFIG_G   => DMA_AXIS_CONFIG_G,
+         MEMORY_TYPE_G       => "ultra",   -- URAM
+         -------------------------------------------------------------------------------
+         -- FIFO Depth: 4 FIFOs x 4096 sample = 16k PGP words
+         -- Pause Threshold: 256 PGP words
+         -- "Pause Runway": 16k PGP words - 256 PGP words = ~16k PGP words
+         -------------------------------------------------------------------------------
+         CASCADE_SIZE_G      => 4,         -- 4 FIFOs
+         FIFO_ADDR_WIDTH_G   => 12,        -- 4k deep (2^12)
+         FIFO_PAUSE_THRESH_G => 256,       -- 256 sample deep
+         INT_WIDTH_SELECT_G  => "CUSTOM",  -- Custom FIFO internal width
+         INT_DATA_WIDTH_G    => 8,         -- 8 Bytes (64 bits)
+         -------------------------------------------------------------------------------
+         LANE_G              => LANE_G,
+         NUM_VC_G            => NUM_VC_G)
       port map (
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
