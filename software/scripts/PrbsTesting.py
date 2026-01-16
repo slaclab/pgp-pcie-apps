@@ -227,6 +227,13 @@ class MyRoot(pr.Root):
                 expand  = False,
             ))
 
+        self.add(axi.AxiStreamMonAxiL(
+            name        = 'BuffIbMon',
+            offset      = 0x0020_0000,
+            numberLanes = args.numLane,
+            memBase     = self.memMap,
+        ))
+
         # Loop through the DMA channels
         for lane in range(args.numLane):
 
