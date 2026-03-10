@@ -240,7 +240,7 @@ class MyRoot(pr.Root):
             # Loop through the virtual channels
             for vc in range(args.numVc):
 
-                if (args.fwTx):
+                if (args.fwTx) or (args.loopback):
                     # Add the FW PRBS TX Module
                     self.add(ssi.SsiPrbsTx(
                         name       = ('FwPrbsTx[%d][%d]' % (lane,vc)),
@@ -250,7 +250,7 @@ class MyRoot(pr.Root):
                         expand     = False,
                     ))
 
-                if (args.fwRx):
+                if (args.fwRx) or (args.loopback):
                     # Add the FW PRBS RX Module
                     self.add(ssi.SsiPrbsRx(
                         name        = ('FwPrbsRx[%d][%d]' % (lane,vc)),
