@@ -2,7 +2,8 @@
 -- File       : PgpMiscCtrl.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
--- Description:
+-- Description: PGP miscellaneous control registers for GT DRP, cursor
+--              settings, and user resets
 -------------------------------------------------------------------------------
 -- This file is part of 'PGP PCIe APP DEV'.
 -- It is subject to the license terms in the LICENSE.txt file found in the
@@ -77,28 +78,28 @@ begin
    ---------------------
    comb : process (axilReadMaster, axilRst, axilWriteMaster, r) is
       variable v      : RegType;
-      variable regCon : AxiLiteEndPointType;
+      variable axilEp : AxiLiteEndPointType;
       variable i      : natural;
    begin
       -- Latch the current value
       v := r;
 
       -- Determine the transaction type
-      axiSlaveWaitTxn(regCon, axilWriteMaster, axilReadMaster, v.axilWriteSlave, v.axilReadSlave);
+      axiSlaveWaitTxn(axilEp, axilWriteMaster, axilReadMaster, v.axilWriteSlave, v.axilReadSlave);
 
-      axiSlaveRegister(regCon, x"68", 0, v.config.gtDrpOverride);
-      axiSlaveRegister(regCon, x"6C", 0, v.config.txDiffCtrl);
+      axiSlaveRegister(axilEp, x"68", 0, v.config.gtDrpOverride);
+      axiSlaveRegister(axilEp, x"6C", 0, v.config.txDiffCtrl);
 
-      axiSlaveRegister(regCon, x"70", 0, v.config.txPreCursor);
-      axiSlaveRegister(regCon, x"74", 0, v.config.txPostCursor);
-      axiSlaveRegister(regCon, x"78", 0, v.config.qPllRxSelect);
-      axiSlaveRegister(regCon, x"7C", 0, v.config.qPllTxSelect);
+      axiSlaveRegister(axilEp, x"70", 0, v.config.txPreCursor);
+      axiSlaveRegister(axilEp, x"74", 0, v.config.txPostCursor);
+      axiSlaveRegister(axilEp, x"78", 0, v.config.qPllRxSelect);
+      axiSlaveRegister(axilEp, x"7C", 0, v.config.qPllTxSelect);
 
-      axiSlaveRegister(regCon, x"80", 0, v.txUserRst);
-      axiSlaveRegister(regCon, x"84", 0, v.rxUserRst);
+      axiSlaveRegister(axilEp, x"80", 0, v.txUserRst);
+      axiSlaveRegister(axilEp, x"84", 0, v.rxUserRst);
 
       -- Closeout the transaction
-      axiSlaveDefault(regCon, v.axilWriteSlave, v.axilReadSlave, AXI_RESP_DECERR_C);
+      axiSlaveDefault(axilEp, v.axilWriteSlave, v.axilReadSlave, AXI_RESP_DECERR_C);
 
       -- Synchronous Reset
       if (axilRst = '1') then
