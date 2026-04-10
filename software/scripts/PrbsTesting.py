@@ -10,7 +10,6 @@
 ##############################################################################
 
 import setupLibPaths
-import sys
 import argparse
 
 import rogue
@@ -56,7 +55,7 @@ parser.add_argument(
     type     = int,
     required = False,
     default  = 512,
-    help     = "# of DMA Lanes",
+    help     = "PRBS generator width in bits",
 )
 
 parser.add_argument(
@@ -72,7 +71,7 @@ parser.add_argument(
     type     = argBool,
     required = False,
     default  = False,
-    help     = "Enable read all variables at start",
+    help     = "Enable DMA loopback mode",
 )
 
 parser.add_argument(
@@ -80,7 +79,7 @@ parser.add_argument(
     type     = argBool,
     required = False,
     default  = False,
-    help     = "Enable read all variables at start",
+    help     = "Enable FW PRBS RX",
 )
 
 parser.add_argument(
@@ -88,7 +87,7 @@ parser.add_argument(
     type     = argBool,
     required = False,
     default  = True,
-    help     = "Enable read all variables at start",
+    help     = "Enable FW PRBS TX",
 )
 
 parser.add_argument(
@@ -96,7 +95,7 @@ parser.add_argument(
     type     = argBool,
     required = False,
     default  = True,
-    help     = "Enable read all variables at start",
+    help     = "Enable SW PRBS RX",
 )
 
 parser.add_argument(
@@ -104,7 +103,7 @@ parser.add_argument(
     type     = argBool,
     required = False,
     default  = False,
-    help     = "Enable read all variables at start",
+    help     = "Enable SW PRBS TX",
 )
 
 parser.add_argument(
@@ -144,7 +143,7 @@ class SyncTrigger(pr.Device):
 
         self.add(pr.RemoteVariable(
             name         = "PacketLength",
-            description  = "",
+            description  = "Packet length in PRBS width units",
             offset       =  0x0,
             bitSize      =  32,
             mode         = "RW",
@@ -165,7 +164,7 @@ class SyncTrigger(pr.Device):
 
         self.add(pr.RemoteVariable(
             name         = "TimerSize",
-            description  = "",
+            description  = "Timer reload value in clock cycles",
             offset       =  0x4,
             bitSize      =  32,
             mode         = "RW",
@@ -174,7 +173,7 @@ class SyncTrigger(pr.Device):
 
         self.add(pr.RemoteVariable(
             name         = "RunEnable",
-            description  = "",
+            description  = "Enable trigger generation",
             offset       =  0x8,
             bitSize      =  1,
             mode         = "RW",
@@ -206,7 +205,7 @@ class MyRoot(pr.Root):
         # Create an arrays to be filled
         self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLane)]
         self.prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-        self.prbTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+        self.prbsTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
 
         # Create PCIE memory mapped interface
         self.memMap = rogue.hardware.axi.AxiMemMap(args.dev,)
@@ -295,13 +294,13 @@ class MyRoot(pr.Root):
 
                     if (args.swTx):
                         # Connect the SW PRBS Transmitter module
-                        self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
+                        self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
                             name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
                             width   = args.prbsWidth,
                             expand  = False,
                         )
-                        self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
-                        self.add(self.prbTx[lane][vc])
+                        self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
+                        self.add(self.prbsTx[lane][vc])
 
         @self.command()
         def EnableAllFwTx():
