@@ -10,7 +10,6 @@
 ##############################################################################
 
 import setupLibPaths
-import sys
 import argparse
 
 import rogue
@@ -99,7 +98,7 @@ parser.add_argument(
     type     = int,
     required = False,
     default  = 64,
-    help     = "# of DMA Lanes",
+    help     = "PRBS generator width in bits",
 )
 
 # Get the arguments
@@ -121,7 +120,7 @@ class MyRoot(pr.Root):
 
         self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLane)]
         self.prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-        self.prbTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+        self.prbsTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
 
         # DataDev PCIe Card
         if ( args.type == 'pcie' ):
@@ -178,13 +177,13 @@ class MyRoot(pr.Root):
                 self.add(self.prbsRx[lane][vc])
 
                 # Connect the SW PRBS Transmitter module
-                self.prbTx[lane][vc] = pr.utilities.prbs.PrbsTx(
+                self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
                     name   = f'SwPrbsTx[{lane}][{vc}]',
                     width  = args.prbsWidth,
                     # expand = True,
                 )
-                self.prbTx[lane][vc] >> self.dmaStream[lane][vc]
-                self.add(self.prbTx[lane][vc])
+                self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
+                self.add(self.prbsTx[lane][vc])
 
         # self.add(pyrogue.hardware.axi.AxiStreamDmaMon(
             # axiStreamDma = self.dmaStream[0][0],
@@ -199,7 +198,7 @@ class MyRoot(pr.Root):
         for lane in range(args.numLane):
             for vc in range(args.numVc):
                 # Connect the SW PRBS Transmitter module
-                self.prbTx[lane][vc].txEnable.setDisp(True)
+                self.prbsTx[lane][vc].txEnable.setDisp(True)
 
 
 
