@@ -8,7 +8,7 @@
 
 This is a firmware and software repository that moves data between PGP protocol links (commonly an optical interface connected to detectors) and the PCIe DMA engine. Virtual channels (VCs) and higher-level routing are defined by the software stack; the firmware provides the PGP <-> DMA/AXI-PCIe plumbing and board-specific target designs.
 
-![Top Level Diagram](firmware/docs/top-level-diagram.png)
+![Top Level Diagram](docs/top-level-diagram.png)
 
 
 This repository is hardware-agnostic and supports multiple Xilinx targets via the [firmware/targets/](firmware/targets/) tree.
