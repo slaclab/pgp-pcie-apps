@@ -34,6 +34,8 @@ add_cells_to_pblock [get_pblocks SOUTH_EAST_GRP] [get_cells [list U_HbmDmaBuffer
 create_clock -period 6.4 -name qsfp0RefClkP [get_ports {qsfp0RefClkP}] ;# SI5394_INIT_FILE_G="Si5394A_GT_REFCLK_156MHz.mem"
 create_clock -period 6.4 -name qsfp1RefClkP [get_ports {qsfp1RefClkP}] ;# SI5394_INIT_FILE_G="Si5394A_GT_REFCLK_156MHz.mem"
 
+set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets U_axilClk/CLKIN1]
+
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks hbmRefClkP]
 
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_HbmDmaBuffer/U_hbmClk/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_axilClk/MmcmGen.U_Mmcm/CLKOUT0]]
