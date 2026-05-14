@@ -101,8 +101,21 @@ parser.add_argument(
     help     = "PRBS generator width in bits",
 )
 
+parser.add_argument(
+    "--transceiverClass",
+    type     = str,
+    required = False,
+    default  = None,
+    help     = "BittWare-only: comma-separated per-slot form-factor list (e.g. 'QSFP,QSFP,SFP,QSFP-DD'). Default None preserves pre-Phase-2 useSfp behavior (KCU1500-clean).",
+)
+
 # Get the arguments
 args = parser.parse_args()
+
+# Per D-01/D-02: pass-through None preserves pre-Phase-2 behavior.
+xcvr_list = None
+if args.transceiverClass is not None:
+    xcvr_list = [tok.strip() for tok in args.transceiverClass.split(',')]
 
 #################################################################
 
@@ -149,11 +162,12 @@ class MyRoot(pr.Root):
 
         # Add the PCIe core device to base
         self.add(pcie.AxiPcieCore(
-            memBase      = self.memMap,
-            offset       = 0x00000000,
-            numDmaLanes  = args.numLane,
-            boardType    = args.boardType,
-            # expand       = True,
+            memBase          = self.memMap,
+            offset           = 0x00000000,
+            numDmaLanes      = args.numLane,
+            boardType        = args.boardType,
+            transceiverClass = xcvr_list,
+            # expand          = True,
         ))
 
         self.add(pcie.TerminateQsfp(
