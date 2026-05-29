@@ -24,6 +24,11 @@ use surf.HtspPkg.all;
 entity HtspRxFifo is
    generic (
       TPD_G                 : time     := 1 ns;
+      CASCADE_SIZE_G        : positive := 1;
+      FIFO_ADDR_WIDTH_G     : positive := 12;
+      FIFO_PAUSE_THRESH_G   : positive := 256;
+      INT_WIDTH_SELECT_G    : string   := "WIDE";
+      INT_DATA_WIDTH_G      : positive := 64;
       TX_MAX_PAYLOAD_SIZE_G : positive := 8192;
       NUM_VC_G              : positive);
    port (
@@ -101,9 +106,11 @@ begin
             SYNTH_MODE_G        => "xpm",
             MEMORY_TYPE_G       => "uram",
             GEN_SYNC_FIFO_G     => true,
-            FIFO_ADDR_WIDTH_G   => 12,  -- 4k URAM,
-            FIFO_FIXED_THRESH_G => true,
-            FIFO_PAUSE_THRESH_G => 1024,  -- 1/4 of buffer
+            FIFO_ADDR_WIDTH_G   => FIFO_ADDR_WIDTH_G,
+            FIFO_PAUSE_THRESH_G => FIFO_PAUSE_THRESH_G,
+            CASCADE_SIZE_G      => CASCADE_SIZE_G,
+            INT_WIDTH_SELECT_G  => INT_WIDTH_SELECT_G,
+            INT_DATA_WIDTH_G    => INT_DATA_WIDTH_G,
             -- AXI Stream Port Configurations
             SLAVE_AXI_CONFIG_G  => HTSP_AXIS_CONFIG_C,
             MASTER_AXI_CONFIG_G => HTSP_AXIS_CONFIG_C)

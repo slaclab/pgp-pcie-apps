@@ -25,6 +25,7 @@ entity PgpLaneRx is
    generic (
       TPD_G               : time     := 1 ns;
       DMA_AXIS_CONFIG_G   : AxiStreamConfigType;
+      CASCADE_SIZE_G      : positive := 1;
       FIFO_ADDR_WIDTH_G   : positive := 12;
       FIFO_PAUSE_THRESH_G : positive := 512;
       MEMORY_TYPE_G       : string   := "block";
@@ -93,6 +94,7 @@ begin
             FIFO_PAUSE_THRESH_G => FIFO_PAUSE_THRESH_G,
             INT_WIDTH_SELECT_G  => INT_WIDTH_SELECT_G,
             INT_DATA_WIDTH_G    => INT_DATA_WIDTH_G,
+            CASCADE_SIZE_G      => CASCADE_SIZE_G,
             -- AXI Stream Port Configurations
             SLAVE_AXI_CONFIG_G  => PGP4_AXIS_CONFIG_C,
             MASTER_AXI_CONFIG_G => DMA_AXIS_CONFIG_G)

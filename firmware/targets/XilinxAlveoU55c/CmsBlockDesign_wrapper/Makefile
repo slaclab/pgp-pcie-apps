@@ -1,12 +1,15 @@
 export PARALLEL_SYNTH = 8
 
 # Define target part
-export PRJ_PART = XCU55N-FSVH2892-2L-E
+export PRJ_PART = xcu55c-fsvh2892-2L-e
 
 # Define target output
-target: prom
+target: dcp
 
-# Using a non-standard target directory structure, 
+# Define use of the BD file
+export CMS_BLOCK_DESIGN_BD_FILE = 1
+
+# Using a non-standard target directory structure,
 # which requires me to define the TOP_DIR path
 export TOP_DIR = $(abspath $(PWD)/../../..)
 

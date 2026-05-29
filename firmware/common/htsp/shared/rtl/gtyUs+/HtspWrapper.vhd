@@ -274,6 +274,17 @@ begin
    U_Rx : entity work.HtspRxFifo
       generic map (
          TPD_G                 => TPD_G,
+         -------------------------------------------------------------------------------
+         -- FIFO Depth: 4 FIFOs x 4096 sample = 16k HTSP words
+         -- Pause Threshold: 256 HTSP words
+         -- "Pause Runway": 16k HTSP words - 256 HTSP words = ~16k HTSP words
+         -------------------------------------------------------------------------------
+         CASCADE_SIZE_G        => 4,         -- 4 FIFOs
+         FIFO_ADDR_WIDTH_G     => 12,        -- 4k deep (2^12)
+         FIFO_PAUSE_THRESH_G   => 256,       -- 256 sample deep
+         INT_WIDTH_SELECT_G    => "CUSTOM",  -- Custom FIFO internal width
+         INT_DATA_WIDTH_G      => 64,        -- 64 Bytes (512 bits)
+         -------------------------------------------------------------------------------
          TX_MAX_PAYLOAD_SIZE_G => TX_MAX_PAYLOAD_SIZE_G,
          NUM_VC_G              => NUM_VC_G)
       port map (

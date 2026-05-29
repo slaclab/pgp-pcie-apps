@@ -10,7 +10,6 @@
 ##############################################################################
 
 import setupLibPaths
-import sys
 import rogue
 import argparse
 

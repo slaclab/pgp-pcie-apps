@@ -10,7 +10,6 @@
 ##############################################################################
 
 import setupLibPaths
-import sys
 import rogue
 import argparse
 
@@ -71,7 +70,7 @@ parser.add_argument(
     type     = argBool,
     required = False,
     default  = True,
-    help     = "Enable read all variables at start",
+    help     = "Enable SW PRBS RX",
 )
 
 parser.add_argument(
@@ -79,7 +78,7 @@ parser.add_argument(
     type     = argBool,
     required = False,
     default  = True,
-    help     = "Enable read all variables at start",
+    help     = "Enable SW PRBS TX",
 )
 
 parser.add_argument(
@@ -87,7 +86,7 @@ parser.add_argument(
     type     = int,
     required = False,
     default  = 256,
-    help     = "# of DMA Lanes",
+    help     = "PRBS generator width in bits",
 )
 
 parser.add_argument(
@@ -221,13 +220,13 @@ class MyRoot(pr.Root):
 
         @self.command()
         def EnableAllSwTx():
-            swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
+            swTxDevices = self.find(typ=pr.utilities.prbs.PrbsTx)
             for tx in swTxDevices:
                 tx.txEnable.set(True)
 
         @self.command()
         def DisableAllSwTx():
-            swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
+            swTxDevices = self.find(typ=pr.utilities.prbs.PrbsTx)
             for tx in swTxDevices:
                 tx.txEnable.set(False)
 

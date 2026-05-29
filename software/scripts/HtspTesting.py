@@ -10,7 +10,6 @@
 ##############################################################################
 
 import setupLibPaths
-import sys
 import rogue
 import argparse
 
@@ -24,7 +23,6 @@ import pyrogue.utilities.prbs
 import axipcie             as pcie
 import surf.axi            as axi
 import surf.protocols.htsp as htsp
-import surf.protocols.ssi  as ssi
 
 #################################################################
 
@@ -56,7 +54,7 @@ parser.add_argument(
     type     = int,
     required = False,
     default  = 512,
-    help     = "# of DMA Lanes",
+    help     = "PRBS generator width in bits",
 )
 
 parser.add_argument(
@@ -169,17 +167,15 @@ class MyRoot(pr.Root):
 
         @self.command()
         def EnableAllSwTx():
-            if (self.perf is False):
-                swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
-                for tx in swTxDevices:
-                    tx.txEnable.set(True)
+            swTxDevices = self.find(typ=pr.utilities.prbs.PrbsTx)
+            for tx in swTxDevices:
+                tx.txEnable.set(True)
 
         @self.command()
         def DisableAllSwTx():
-            if (self.perf is False):
-                swTxDevices = root.find(typ=pr.utilities.prbs.PrbsTx)
-                for tx in swTxDevices:
-                    tx.txEnable.set(False)
+            swTxDevices = self.find(typ=pr.utilities.prbs.PrbsTx)
+            for tx in swTxDevices:
+                tx.txEnable.set(False)
 
     def start(self, **kwargs):
         super().start(**kwargs)

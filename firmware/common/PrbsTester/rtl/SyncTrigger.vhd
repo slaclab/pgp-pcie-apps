@@ -1,6 +1,9 @@
 -------------------------------------------------------------------------------
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
+-- Description: Synchronous trigger generator with configurable packet length
+--              and timer
+-------------------------------------------------------------------------------
 -- This file is part of 'SLAC Firmware Standard Library'.
 -- It is subject to the license terms in the LICENSE.txt file found in the
 -- top-level directory of this distribution and at:
@@ -104,9 +107,9 @@ begin
 
       end if;
 
-      -- Prevent the zero case
+      -- Prevent the zero case (clamp to minimum of 1)
       if (v.timerSize = 0) then
-         v.timerSize := r.timerSize;
+         v.timerSize := x"00000001";
       end if;
 
       -- Check for change in timer config

@@ -111,12 +111,12 @@ architecture top_level of XilinxVariumC1100PrbsTester is
    signal dmaClk          : sl;
    signal dmaRst          : sl;
    signal dmaBuffGrpPause : slv(7 downto 0);
-   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
-   signal buffIbMasters   : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0);
-   signal buffIbSlaves    : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0);
+   signal dmaObMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
+   signal dmaObSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
+   signal dmaIbMasters    : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
+   signal dmaIbSlaves     : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
+   signal buffIbMasters   : AxiStreamMasterArray(DMA_SIZE_C-1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
+   signal buffIbSlaves    : AxiStreamSlaveArray(DMA_SIZE_C-1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
 
    signal hbmRefClk : sl;
    signal userClk   : sl;
@@ -243,6 +243,8 @@ begin
          mAxisRst         => (others => dmaRst),
          mAxisMasters     => dmaIbMasters,
          mAxisSlaves      => dmaIbSlaves);
+         -- mAxisMasters     => open,
+         -- mAxisSlaves      => (others => AXI_STREAM_SLAVE_FORCE_C));
 
    ---------------
    -- PRBS Modules
@@ -268,5 +270,28 @@ begin
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => buffIbMasters,
          dmaIbSlaves     => buffIbSlaves);
+         -- dmaIbMasters    => dmaIbMasters,
+         -- dmaIbMasters    => dmaIbMasters);
+
+   U_BUFF_IB_MON : entity surf.AxiStreamMonAxiL
+      generic map(
+         TPD_G            => TPD_G,
+         COMMON_CLK_G     => true,
+         AXIS_CLK_FREQ_G  => DMA_CLK_FREQ_C,
+         AXIS_NUM_SLOTS_G => DMA_SIZE_C,
+         AXIS_CONFIG_G    => DMA_AXIS_CONFIG_C)
+      port map(
+         -- AXIS Stream Interface
+         axisClk          => dmaClk,
+         axisRst          => dmaRst,
+         axisMasters      => buffIbMasters,
+         axisSlaves       => buffIbSlaves,
+         -- AXI lite slave port for register access
+         axilClk          => dmaClk,
+         axilRst          => dmaRst,
+         sAxilWriteMaster => axilWriteMasters(1),
+         sAxilWriteSlave  => axilWriteSlaves(1),
+         sAxilReadMaster  => axilReadMasters(1),
+         sAxilReadSlave   => axilReadSlaves(1));
 
 end top_level;
