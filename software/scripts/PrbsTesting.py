@@ -130,6 +130,14 @@ parser.add_argument(
     help     = "Enable sync triggers",
 )
 
+parser.add_argument(
+    "--onlyCfg",
+    type     = argBool,
+    required = False,
+    default  = False,
+    help     = "Do not attach DMA lanes, only perform configuration",
+)
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -273,10 +281,11 @@ class MyRoot(pr.Root):
             for vc in range(args.numVc):
 
                 # Set the DMA loopback channel
-                self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
+                if not args.onlyCfg:
+                    self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
                 # self.dmaStream[lane][vc].setDriverDebug(0)
 
-                if (args.loopback):
+                if (args.loopback and not args.onlyCfg):
                     # Loopback the PRBS data
                     self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
 
@@ -289,7 +298,8 @@ class MyRoot(pr.Root):
                             checkPayload = False,
                             expand       = True,
                         )
-                        self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
+                        if not args.onlyCfg:
+                            self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
                         self.add(self.prbsRx[lane][vc])
 
                     if (args.swTx):
@@ -299,7 +309,8 @@ class MyRoot(pr.Root):
                             width   = args.prbsWidth,
                             expand  = False,
                         )
-                        self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
+                        if not args.onlyCfg:
+                            self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
                         self.add(self.prbsTx[lane][vc])
 
         @self.command()
