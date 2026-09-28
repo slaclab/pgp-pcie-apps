@@ -45,6 +45,8 @@ bin*
 .ipynb_checkpoints*
 *.jou
 slprj*
+linux*
+.nfs*
 
 # Only .bit.gz and .mcs.gz should be committed to git
 *.bit
@@ -63,6 +65,7 @@ slprj*
 .vscode/
 .cursor/
 .claude/
+.gsd/
 .planning/
 planning/
 CLAUDE.md
