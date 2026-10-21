@@ -1,11 +1,11 @@
 Data Flow
 =========
 
-Three independent flows cross the design.  Each has a documented entry
-point and a documented synchroniser at every clock-domain boundary.
+Four independent flows cross the design.  Each has a documented entry
+point and a documented synchronizer at every clock-domain boundary.
 
-PGP RX Path  (Optical → Host DMA)
-----------------------------------
+PGP RX Path (Optical → Host DMA)
+--------------------------------
 
 .. code-block:: text
 
@@ -35,11 +35,11 @@ from ``axi-pcie-core``):
 
    PgpLaneRx → buffIbMasters → MigDmaBuffer → DDR/HBM → back to dmaIbMasters
 
-The DDR/HBM buffer enables event-triggered readout — frames sit in
+The DDR/HBM buffer enables event-triggered readout: frames sit in
 on-board memory until the host issues a read request via descriptor.
 
-PGP TX Path  (Host DMA → Optical)
-----------------------------------
+PGP TX Path (Host DMA → Optical)
+--------------------------------
 
 .. code-block:: text
 
@@ -64,12 +64,12 @@ PGP TX Path  (Host DMA → Optical)
         ▼
    QSFP TX (serial)
 
-The flush logic on link-down ensures that frames sourced from the host
-do not stall the entire DMA path when the optical link goes down — they
-are dropped in the ``AxiStreamFlush`` block until ``linkReady`` returns.
+The flush logic ensures that frames sourced from the host do not stall
+the entire DMA path when the optical link goes down; they are dropped in
+the ``AxiStreamFlush`` block until ``linkReady`` returns.
 
-AXI-Lite Register Path  (Software → Firmware Registers)
---------------------------------------------------------
+AXI-Lite Register Path (Software → Firmware Registers)
+------------------------------------------------------
 
 .. code-block:: text
 
@@ -85,7 +85,7 @@ AXI-Lite Register Path  (Software → Firmware Registers)
    Top-level AxiLiteCrossbar (in <Target>.vhd)
         │
         ├── 0x00100000  MigDmaBuffer (optional)
-        ├── 0x002–0x004…00000  Utility A/B/C
+        ├── 0x00200000-0x00400000  Utility A/B/C
         └── 0x00800000  Hardware (PgpLaneWrapper)
                 │
                 ▼  per-lane crossbar (stride 0x10000)
@@ -100,18 +100,18 @@ AXI-Lite Register Path  (Software → Firmware Registers)
 
 The full per-lane register layout is in :doc:`/reference/axi_lite_address_map`.
 
-Back-Pressure Path  (DMA Pause → PGP Pause)
---------------------------------------------
+Back-Pressure Path (DMA Pause → PGP Pause)
+------------------------------------------
 
 ``axi-pcie-core``'s DMA engine asserts ``dmaBuffGrpPause`` when host-side
 DMA buffers fill up.  ``pgp-pcie-apps`` propagates that signal back into
 two places:
 
-* Into ``PgpLaneRx.disableSel`` — synchronised to ``pgpClk``, blocks
-  ingress on the affected VCs to stop new frames being absorbed.
-* Into ``pgpTxIn.locData(0)`` — synchronised, signals the **remote**
-  end of the PGP link to pause via the PGP4 in-band flow-control
-  channel.
+* Into ``PgpLaneRx.disableSel``: synchronized to ``pgpClk``, it blocks
+  ingress on the affected VCs to stop new frames from being absorbed.
+* Into ``pgpTxIn.locData(0)``: once synchronized, it signals the
+  **remote** end of the PGP link to pause via the PGP4 in-band
+  flow-control channel.
 
 This is the canonical SLAC two-sided back-pressure model: stop ingress
 locally **and** ask the upstream sender to slow down.

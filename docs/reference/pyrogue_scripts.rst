@@ -4,8 +4,9 @@ PyRogue Scripts
 Every script under :repo:`software/scripts/` is a standalone PyDM
 launcher: it builds a ``pr.Root`` containing the relevant ``AxiPcieCore``
 device tree, optionally wires up stream sources/sinks, and starts the
-PyDM GUI.  All scripts accept a common ``--type`` flag selecting the
-backend (``pcie`` or ``sim``).
+PyDM GUI.  All scripts accept ``--dev`` (default ``/dev/datadev_0``) to
+select the card.  Only ``LoopbackTesting.py`` also accepts ``--type``
+to select the backend (``pcie`` or ``sim``).
 
 Common Bootstrap
 ----------------
@@ -16,13 +17,13 @@ Every script starts with:
 
    import setupLibPaths  # adds surf and axi-pcie-core python/ to sys.path
 
-This MUST be the first import.  ``setupLibPaths.py``
+This **must** be the first import.  ``setupLibPaths.py``
 (:repo:`software/scripts/setupLibPaths.py`) calls
-``pr.addLibraryPath()`` for each submodule's Python tree.  Without it
+``pr.addLibraryPath()`` for each submodule's Python tree.  Without it,
 ``import axipcie`` and ``import surf`` fail.
 
-Script Catalogue
-----------------
+Script Catalog
+--------------
 
 LoopbackTesting.py
 ~~~~~~~~~~~~~~~~~~
@@ -31,7 +32,7 @@ LoopbackTesting.py
 
 Drives the DMA loopback path with a PRBS source and a PRBS sink wired
 through ``rogue.utilities.Prbs``.  Use this against any ``DmaLoopback``
-target (e.g. ``XilinxVariumC1100DmaLoopback``).
+target (e.g., ``XilinxVariumC1100DmaLoopback``).
 
 .. code-block:: bash
 
@@ -44,15 +45,15 @@ PgpTesting.py
 :repo:`software/scripts/PgpTesting.py`
 
 Builds a per-lane PRBS test against a PGP-protocol target (PGP2b, PGP3,
-or PGP4).  See :doc:`/how-to/run_pgp_testing`.
+or PGP4, selected with ``--version``).  See :doc:`/how-to/run_pgp_testing`.
 
 PgpMonitor.py
 ~~~~~~~~~~~~~
 
 :repo:`software/scripts/PgpMonitor.py`
 
-Read-only monitoring variant of ``PgpTesting.py``.  Same PyDM GUI minus
-the PRBS source/sink — useful when another application is already
+Read-only monitoring variant of ``PgpTesting.py``: the same PyDM GUI
+minus the PRBS source/sink.  Useful when another application is already
 driving traffic.
 
 HtspTesting.py
@@ -63,6 +64,14 @@ HtspTesting.py
 HTSP 100 Gbps equivalent of ``PgpTesting.py``.  Use against
 ``Htsp100Gbps`` targets.
 
+HtspMonitor.py
+~~~~~~~~~~~~~~
+
+:repo:`software/scripts/HtspMonitor.py`
+
+Read-only monitoring variant of ``HtspTesting.py``, analogous to
+``PgpMonitor.py``.
+
 PrbsTesting.py
 ~~~~~~~~~~~~~~
 
@@ -70,7 +79,7 @@ PrbsTesting.py
 
 Drives the in-hardware ``firmware/common/PrbsTester`` application
 without involving an optical link.  Use against ``*PrbsTester``
-targets (e.g. ``XilinxVariumC1100PrbsTester``).
+targets (e.g., ``XilinxVariumC1100PrbsTester``).
 
 updatePcieFpga.py
 ~~~~~~~~~~~~~~~~~
@@ -89,7 +98,7 @@ At SLAC S3DF (``rdsrv*``):
 
    source software/setup_env_slac.sh
 
-Activates conda env ``rogue_v6.12.0``.
+This activates the ``rogue_v6.12.0`` conda environment.
 
 At PCDS / CDS:
 
@@ -97,7 +106,7 @@ At PCDS / CDS:
 
    source software/cds_env_setup.sh
 
-Activates conda env ``rogue_v6.5.0``.
+This activates the ``rogue_v6.5.0`` conda environment.
 
-Outside SLAC: ensure ``rogue`` >= 6.5.0 is on ``PYTHONPATH`` and that
-``pyrogue.pydm`` is importable.
+Outside SLAC, ensure ``rogue`` v6.5.0 or later is on ``PYTHONPATH`` and
+that ``pyrogue.pydm`` is importable.

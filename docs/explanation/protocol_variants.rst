@@ -35,25 +35,26 @@ PGP3
 ----
 
 * **Line rates**: 6.25, 10.3125 Gbps.
-* **VCs**: up to 8 lanes × 4 VCs.
+* **Virtual channels**: up to 8 lanes × 4 VCs.
 * **FEC**: optional Reed-Solomon (PGP3 RS-FEC).
-* **When to use**: detectors and DAQ links in the 6.25–10 Gbps range
+* **When to use**: detectors and DAQ links in the 6.25 to 10 Gbps range
   where PGP2b is too slow.
 
 PGP4
 ----
 
 * **Line rates**: 6.25, 10.3125, 12.5, 15.46875, 25 Gbps.
-* **VCs**: up to 8 lanes × 4 VCs.
+* **Virtual channels**: up to 8 lanes × 4 VCs.
 * **FEC**: optional Reed-Solomon (PGP4 RS-FEC).  Required at 25 Gbps.
 * **When to use**: default for new designs unless you need 100 Gbps.
 
 Three target-level generics drive PGP4 configuration:
 
-* ``RATE_G : string`` — line rate string ("6.25Gbps", "10.3125Gbps",
-  "12.5Gbps", "15.46875Gbps", "25Gbps").  Drives QPLL configuration.
-* ``NUM_VC_G : positive`` — VC count (typically 4).
-* ``PGP_FEC_ENABLE_G : boolean`` — FEC enable.  Must be ``true`` at
+* ``RATE_G : string``: line rate string (``"6.25Gbps"``,
+  ``"10.3125Gbps"``, ``"12.5Gbps"``, ``"15.46875Gbps"``, ``"25.0Gbps"``).
+  Drives QPLL configuration.
+* ``NUM_VC_G : positive``: VC count (typically 4).
+* ``PGP_FEC_ENABLE_G : boolean``: FEC enable.  Must be ``true`` at
   25 Gbps; optional at lower rates.
 
 HTSP
@@ -61,13 +62,13 @@ HTSP
 
 * **Aggregate rate**: 100 Gbps per QSFP (4 × 25 GbE lanes).
 * **Framing**: 802.3 Ethernet-style with KP-FEC; not VC-based.
-* **When to use**: detector farms or other workloads requiring ≥100 Gbps
-  aggregate throughput per cage.
+* **When to use**: detector farms or other workloads requiring 100 Gbps
+  or more of aggregate throughput per cage.
 
 HTSP replaces ``PgpLaneWrapper`` with ``HtspWrapper`` in the protocol
 layer.  Software exercises it via
 ``software/scripts/HtspTesting.py``.  Because HTSP is not VC-based, the
-per-lane register layout differs from PGP — see ``HtspWrapper``'s own
+per-lane register layout differs from PGP; see ``HtspWrapper``'s own
 register set.
 
 Trade-Off Summary

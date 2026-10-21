@@ -1,5 +1,5 @@
 Run the PGP Test Suite
-=======================
+======================
 
 Once a PGP target is built and flashed (or programmed via
 :doc:`/how-to/program_with_updatepciefpga`), exercise the link with
@@ -17,11 +17,13 @@ Quick Start
 ``PgpTesting.py`` (:repo:`software/scripts/PgpTesting.py`) builds a
 ``pr.Root`` containing:
 
-* ``AxiPcieCore`` — register tree at BAR0 (versions, monitors, board ID).
-* Per-lane PGP RX/TX framers + ``rogue.utilities.Prbs`` instances on each
-  virtual channel.
+* ``AxiPcieCore``: register tree at BAR0 (versions, monitors, board ID).
+* Per-lane PGP RX/TX monitors and ``rogue.utilities.Prbs`` instances on
+  each virtual channel.
 
-It launches the PyDM GUI exposing the live monitor tree.
+It then launches the PyDM GUI exposing the live monitor tree.  Use
+``--version`` (default ``4``) to select the PGP generation, and
+``--numLane`` / ``--numVc`` to match the target.
 
 What "Working" Looks Like
 -------------------------
@@ -40,24 +42,23 @@ Read-Only Monitoring
 ~~~~~~~~~~~~~~~~~~~~
 
 For monitoring without driving traffic, use
-``software/scripts/PgpMonitor.py``.  Same GUI, no PRBS source/sink.
+``software/scripts/PgpMonitor.py``: the same GUI without the PRBS
+source/sink.
 
-Backend Modes
-~~~~~~~~~~~~~
+Selecting a Card
+~~~~~~~~~~~~~~~~
 
-All ``software/scripts/`` scripts accept a ``--type`` flag:
-
-* ``--type pcie`` — real hardware (default).
-* ``--type sim`` — rogue TCP-socket backend; pairs with a VHDL testbench
-  running with ``ROGUE_SIM_EN_G => true``.  See
-  :doc:`/how-to/simulate_dma_loopback`.
+All scripts default to ``--dev /dev/datadev_0``.  Pass
+``--dev /dev/datadev_<N>`` to target a different card.  Only
+``LoopbackTesting.py`` supports the ``--type sim`` simulation backend
+(see :doc:`/how-to/simulate_dma_loopback`).
 
 For PRBS-Tester Targets
 -----------------------
 
-The PrbsTester targets (e.g.
-``XilinxVariumC1100PrbsTester``) skip the PGP optics and instead drive
-the DMA path with in-hardware PRBS generators.  Use
+The PrbsTester targets (e.g., ``XilinxVariumC1100PrbsTester``) skip
+the PGP optics and instead drive the DMA path with in-hardware PRBS
+generators.  Use
 ``software/scripts/PrbsTesting.py``
 (:repo:`software/scripts/PrbsTesting.py`) instead of ``PgpTesting.py``
 for those targets.
@@ -66,5 +67,7 @@ For HTSP Targets
 ----------------
 
 Use ``software/scripts/HtspTesting.py``
-(:repo:`software/scripts/HtspTesting.py`) for the HTSP 100 Gbps targets.
-Same PyDM-driven monitoring pattern, different RX/TX monitor variables.
+(:repo:`software/scripts/HtspTesting.py`) for the HTSP 100 Gbps targets,
+or ``software/scripts/HtspMonitor.py`` for read-only monitoring.  They
+follow the same PyDM-driven monitoring pattern with different RX/TX
+monitor variables.

@@ -1,14 +1,14 @@
 Simulate the DMA Loopback Path
-================================
+==============================
 
 The DmaLoopback target ships with a VHDL testbench
 (:repo:`firmware/targets/XilinxVariumC1100/XilinxVariumC1100DmaLoopback/tb/XilinxVariumC1100DmaLoopbackTb.vhd`)
 that runs the full DMA engine under Vivado simulation, with the PCIe PHY
 replaced by a rogue TCP-socket server.  This is the fastest debug loop
-when you don't have hardware in hand.
+when you do not have hardware in hand.
 
 How the Sim Backend Works
---------------------------
+-------------------------
 
 When ``ROGUE_SIM_EN_G => true`` is set on the ``<Board>Core`` instance
 (or its enclosing top-level), ``axi-pcie-core`` swaps the PCIe DMA path
@@ -34,11 +34,13 @@ In the firmware tree:
 .. code-block:: bash
 
    cd firmware/targets/XilinxVariumC1100/XilinxVariumC1100DmaLoopback
-   make sim
+   make xsim
 
-This launches the Vivado simulator with ``XilinxVariumC1100DmaLoopbackTb``
-as the top.  When the simulator reaches a steady state, the TCP socket
-server is listening.
+This launches the Vivado simulator (XSIM) with
+``XilinxVariumC1100DmaLoopbackTb`` as the top, as set by the
+``set_property top`` line in the target's ``ruckus.tcl``.  Use
+``make vcs`` instead to generate VCS simulation scripts.  When the
+simulator reaches a steady state, the TCP socket server is listening.
 
 In a second terminal, start the host-side PRBS test:
 
@@ -52,15 +54,15 @@ The PyRogue stack now talks to the simulator over TCP rather than the
 real-hardware run.
 
 When to Use This
------------------
+----------------
 
-- Debugging DMA descriptor-engine behaviour against a known-good firmware.
+- Debugging DMA descriptor-engine behavior against known-good firmware.
 - Regression-testing changes to ``firmware/common/<proto>/shared/rtl/``
   before committing.
 - CI smoke tests where no board hardware is available.
 
-What This Doesn't Cover
------------------------
+What This Does Not Cover
+------------------------
 
 Simulation does not exercise:
 

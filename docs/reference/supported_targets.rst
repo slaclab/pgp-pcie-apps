@@ -55,16 +55,18 @@ Gen3x8 PCIe + DDR4.  Multiple PGP variants.  Vivado 2020.1+.
      - Notes
    * - ``XilinxKcu1500DmaLoopback``
      - DMA loopback application (also has ``tb/`` for simulation).
+   * - ``XilinxKcu1500DmaLoopbackBifurcatedPcie``
+     - DMA loopback with PCIe bifurcation.
    * - ``XilinxKcu1500PrbsTester``
      - In-hardware PRBS tester.
-   * - ``XilinxKcu1500Pgp*_*Gbps``
-     - Various PGP2b / PGP3 / PGP4 line-rate combinations — see
+   * - ``XilinxKcu1500Pgp*``
+     - Various PGP2b / PGP3 / PGP4 line-rate combinations; see
        :repo:`firmware/targets/XilinxKcu1500/` for the full list.
 
 Other Boards
 ~~~~~~~~~~~~
 
-Each board has a similar set of DmaLoopback + PrbsTester + protocol
+Each board has a similar set of DmaLoopback, PrbsTester, and protocol
 variants where supported.  Browse the source tree to see the full
 matrix:
 

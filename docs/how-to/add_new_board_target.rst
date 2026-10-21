@@ -2,9 +2,9 @@ Add a New Board Target
 ======================
 
 This guide shows how to add a new ``firmware/targets/<Board>/<Target>/``
-build for an existing protocol+board combination.  Adding a *brand-new
-board* (one not in :doc:`/reference/supported_targets`) is out of scope
-here — that work lives in ``axi-pcie-core`` (see the
+build for an existing board and protocol combination.  Adding a
+*brand-new board* (one not in :doc:`/reference/supported_targets`) is out
+of scope here; that work lives in ``axi-pcie-core`` (see the
 `axi-pcie-core add-new-board how-to
 <https://slaclab.github.io/axi-pcie-core/how-to/add_new_board.html>`_).
 
@@ -15,7 +15,7 @@ To add ``firmware/targets/<Board>/<Board><Protocol>_<Rate>/`` for an
 existing supported board:
 
 1. **Copy** the nearest existing target.  For example, to add
-   ``XilinxVariumC1100Pgp4_25Gbps`` you would clone
+   ``XilinxVariumC1100Pgp4_25Gbps``, clone
    ``XilinxVariumC1100Pgp4_15Gbps``:
 
    .. code-block:: bash
@@ -23,7 +23,7 @@ existing supported board:
       cp -r firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps \
             firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_25Gbps
 
-2. **Rename** the top-level ``hdl/`` files and entity name to match the
+2. **Rename** the top-level ``hdl/`` files and the entity to match the
    new target directory:
 
    .. code-block:: bash
@@ -44,9 +44,9 @@ existing supported board:
 5. **Build** with ``make`` per :doc:`/tutorial/first_build`.
 
 How the ruckus.tcl Chain Works
--------------------------------
+------------------------------
 
-Every target's ``ruckus.tcl`` follows the same three-step pattern (see
+Every protocol target's ``ruckus.tcl`` follows the same pattern (see
 :repo:`firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps/ruckus.tcl`
 for a worked example):
 
@@ -63,15 +63,15 @@ for a worked example):
 
 The three ``loadRuckusTcl`` calls pull in:
 
-* ``surf`` — base SLAC RTL library (AXI/stream primitives, PGP cores).
-* ``axi-pcie-core/hardware/<Board>`` — PCIe DMA + board-specific I/O
+* ``surf``: base SLAC RTL library (AXI/stream primitives, PGP cores).
+* ``axi-pcie-core/hardware/<Board>``: PCIe DMA and board-specific I/O
   for the carrier card.
-* ``common/<proto>/hardware/<Board>`` — the board-specific
+* ``common/<proto>/hardware/<Board>``: the board-specific
   ``Hardware.vhd`` adapter for the chosen protocol (PGP2b / PGP3 /
   PGP4 / HTSP).
 
-The fourth ``loadSource`` plus ``loadConstraints`` adds your target's
-own top-level VHDL and XDC.
+The trailing ``loadSource`` and ``loadConstraints`` calls add your
+target's own top-level VHDL and XDC.
 
 See :doc:`/explanation/architecture` for why the chain is layered this
 way.
@@ -79,9 +79,9 @@ way.
 Cross-References
 ----------------
 
-- :doc:`/how-to/add_new_line_rate` — modify the line rate of an existing
+- :doc:`/how-to/add_new_line_rate`: modify the line rate of an existing
   target.
-- :doc:`/how-to/select_protocol` — choose between PGP2b, PGP3, PGP4,
+- :doc:`/how-to/select_protocol`: choose between PGP2b, PGP3, PGP4,
   and HTSP for a given board.
-- :doc:`/reference/supported_targets` — the matrix of all existing
+- :doc:`/reference/supported_targets`: the matrix of all existing
   targets.
