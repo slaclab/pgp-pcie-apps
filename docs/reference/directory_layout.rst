@@ -36,7 +36,9 @@ Key Directories
    Contains ``hdl/<Target>.vhd`` (top-level entity), ``hdl/<Target>.xdc``
    (pin/timing constraints), ``ruckus.tcl`` (build script), ``Makefile``
    (per-target ``PRJ_PART``), and ``vivado/promgen.tcl`` (PROM generation
-   recipe).  ``tb/`` is present for DmaLoopback variants.
+   recipe).  A ``tb/`` testbench directory is present for some
+   DmaLoopback targets (``XilinxVariumC1100``, ``XilinxKcu1500``,
+   ``SlacPgpCardG4``).
 
 ``firmware/common/<proto>/hardware/<Board>/core/Hardware.vhd``
    Board-specific adapter for one protocol on one board.  A thin wrapper
@@ -44,8 +46,9 @@ Key Directories
    ``HtspWrapper``).
 
 ``firmware/common/<proto>/shared/rtl/``
-   Protocol-common lane logic — ``PgpLaneRx``, ``PgpLaneTx``, GT-family
-   wrappers in ``gtyUs+/`` (UltraScale+) and ``gthUs/`` (UltraScale).
+   Protocol-common lane logic: ``PgpLaneRx``, ``PgpLaneTx``, and the
+   GT-family wrappers in ``gtyUs+/`` (UltraScale+) and ``gthUs/``
+   (UltraScale).
 
 ``firmware/common/PrbsTester/``
    In-hardware PRBS application: ``PrbsLane``, ``Hardware.vhd``, and
@@ -56,21 +59,22 @@ Key Directories
    own documentation at https://slaclab.github.io/axi-pcie-core/.
 
 ``software/scripts/``
-   PyRogue host-side test and monitoring scripts — see
+   PyRogue host-side test and monitoring scripts; see
    :doc:`/reference/pyrogue_scripts`.
 
 Build Outputs
 -------------
 
-ruckus splits build artefacts across two locations:
+ruckus splits build artifacts across two locations:
 
-* **Working tree** — ``firmware/build/<TargetName>/``.  Contains the
+* **Working tree**: ``firmware/build/<TargetName>/``.  Contains the
   Vivado ``.xpr`` project, ``runs/synth_1/``, ``runs/impl_1/``,
-  checkpoints, logs.  Gitignored.
-* **Image tree** — ``firmware/targets/<Board>/<Target>/images/``.
-  Contains the final ``.bit`` and ``.mcs`` (or ``.bit.gz`` / ``.mcs.gz``
-  when the GZIP env vars are set).  Also gitignored — bitstreams are
-  not committed; they are shipped via the release pipeline.
+  checkpoints, and logs.  Gitignored.
+* **Image tree**: ``firmware/targets/<Board>/<Target>/images/``.
+  Contains the final ``.bit`` and ``.mcs`` (plus ``.bit.gz`` /
+  ``.mcs.gz`` when the ``*_GZIP`` variables are set).  Also gitignored;
+  bitstreams are not committed but are shipped via the release
+  pipeline.
 
 Submodule Pinning
 -----------------

@@ -1,7 +1,7 @@
-Select a Protocol — PGP2b vs PGP3 vs PGP4 vs HTSP
-==================================================
+Select a Protocol: PGP2b vs PGP3 vs PGP4 vs HTSP
+================================================
 
-Each board+target chooses one protocol layer from
+Each target chooses one protocol layer from
 ``firmware/common/<proto>/``.  Use this table to pick the right one.
 
 Decision Matrix
@@ -35,10 +35,10 @@ Decision Matrix
      - 100 Gbps (4 × 25 GbE lanes per QSFP)
      - 1 / N
      - 802.3 RS-FEC (KP-FEC)
-     - When you need ≥100 Gbps aggregate, e.g. detector farms.
+     - When you need 100 Gbps or more aggregate, e.g., detector farms.
 
 Where to Find the Layer
-------------------------
+-----------------------
 
 For each protocol, the RTL lives under:
 
@@ -56,17 +56,17 @@ Replace ``pgp4`` with ``pgp2b`` / ``pgp3`` / ``htsp`` (HTSP uses an
 ``PgpLane*``).
 
 Switching Protocols on an Existing Board
------------------------------------------
+----------------------------------------
 
-Suppose ``XilinxVariumC1100Pgp4_6Gbps`` works and you want a PGP3
+Suppose ``XilinxKcu1500Pgp4_6Gbps`` works and you want a PGP3
 variant.
 
 1. Clone the target directory:
 
    .. code-block:: bash
 
-      cp -r firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps \
-            firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp3_6Gbps
+      cp -r firmware/targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps \
+            firmware/targets/XilinxKcu1500/XilinxKcu1500Pgp3_6Gbps
 
 2. Edit the new top-level VHDL.  Find the ``Hardware`` entity
    instantiation and re-target the library:
@@ -76,24 +76,25 @@ variant.
       -- before
       U_Hardware : entity work.Hardware  -- from common/pgp4/hardware/<Board>/core/
 
-      -- after — same entity name, but bound to the pgp3 library
-      -- Achieved by changing the ruckus.tcl loadRuckusTcl line below.
+      -- after: same entity name, bound to the pgp3 adapter instead
+      -- (achieved by changing the ruckus.tcl loadRuckusTcl line below)
 
 3. Edit the new ``ruckus.tcl``:
 
    .. code-block:: tcl
 
       # before
-      loadRuckusTcl $::env(PROJ_DIR)/../../../common/pgp4/hardware/XilinxVariumC1100
+      loadRuckusTcl $::env(PROJ_DIR)/../../../common/pgp4/hardware/XilinxKcu1500
 
       # after
-      loadRuckusTcl $::env(PROJ_DIR)/../../../common/pgp3/hardware/XilinxVariumC1100
+      loadRuckusTcl $::env(PROJ_DIR)/../../../common/pgp3/hardware/XilinxKcu1500
 
-   Confirm that ``firmware/common/pgp3/hardware/XilinxVariumC1100/`` exists
-   for that board+protocol pair — not every board ships every protocol.
+   Confirm that ``firmware/common/pgp3/hardware/<Board>/`` exists for
+   your board; not every board ships every protocol (for example, there
+   is no PGP3 adapter for ``XilinxVariumC1100``).
 
-4. Update ``RATE_G`` to a PGP3-supported value (PGP3 does not support
-   line rates above 10.3125 Gbps).
+4. Update ``RATE_G`` to a value supported by the PGP3 GT wrapper for
+   your board (existing PGP3 targets use 6.25 and 10.3125 Gbps).
 
 5. Build and verify with :doc:`/how-to/run_pgp_testing`.
 
@@ -101,7 +102,7 @@ HTSP Differs
 ~~~~~~~~~~~~
 
 HTSP uses 100 GbE-style framing rather than the PGP virtual-channel
-model.  The Hardware adapter instantiates ``HtspWrapper`` instead of
+model.  The ``Hardware`` adapter instantiates ``HtspWrapper`` instead of
 ``PgpLaneWrapper``; the software path uses ``software/scripts/HtspTesting.py``
 instead of ``PgpTesting.py``.  See :doc:`/explanation/protocol_variants`
 for the architectural differences.

@@ -2,8 +2,8 @@ Explanation
 ===========
 
 Narrative material on *why* ``pgp-pcie-apps`` is structured the way it
-is — the layered protocol decomposition, the data-flow conventions, the
-relationship with ``axi-pcie-core`` and ``surf``.
+is: the layered protocol decomposition, the data-flow conventions, and
+the relationship with ``axi-pcie-core`` and ``surf``.
 
 .. toctree::
    :maxdepth: 2

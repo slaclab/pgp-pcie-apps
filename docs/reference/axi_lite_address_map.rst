@@ -3,11 +3,11 @@ AXI-Lite Address Map
 
 The PCIe BAR0 register space is decoded by a tree of ``AxiLiteCrossbar``
 instances rooted in ``axi-pcie-core``.  ``pgp-pcie-apps`` adds its own
-application-region crossbar on top — this page documents the application
+application-region crossbar on top; this page documents the application
 layer.
 
 BAR0 Top Level (from axi-pcie-core)
-------------------------------------
+-----------------------------------
 
 The BAR0 register tree below offset ``0x00100000`` is owned by
 ``axi-pcie-core`` and is documented in the
@@ -19,9 +19,9 @@ The address window from ``0x00100000`` upwards is forwarded as the
 (``appClk`` domain).  ``pgp-pcie-apps`` decodes that range as follows.
 
 Application Region (Top-Level pgp-pcie-apps Crossbar)
-------------------------------------------------------
+-----------------------------------------------------
 
-The top-level target VHDL (e.g.
+The top-level target VHDL (e.g.,
 :repo:`firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps/hdl/XilinxVariumC1100Pgp4_6Gbps.vhd`)
 instantiates an AXI-Lite crossbar inside the ``app`` clock domain with
 the following layout:
@@ -48,7 +48,7 @@ the following layout:
      - Per-target utility AXI-Lite slave.
    * - ``0x00800000``
      - ``Hardware`` (PgpLaneWrapper / HtspWrapper)
-     - The protocol layer — see `Hardware Sub-Tree`_ below.
+     - The protocol layer; see `Hardware Sub-Tree`_ below.
 
 Hardware Sub-Tree
 ~~~~~~~~~~~~~~~~~
@@ -94,19 +94,19 @@ decodes:
      - Contents
    * - ``0x0000``
      - GT core
-     - ``surf.Pgp4GtyUs`` registers — link status, line rate, FEC.
+     - ``surf.Pgp4GtyUs`` registers: link status, line rate, FEC.
    * - ``0x1000``
      - PGP monitor
-     - ``surf.Pgp4AxiL`` — RX/TX frame counters, drops, link state.
+     - ``surf.Pgp4AxiL``: RX/TX frame counters, drops, link state.
    * - ``0x2000``
      - Control
      - Lane-specific control bits (``locData`` pause, etc.).
    * - ``0x3000``
      - TX stream monitor
-     - ``surf.AxiStreamMonAxiL`` — per-VC TX frame/byte counters.
+     - ``surf.AxiStreamMonAxiL``: per-VC TX frame/byte counters.
    * - ``0x4000``
      - RX stream monitor
-     - ``surf.AxiStreamMonAxiL`` — per-VC RX frame/byte counters.
+     - ``surf.AxiStreamMonAxiL``: per-VC RX frame/byte counters.
 
 Tracing in Software
 -------------------
@@ -121,5 +121,5 @@ The PyRogue device tree mirrors this layout.  From any
    # Application region (per target)
    root.Hardware.Pgp[0].PgpAxiL.RxFrameCnt.get()
 
-Adjust the path for HTSP targets — see ``software/scripts/HtspTesting.py``
+Adjust the path for HTSP targets; see ``software/scripts/HtspTesting.py``
 for the device-tree path through ``HtspWrapper``.

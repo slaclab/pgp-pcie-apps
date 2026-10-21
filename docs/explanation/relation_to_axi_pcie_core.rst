@@ -1,5 +1,5 @@
 Relation to axi-pcie-core
-==========================
+=========================
 
 ``pgp-pcie-apps`` is a downstream consumer of ``axi-pcie-core``.  This
 page draws the boundary so you know which repo to look at for a given
@@ -14,26 +14,30 @@ What Lives Where
 Everything in ``firmware/submodules/axi-pcie-core/`` is owned by the
 ``slaclab/axi-pcie-core`` repository.  It provides:
 
-* **PCIe PHY wrapping** — per-board pre-compiled Vivado ``.dcp``
+* **PCIe PHY wrapping**: per-board pre-compiled Vivado ``.dcp``
   checkpoints under ``hardware/<Board>/pcie/``.
-* **AXI-Stream DMA engine** — ``AxiPcieDma`` + ``AxiStreamDmaV2``,
+* **AXI-Stream DMA engine**: ``AxiPcieDma`` + ``AxiStreamDmaV2``,
   shared across all boards.
-* **BAR0 register crossbar** — ``AxiPcieReg`` plus PROM access (SPI,
-  BPI), sysmon, I2C, AxiVersion.
-* **Board-management Python** — the ``axipcie`` PyRogue package
+* **BAR0 register crossbar**: ``AxiPcieReg`` plus PROM access (SPI,
+  BPI), sysmon, I2C, and AxiVersion.
+* **Board-management Python**: the ``axipcie`` PyRogue package
   (``AxiPcieCore``, ``AxiPcieRoot``, ``CmsSubsystem``, etc.).
 
 Look at the
 `axi-pcie-core documentation <https://slaclab.github.io/axi-pcie-core/>`_
 for questions about:
 
-* "How does the DMA engine work?" → ``explanation/pcie_dma_model``.
-* "What does BAR0 look like?" → ``reference/register_map``.
-* "How do I open a connection from Python?" → ``how-to/use_pyrogue``.
+* "How does the DMA engine work?" →
+  `explanation/pcie_dma_model <https://slaclab.github.io/axi-pcie-core/explanation/pcie_dma_model.html>`__.
+* "What does BAR0 look like?" →
+  `reference/register_map <https://slaclab.github.io/axi-pcie-core/reference/register_map.html>`__.
+* "How do I open a connection from Python?" →
+  `how-to/use_pyrogue <https://slaclab.github.io/axi-pcie-core/how-to/use_pyrogue.html>`__.
 * "What boards does ``axi-pcie-core`` support, and what are their
-  PCIe gen/lane/memory profiles?" → ``reference/supported_boards``.
+  PCIe gen/lane/memory profiles?" →
+  `reference/supported_boards <https://slaclab.github.io/axi-pcie-core/reference/supported_boards.html>`__.
 * "How do I add a new board to ``axi-pcie-core`` itself?" →
-  ``how-to/add_new_board``.
+  `how-to/add_new_board <https://slaclab.github.io/axi-pcie-core/how-to/add_new_board.html>`__.
 
 ``pgp-pcie-apps`` (this repo)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,7 +92,7 @@ application AXI-Lite master pair from ``U_Core`` is routed through the
 top-level crossbar to ``U_Hardware`` and any utility slaves.
 
 When to Update Which Repo
---------------------------
+-------------------------
 
 * Fixing a DMA, PROM, AxiVersion, or PCIe PHY bug → ``axi-pcie-core``.
 * Fixing a PGP framing, QPLL, or per-VC FIFO bug → ``pgp-pcie-apps``
@@ -116,5 +120,5 @@ Version Coordination
 
 The repository's recent commit history shows examples of this pattern.
 ``shared/ruckus.tcl`` inside ``axi-pcie-core`` enforces minimum versions
-of ``ruckus`` and ``surf`` — bumping the ``axi-pcie-core`` pin may
-require also bumping those.
+of ``ruckus`` and ``surf``, so bumping the ``axi-pcie-core`` pin may
+also require bumping those.

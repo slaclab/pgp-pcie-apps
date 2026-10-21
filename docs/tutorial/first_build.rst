@@ -1,5 +1,5 @@
-First Build — XilinxVariumC1100DmaLoopback
-===========================================
+First Build: XilinxVariumC1100DmaLoopback
+=========================================
 
 This tutorial walks you through building a real PCIe bitstream for the
 **Xilinx Varium C1100** board using the ``XilinxVariumC1100DmaLoopback``
@@ -11,18 +11,18 @@ PGP/HTSP optical link.
 .. note::
 
    Vivado 2024.2 is the minimum version for ``XilinxVariumC1100`` because
-   the board uses the Xilinx CMS block design and HBM2 IP.  At SLAC the
-   current tested production toolchain is **Vivado 2025.2**, which is
-   what this tutorial assumes.
+   the board uses the Xilinx CMS block design and HBM2 IP.  At SLAC, the
+   currently tested production toolchain is **Vivado 2025.2**, which this
+   tutorial assumes.
 
 The board is a Gen4x8 PCIe card with HBM2 on-board memory.  The end
-artefact is a ``.bit`` bitstream and a ``.mcs`` SPIx4 PROM image.
+artifact is a ``.bit`` bitstream and a ``.mcs`` SPIx4 PROM image.
 
 Prerequisites
 -------------
 
-- **git 2.x with git-lfs** installed and initialised — ``axi-pcie-core``
-  uses LFS for pre-compiled IP ``.dcp`` checkpoints.  Without active LFS
+- **git 2.x with git-lfs** installed and initialized.  ``axi-pcie-core``
+  uses LFS for pre-compiled IP ``.dcp`` checkpoints; without active LFS,
   the build fails on missing binary IP.
 - **Vivado 2024.2 or later** on your ``PATH``.  At SLAC S3DF:
 
@@ -32,8 +32,9 @@ Prerequisites
 
   Outside SLAC, source your site's equivalent ``settings64.sh``.
 
-- A JTAG cable + Vivado Hardware Manager are *not* needed to build —
-  only to flash the resulting bitstream onto a physical board.
+- A JTAG cable and Vivado Hardware Manager are *not* needed to build;
+  they are only needed to flash the resulting bitstream onto a physical
+  board.
 
 Confirm git-lfs is active:
 
@@ -41,7 +42,7 @@ Confirm git-lfs is active:
 
    git lfs version
 
-Clone and Initialise
+Clone and Initialize
 --------------------
 
 .. code-block:: bash
@@ -75,23 +76,23 @@ Navigate to the target and run ``make``:
    cd firmware/targets/XilinxVariumC1100/XilinxVariumC1100DmaLoopback
    make
 
-``make`` invokes Vivado in batch mode through the ruckus build system.
-ruckus assembles the project, runs synthesis and implementation, and
-generates the bitstream + MCS programming file.  A full first build takes
+``make`` invokes Vivado in batch mode through the ruckus build system,
+which assembles the project, runs synthesis and implementation, and
+generates the bitstream and MCS programming file.  A full first build takes
 several hours on a modern workstation.
 
 Where the Build Runs
 ~~~~~~~~~~~~~~~~~~~~
 
-ruckus writes the Vivado project and per-run artefacts under:
+ruckus writes the Vivado project and per-run artifacts under:
 
 .. code-block:: text
 
    firmware/build/XilinxVariumC1100DmaLoopback/
 
 That is the working build tree (Vivado ``.xpr``, synth/impl runs,
-checkpoints).  The final shipping artefacts are copied to the target's
-own ``images/`` directory — see `Build Artefacts`_ below.
+checkpoints).  The final shipping artifacts are copied to the target's
+own ``images/`` directory (see `Build Artifacts`_ below).
 
 Expected Critical Warnings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,7 +110,7 @@ lines that are expected and safe to ignore:
 * ``[Project 1-498] One or more constraints failed evaluation while
   reading constraint file [...] XilinxVariumC1100Timing.xdc``
 
-  Same root cause — the PHY is a black box at this elaboration point;
+  Same root cause: the PHY is a black box at this elaboration point, and
   the timing constraints are re-read and applied post-synthesis.
 
 Useful Makefile Targets
@@ -119,11 +120,13 @@ Useful Makefile Targets
 
    make            # full bitstream + MCS PROM image (default)
    make gui        # open the Vivado project in the GUI for debugging
-   make bit        # build only the .bit file
-   make prom       # build the .bit + .mcs PROM image (same as default)
-   make clean      # remove the build/ tree
+   make clean      # remove this target's firmware/build/<Target>/ tree
 
-Build Artefacts
+``make bit`` and ``make prom`` are aliases for the same batch build.  To
+skip the ``.mcs``, set ``GEN_MCS_IMAGE=0`` (see
+:doc:`/reference/make_targets`).
+
+Build Artifacts
 ---------------
 
 On a successful build, output files are placed under:
@@ -138,13 +141,13 @@ ruckus's ``IMAGENAME``:
 
 .. code-block:: text
 
-   XilinxVariumC1100DmaLoopback-0x03030000-20260521094121-ruckman-b94c4a7.bit   (~21 MB)
-   XilinxVariumC1100DmaLoopback-0x03030000-20260521094121-ruckman-b94c4a7.mcs   (~57 MB)
+   XilinxVariumC1100DmaLoopback-0x03040000-20260521094121-ruckman-b94c4a7.bit   (~21 MB)
+   XilinxVariumC1100DmaLoopback-0x03040000-20260521094121-ruckman-b94c4a7.mcs   (~57 MB)
 
 ``IMAGENAME`` is defined in
 :repo:`firmware/submodules/ruckus/system_shared.mk` as
 ``$(PROJECT)-$(PRJ_VERSION)-$(BUILD_TIME)-$(USER)-$(GIT_HASH_SHORT)``,
-which embeds the full build provenance in each artefact name:
+which embeds the full build provenance in each artifact name:
 
 .. list-table::
    :header-rows: 1
@@ -160,7 +163,7 @@ which embeds the full build provenance in each artefact name:
      - target directory name
    * - firmware version
      - ``$(PRJ_VERSION)``
-     - ``0x03030000``
+     - ``0x03040000``
      - :repo:`firmware/targets/shared_config.mk`
    * - build timestamp
      - ``$(BUILD_TIME)``
@@ -176,8 +179,8 @@ which embeds the full build provenance in each artefact name:
      - ``git rev-parse --short HEAD`` of this repo
 
 If the working tree is dirty when ``make`` runs, the trailing git-hash
-segment is replaced with the literal string ``dirty`` — so a casual
-uncommitted build is obvious from the filename alone.
+segment is replaced with the literal string ``dirty``, so an uncommitted
+build is obvious from the filename alone.
 
 For partial-reconfiguration flows (``RECONFIG_STATIC_HASH != 0``), an
 additional ``_<RECONFIG_STATIC_HASH>`` suffix is appended after the git
@@ -189,7 +192,7 @@ environment before invoking ``make`` to also produce gzipped copies
 
 Use the ``.bit`` file to program the board over JTAG (Vivado Hardware
 Manager).  Use the ``.mcs`` file to program the SPI configuration PROM
-for persistent boot — see :doc:`/how-to/program_with_updatepciefpga`.
+for persistent boot (see :doc:`/how-to/program_with_updatepciefpga`).
 
 Next Steps
 ----------
