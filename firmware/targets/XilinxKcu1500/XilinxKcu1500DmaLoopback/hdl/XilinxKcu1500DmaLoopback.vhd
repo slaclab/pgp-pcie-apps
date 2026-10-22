@@ -99,8 +99,12 @@ end XilinxKcu1500DmaLoopback;
 
 architecture top_level of XilinxKcu1500DmaLoopback is
 
-   signal axilClk : sl;
-   signal axilRst : sl;
+   signal axilClk         : sl;
+   signal axilRst         : sl;
+   signal axilReadMaster  : AxiLiteReadMasterType;
+   signal axilReadSlave   : AxiLiteReadSlaveType;
+   signal axilWriteMaster : AxiLiteWriteMasterType;
+   signal axilWriteSlave  : AxiLiteWriteSlaveType;
 
    signal dmaClk     : sl;
    signal dmaRst     : sl;
@@ -146,13 +150,13 @@ begin
          dmaObSlaves    => dmaSlaves,
          dmaIbMasters   => dmaMasters,
          dmaIbSlaves    => dmaSlaves,
-         -- AXI-Lite Interface
+         -- Application AXI-Lite Interfaces [0x00100000:0x00FFFFFF]
          appClk         => axilClk,
          appRst         => axilRst,
-         appReadMaster  => open,
-         appReadSlave   => AXI_LITE_READ_SLAVE_EMPTY_OK_C,
-         appWriteMaster => open,
-         appWriteSlave  => AXI_LITE_WRITE_SLAVE_EMPTY_OK_C,
+         appReadMaster  => axilReadMaster,
+         appReadSlave   => axilReadSlave,
+         appWriteMaster => axilWriteMaster,
+         appWriteSlave  => axilWriteSlave,
          --------------
          --  Core Ports
          --------------
@@ -195,24 +199,29 @@ begin
       generic map (
          TPD_G => TPD_G)
       port map (
-         axilClk      => axilClk,
-         axilRst      => axilRst,
+         -- AXI-Lite Interface
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => axilReadMaster,
+         axilReadSlave   => axilReadSlave,
+         axilWriteMaster => axilWriteMaster,
+         axilWriteSlave  => axilWriteSlave,
          ---------------------
          --  Application Ports
          ---------------------
          -- QSFP[0] Ports
-         qsfp0RefClkP => qsfp0RefClkP,
-         qsfp0RefClkN => qsfp0RefClkN,
-         qsfp0RxP     => qsfp0RxP,
-         qsfp0RxN     => qsfp0RxN,
-         qsfp0TxP     => qsfp0TxP,
-         qsfp0TxN     => qsfp0TxN,
+         qsfp0RefClkP    => qsfp0RefClkP,
+         qsfp0RefClkN    => qsfp0RefClkN,
+         qsfp0RxP        => qsfp0RxP,
+         qsfp0RxN        => qsfp0RxN,
+         qsfp0TxP        => qsfp0TxP,
+         qsfp0TxN        => qsfp0TxN,
          -- QSFP[1] Ports
-         qsfp1RefClkP => qsfp1RefClkP,
-         qsfp1RefClkN => qsfp1RefClkN,
-         qsfp1RxP     => qsfp1RxP,
-         qsfp1RxN     => qsfp1RxN,
-         qsfp1TxP     => qsfp1TxP,
-         qsfp1TxN     => qsfp1TxN);
+         qsfp1RefClkP    => qsfp1RefClkP,
+         qsfp1RefClkN    => qsfp1RefClkN,
+         qsfp1RxP        => qsfp1RxP,
+         qsfp1RxN        => qsfp1RxN,
+         qsfp1TxP        => qsfp1TxP,
+         qsfp1TxN        => qsfp1TxN);
 
 end top_level;
