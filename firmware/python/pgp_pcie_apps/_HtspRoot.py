@@ -19,7 +19,7 @@ import axipcie             as pcie
 import surf.axi            as axi
 import surf.protocols.htsp as htsp
 
-rogue.Version.minVersion('6.15.0')
+rogue.Version.minVersion('6.5.0')
 
 class HtspRoot(pr.Root):
 

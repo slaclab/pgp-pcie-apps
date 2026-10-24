@@ -19,7 +19,7 @@ import rogue.interfaces.stream
 
 import axipcie as pcie
 
-rogue.Version.minVersion('6.15.0')
+rogue.Version.minVersion('6.5.0')
 
 class LoopbackRoot(pr.Root):
     def __init__(self,
