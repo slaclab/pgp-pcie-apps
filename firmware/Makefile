@@ -1,12 +1,12 @@
-export TARGET_DIRS  = $(PWD)/targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_6Gbps \
-                      $(PWD)/targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_10Gbps \
-                      $(PWD)/targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps \
-                      $(PWD)/targets/XilinxKcu1500/XilinxKcu1500Pgp4_10Gbps \
-                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps \
-                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_10Gbps \
-                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps \
-                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_25Gbps_Fec \
-                      $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Htsp100GbpsBifurcatedPcie
+export TARGET_DIRS  = $(CURDIR)/targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_6Gbps \
+                      $(CURDIR)/targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_10Gbps \
+                      $(CURDIR)/targets/XilinxKcu1500/XilinxKcu1500Pgp4_6Gbps \
+                      $(CURDIR)/targets/XilinxKcu1500/XilinxKcu1500Pgp4_10Gbps \
+                      $(CURDIR)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps \
+                      $(CURDIR)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_10Gbps \
+                      $(CURDIR)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps \
+                      $(CURDIR)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_25Gbps_Fec \
+                      $(CURDIR)/targets/XilinxVariumC1100/XilinxVariumC1100Htsp100GbpsBifurcatedPcie
 
 .PHONY: all build clean syn
 
