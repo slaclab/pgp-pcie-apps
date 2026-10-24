@@ -18,11 +18,20 @@ import rogue.hardware.axi
 import axipcie            as pcie
 import surf.axi           as axi
 import surf.protocols.pgp as pgp
+import surf.xilinx        as xil
 
 rogue.Version.minVersion('6.5.0')
 
 # Boards whose PGP targets have a MIG/HBM DMA buffer at 0x0010_0000
 DMA_BUFFER_BOARDS = ['XilinxAlveoU200', 'XilinxKcu1500', 'XilinxVariumC1100']
+
+# GT DRP device class per boardType (same strings as axipcie.AxiPcieCore; other boards get no PgpGtDrp)
+GT_DRP_CLASS = {
+    'SlacPgpCardG4':     xil.Gthe3Channel,
+    'XilinxKcu1500':     xil.Gthe3Channel,
+    'XilinxAlveoU200':   xil.Gtye4Channel,
+    'XilinxVariumC1100': xil.Gtye4Channel,
+}
 
 class PgpRoot(pr.Root):
     def __init__(self,
@@ -34,7 +43,7 @@ class PgpRoot(pr.Root):
             swTx         = True,  # Enable the SW PRBS transmitters
             prbsWidth    = 256,   # SW PRBS generator width in bits
             dmaFifoMon   = False, # Include the AxiStreamDmaV2Fifo monitors (DMA_BUFFER_BOARDS only)
-            boardType    = None,  # PCIe card type, used to select the I2C mapping
+            boardType    = None,  # PCIe card type, used to select the I2C mapping and the GT DRP device
             **kwargs):
         super().__init__(timeout=5.0, **kwargs)
 
@@ -98,6 +107,15 @@ class PgpRoot(pr.Root):
                 ))
             else:
                 raise ValueError(f'Invalid PGP version ({version})')
+
+            # Add GT DRP (PGP2b at lane+0x0000, PGP3/PGP4 at lane+0x1000 inside the PGP core)
+            if boardType in GT_DRP_CLASS:
+                self.add(GT_DRP_CLASS[boardType](
+                    name    = f'PgpGtDrp[{lane}]',
+                    offset  = laneBase + (0x0000 if version == 2 else 0x1000),
+                    memBase = self.memMap,
+                    expand  = False,
+                ))
 
             self.add(axi.AxiStreamMonAxiL(
                 name        = f'PgpTxAxisMon[{lane}]',
