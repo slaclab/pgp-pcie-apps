@@ -8,7 +8,7 @@ export TARGET_DIRS  = $(PWD)/targets/SlacPgpCardG4/SlacPgpCardG4Pgp4_6Gbps \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_25Gbps_Fec \
                       $(PWD)/targets/XilinxVariumC1100/XilinxVariumC1100Htsp100GbpsBifurcatedPcie
 
-.PHONY: all build clean
+.PHONY: all build clean syn
 
 # Default
 all: build
@@ -28,4 +28,10 @@ clean:
 build:
 	for i in $(TARGET_DIRS); do \
       echo $$i; cd $$i; make clean; rm -rf images; make; \
+   done
+
+# Synthesis-only check of all targets (faster than a full build), stops on the first failure
+syn:
+	for i in $(TARGET_DIRS); do \
+      echo $$i; cd $$i; make clean; make syn || exit 1; \
    done
