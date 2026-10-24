@@ -5,8 +5,27 @@ Every script under :repo:`software/scripts/` is a thin PyDM launcher:
 it parses its command-line arguments, builds one of the ``pr.Root``
 classes from the ``pgp_pcie_apps`` library, and starts the PyDM GUI.
 All scripts accept ``--dev`` (default ``/dev/datadev_0``) to select the
-card.  Only ``LoopbackTesting.py`` also accepts ``--type`` to select the
+card and ``--guiType`` (``PyDM`` by default, or ``None``) to run headless.
+Only ``LoopbackTesting.py`` also accepts ``--type`` to select the
 backend (``pcie`` or ``sim``).
+
+Running Headless
+----------------
+
+``--guiType None`` starts the Root and its ZMQ server without opening
+PyDM, then waits for Ctrl-C.  Attach a GUI or a script from any host
+that can reach the server port printed at startup:
+
+.. code-block:: bash
+
+   python LoopbackTesting.py --guiType None
+   python -m pyrogue gui --server='localhost:9099'
+
+.. code-block:: python
+
+   import pyrogue.interfaces
+   client = pyrogue.interfaces.VirtualClient(addr='localhost', port=9099)
+   print(client.root.SwPrbsRx[0][0].rxCount.get())
 
 The pgp_pcie_apps Library
 -------------------------

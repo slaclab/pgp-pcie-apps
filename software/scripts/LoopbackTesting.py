@@ -12,6 +12,7 @@ import setupLibPaths  # noqa: F401 (adds the python/ paths)
 
 import argparse
 
+import pyrogue
 import pyrogue.pydm
 
 import pgp_pcie_apps
@@ -95,6 +96,14 @@ if __name__ == "__main__":
         help     = "PRBS generator width in bits",
     )
 
+    parser.add_argument(
+        "--guiType",
+        type     = str,
+        required = False,
+        default  = 'PyDM',
+        help     = "Sets the GUI type (PyDM or None)",
+    )
+
     # Get the arguments
     args = parser.parse_args()
 
@@ -110,6 +119,24 @@ if __name__ == "__main__":
         pollEn    = args.pollEn,
         initRead  = args.initRead,
     ) as root:
-        pyrogue.pydm.runPyDM(serverList=root.zmqServer.address)
+
+        ######################
+        # Development PyDM GUI
+        ######################
+        if (args.guiType == 'PyDM'):
+            pyrogue.pydm.runPyDM(serverList=root.zmqServer.address)
+
+        #################
+        # No GUI
+        #################
+        elif (args.guiType == 'None'):
+            print("Running without GUI...")
+            pyrogue.waitCntrlC()
+
+        ####################
+        # Undefined GUI type
+        ####################
+        else:
+            raise ValueError("Invalid GUI type (%s)" % (args.guiType))
 
     #################################################################
