@@ -48,8 +48,10 @@ Read-Only Monitoring
 
 For monitoring without driving traffic, use
 ``software/scripts/PgpMonitor.py``: the same ``PgpRoot`` with the PRBS
-source/sink disabled and the ``AxiStreamDmaV2Fifo`` monitors added.
-Its defaults are ``--numLane 4 --numVc 4``.
+source/sink disabled.  With ``--boardType XilinxAlveoU200``,
+``XilinxKcu1500``, or ``XilinxVariumC1100`` it also adds the
+``AxiStreamDmaV2Fifo`` DMA buffer monitors.  Its defaults are
+``--numLane 4 --numVc 4``.
 
 Selecting a Card
 ~~~~~~~~~~~~~~~~
@@ -67,7 +69,9 @@ the PGP optics and instead drive the DMA path with in-hardware PRBS
 generators.  Use
 ``software/scripts/PrbsTesting.py``
 (:repo:`software/scripts/PrbsTesting.py`) instead of ``PgpTesting.py``
-for those targets.
+for those targets, and pass ``--boardType`` (for example
+``--boardType XilinxVariumC1100``) to include that board's DMA buffer
+monitors.
 
 For HTSP Targets
 ----------------

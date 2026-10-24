@@ -29,7 +29,7 @@ Prerequisites
   This activates a ``rogue_v6.15.0`` conda environment (``rogue``,
   ``pyrogue``, ``pyrogue.pydm``, and ZMQ) from your own miniforge
   install at ``/sdf/group/faders/users/$USER/miniforge3``; edit the path
-  if yours differs.  At other sites, ensure ``rogue`` v6.15.0 or later
+  if yours differs.  At other sites, ensure ``rogue`` v6.5.0 or later
   is on ``PYTHONPATH``.
 
 Run the Test

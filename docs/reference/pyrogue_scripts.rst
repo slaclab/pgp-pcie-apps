@@ -48,7 +48,7 @@ module per ``pr.Root``, so they can be reused outside the launchers
      - ``PgpTesting.py``, ``PgpMonitor.py``
      - ``AxiPcieCore``, per-lane PGP2b/PGP3/PGP4 core and RX/TX
        ``AxiStreamMonAxiL``, optional SW PRBS per VC, optional
-       ``AxiStreamDmaV2Fifo`` monitors
+       ``AxiStreamDmaV2Fifo`` monitors (selected by ``boardType``)
    * - ``HtspRoot``
      - ``HtspTesting.py``, ``HtspMonitor.py``
      - ``AxiPcieCore``, two ``HtspAxiL`` lanes with RX/TX
@@ -59,8 +59,10 @@ module per ``pr.Root``, so they can be reused outside the launchers
        DMA driver or the VCS TCP-socket backend
    * - ``PrbsRoot``
      - ``PrbsTesting.py``
-     - ``AxiPcieCore``, MIG DMA buffer monitors, FW ``SsiPrbsTx`` /
-       ``SsiPrbsRx`` per VC, optional ``SyncTrigger``, SW PRBS per VC
+     - ``AxiPcieCore``, FW ``SsiPrbsTx`` / ``SsiPrbsRx`` per VC,
+       optional ``SyncTrigger``, SW PRBS per VC, and the DMA buffer
+       monitors (``MigDmaBuffer``, ``BuffIbMon``) selected by
+       ``boardType``
    * - ``SyncTrigger``
      - ``PrbsRoot``
      - ``pr.Device`` for the PrbsTester trigger generator at
@@ -126,9 +128,10 @@ PgpMonitor.py
 
 Read-only monitoring variant of ``PgpTesting.py``: the same
 ``PgpRoot`` without the PRBS source/sink, plus the per-lane
-``AxiStreamDmaV2Fifo`` monitors (only present on targets with a
-DDR/HBM DMA buffer, so not ``SlacPgpCardG4``).  Defaults to 4 lanes and
-4 VCs.
+``AxiStreamDmaV2Fifo`` monitors when ``--boardType`` is
+``XilinxAlveoU200``, ``XilinxKcu1500``, or ``XilinxVariumC1100`` (the
+boards whose PGP targets have a DDR/HBM DMA buffer).  Defaults to 4
+lanes and 4 VCs.
 Useful when another application is already driving traffic.
 
 HtspTesting.py
@@ -157,7 +160,10 @@ PrbsTesting.py
 
 Drives the in-hardware ``firmware/common/PrbsTester`` application
 without involving an optical link.  Use against ``*PrbsTester``
-targets (e.g., ``XilinxVariumC1100PrbsTester``).
+targets (e.g., ``XilinxVariumC1100PrbsTester``).  Pass ``--boardType``
+to add the board's DMA buffer monitors: ``MigDmaBuffer[n]`` for
+``XilinxKcu1500`` and ``XilinxVariumC1100``, plus ``BuffIbMon`` for
+``XilinxVariumC1100``.
 
 updatePcieFpga.py
 ~~~~~~~~~~~~~~~~~
@@ -186,9 +192,7 @@ At PCDS / CDS:
 
    source software/cds_env_setup.sh
 
-This activates the ``rogue_v6.5.0`` conda environment, which is older
-than the v6.15.0 that the ``pgp_pcie_apps`` Roots require, so only
-``updatePcieFpga.py`` works there.
+This activates the ``rogue_v6.5.0`` conda environment.
 
-Outside SLAC, ensure ``rogue`` v6.15.0 or later is on ``PYTHONPATH`` and
+Outside SLAC, ensure ``rogue`` v6.5.0 or later is on ``PYTHONPATH`` and
 that ``pyrogue.pydm`` is importable.

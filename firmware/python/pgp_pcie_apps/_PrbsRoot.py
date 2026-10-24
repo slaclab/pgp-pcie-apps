@@ -23,6 +23,12 @@ import pgp_pcie_apps
 
 rogue.Version.minVersion('6.5.0')
 
+# PrbsTester boards with a MIG/HBM DMA buffer at 0x0010_0000
+DMA_BUFFER_BOARDS = ['XilinxKcu1500', 'XilinxVariumC1100']
+
+# PrbsTester boards with the inbound buffer monitor at 0x0020_0000
+BUFF_IB_MON_BOARDS = ['XilinxVariumC1100']
+
 class PrbsRoot(pr.Root):
     def __init__(self,
             dev          = '/dev/datadev_0',
@@ -35,6 +41,7 @@ class PrbsRoot(pr.Root):
             swRx         = True,  # Enable the SW PRBS receivers
             swTx         = False, # Enable the SW PRBS transmitters
             syncTrig     = False, # Include the SyncTrigger and gate the FW PRBS TX with it
+            boardType    = None,  # PCIe card type, used to select the I2C mapping and buffer monitors
             **kwargs):
         super().__init__(timeout=5.0, **kwargs)
 
@@ -56,23 +63,26 @@ class PrbsRoot(pr.Root):
             offset      = 0x0000_0000,
             memBase     = self.memMap,
             numDmaLanes = numLane,
+            boardType   = boardType,
             expand      = True,
         ))
 
-        for lane in range(numLane):
-            self.add(axi.AxiStreamDmaV2Fifo(
-                name    = f'MigDmaBuffer[{lane}]',
-                offset  = 0x0010_0000 + lane*0x100,
-                memBase = self.memMap,
-                expand  = False,
-            ))
+        if boardType in DMA_BUFFER_BOARDS:
+            for lane in range(numLane):
+                self.add(axi.AxiStreamDmaV2Fifo(
+                    name    = f'MigDmaBuffer[{lane}]',
+                    offset  = 0x0010_0000 + lane*0x100,
+                    memBase = self.memMap,
+                    expand  = False,
+                ))
 
-        self.add(axi.AxiStreamMonAxiL(
-            name        = 'BuffIbMon',
-            offset      = 0x0020_0000,
-            numberLanes = numLane,
-            memBase     = self.memMap,
-        ))
+        if boardType in BUFF_IB_MON_BOARDS:
+            self.add(axi.AxiStreamMonAxiL(
+                name        = 'BuffIbMon',
+                offset      = 0x0020_0000,
+                numberLanes = numLane,
+                memBase     = self.memMap,
+            ))
 
         # Loop through the DMA channels
         for lane in range(numLane):

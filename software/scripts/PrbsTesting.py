@@ -128,6 +128,14 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--boardType",
+        type     = str,
+        required = False,
+        default  = None,
+        help     = "define the type of PCIe card, used to select I2C mapping and buffer monitors. Options: [none or XilinxVariumC1100, XilinxKcu1500, etc]",
+    )
+
+    parser.add_argument(
         "--guiType",
         type     = str,
         required = False,
@@ -151,6 +159,7 @@ if __name__ == "__main__":
         swRx      = args.swRx,
         swTx      = args.swTx,
         syncTrig  = args.syncTrig,
+        boardType = args.boardType,
         pollEn    = args.pollEn,
         initRead  = args.initRead,
     ) as root:

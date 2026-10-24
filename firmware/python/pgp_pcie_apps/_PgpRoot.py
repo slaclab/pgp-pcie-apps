@@ -21,6 +21,9 @@ import surf.protocols.pgp as pgp
 
 rogue.Version.minVersion('6.5.0')
 
+# Boards whose PGP targets have a MIG/HBM DMA buffer at 0x0010_0000
+DMA_BUFFER_BOARDS = ['XilinxAlveoU200', 'XilinxKcu1500', 'XilinxVariumC1100']
+
 class PgpRoot(pr.Root):
     def __init__(self,
             dev          = '/dev/datadev_0',
@@ -30,7 +33,7 @@ class PgpRoot(pr.Root):
             swRx         = True,  # Enable the SW PRBS receivers
             swTx         = True,  # Enable the SW PRBS transmitters
             prbsWidth    = 256,   # SW PRBS generator width in bits
-            dmaFifoMon   = False, # Include the AxiStreamDmaV2Fifo monitors
+            dmaFifoMon   = False, # Include the AxiStreamDmaV2Fifo monitors (DMA_BUFFER_BOARDS only)
             boardType    = None,  # PCIe card type, used to select the I2C mapping
             **kwargs):
         super().__init__(timeout=5.0, **kwargs)
@@ -55,7 +58,7 @@ class PgpRoot(pr.Root):
             expand      = True,
         ))
 
-        if dmaFifoMon:
+        if dmaFifoMon and (boardType in DMA_BUFFER_BOARDS):
             for lane in range(numLane):
                 self.add(axi.AxiStreamDmaV2Fifo(
                     name    = f'AxiStreamDmaV2Fifo[{lane}]',
