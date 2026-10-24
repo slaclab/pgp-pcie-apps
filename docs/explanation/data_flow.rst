@@ -98,6 +98,7 @@ AXI-Lite Register Path (Software → Firmware Registers)
                 │
                 ▼  per-lane internal crossbar
                 ├── 0x0000  PGP core monitor (PGP3/PGP4)
+                ├── 0x1000  GT DRP (PGP3/PGP4, inside the PGP core)
                 ├── 0x3000  TX stream monitor
                 └── 0x4000  RX stream monitor
 

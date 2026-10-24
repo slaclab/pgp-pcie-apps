@@ -106,12 +106,20 @@ decodes (PGP3 and PGP4):
      - Contents
    * - ``0x0000``
      - PGP core monitor
-     - ``surf.Pgp4AxiL`` / ``Pgp3AxiL`` inside ``Pgp4GtyUs`` /
-       ``Pgp3GtyUs`` (GT DRP disabled): link state, RX/TX frame and
-       error counters.
-   * - ``0x1000``, ``0x2000``
+     - ``surf.Pgp4AxiL`` / ``Pgp3AxiL`` behind the internal crossbar of
+       ``Pgp4GtyUs`` / ``Pgp3GtyUs`` (``GthUs`` variants on UltraScale
+       boards): link state, RX/TX frame and error counters.
+   * - ``0x1000``
+     - GT DRP
+     - Transceiver DRP behind the PGP core's internal crossbar
+       (``EN_DRP_G => true``; the lane crossbar routes
+       ``0x0000``-``0x1FFF`` to the core).  PyRogue node
+       ``PgpGtDrp[n]`` (``surf.xilinx.Gthe3Channel`` on GTH boards,
+       ``Gtye4Channel`` on GTY boards), added only when ``--boardType``
+       names a supported board.
+   * - ``0x2000``
      - (unused)
-     - Unconnected on PGP3 / PGP4.
+     - Not decoded on PGP3 / PGP4 (AXI-Lite decode error).
    * - ``0x3000``
      - TX stream monitor
      - ``surf.AxiStreamMonAxiL``: per-VC TX frame/byte counters.
@@ -119,8 +127,13 @@ decodes (PGP3 and PGP4):
      - RX stream monitor
      - ``surf.AxiStreamMonAxiL``: per-VC RX frame/byte counters.
 
+PGP3 / PGP4 images built before the GT DRP was enabled decode ``0x1000``
+as an empty slot, so ``PgpGtDrp[n]`` reads back zeros on them.
+
 PGP2b lanes use the three middle slots: GT DRP at ``0x0000``,
 ``surf.Pgp2bAxi`` at ``0x1000``, and ``PgpMiscCtrl`` at ``0x2000``.
+PyRogue adds the PGP2b DRP as ``PgpGtDrp[n]`` at ``0x0000`` under the
+same ``--boardType`` rule.
 
 Tracing in Software
 -------------------
