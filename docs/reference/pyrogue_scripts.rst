@@ -1,12 +1,59 @@
 PyRogue Scripts
 ===============
 
-Every script under :repo:`software/scripts/` is a standalone PyDM
-launcher: it builds a ``pr.Root`` containing the relevant ``AxiPcieCore``
-device tree, optionally wires up stream sources/sinks, and starts the
-PyDM GUI.  All scripts accept ``--dev`` (default ``/dev/datadev_0``) to
-select the card.  Only ``LoopbackTesting.py`` also accepts ``--type``
-to select the backend (``pcie`` or ``sim``).
+Every script under :repo:`software/scripts/` is a thin PyDM launcher:
+it parses its command-line arguments, builds one of the ``pr.Root``
+classes from the ``pgp_pcie_apps`` library, and starts the PyDM GUI.
+All scripts accept ``--dev`` (default ``/dev/datadev_0``) to select the
+card.  Only ``LoopbackTesting.py`` also accepts ``--type`` to select the
+backend (``pcie`` or ``sim``).
+
+The pgp_pcie_apps Library
+-------------------------
+
+The device trees live in :repo:`firmware/python/pgp_pcie_apps/`, one
+module per ``pr.Root``, so they can be reused outside the launchers
+(for example from an interactive session or a test script):
+
+.. list-table::
+   :header-rows: 1
+
+   * - Class
+     - Used by
+     - Contents
+   * - ``PgpRoot``
+     - ``PgpTesting.py``, ``PgpMonitor.py``
+     - ``AxiPcieCore``, per-lane PGP2b/PGP3/PGP4 core and RX/TX
+       ``AxiStreamMonAxiL``, optional SW PRBS per VC, optional
+       ``AxiStreamDmaV2Fifo`` monitors
+   * - ``HtspRoot``
+     - ``HtspTesting.py``, ``HtspMonitor.py``
+     - ``AxiPcieCore``, two ``HtspAxiL`` lanes with RX/TX
+       ``AxiStreamMonAxiL``, optional SW PRBS per VC
+   * - ``LoopbackRoot``
+     - ``LoopbackTesting.py``
+     - ``AxiPcieCore``, ``GtRefClockMon``, SW PRBS TX/RX per VC over the
+       DMA driver or the VCS TCP-socket backend
+   * - ``PrbsRoot``
+     - ``PrbsTesting.py``
+     - ``AxiPcieCore``, MIG DMA buffer monitors, FW ``SsiPrbsTx`` /
+       ``SsiPrbsRx`` per VC, optional ``SyncTrigger``, SW PRBS per VC
+   * - ``SyncTrigger``
+     - ``PrbsRoot``
+     - ``pr.Device`` for the PrbsTester trigger generator at
+       ``0x0088_0000``
+
+Every Root takes its options as constructor keyword arguments (the
+script's command-line flags map onto them one to one) plus the
+standard ``pr.Root`` ``pollEn`` / ``initRead`` arguments:
+
+.. code-block:: python
+
+   import setupLibPaths
+   import pgp_pcie_apps
+
+   with pgp_pcie_apps.PgpRoot(dev='/dev/datadev_1', numLane=4, numVc=4) as root:
+       print(root.AxiPcieCore.AxiVersion.ImageName.get())
 
 Common Bootstrap
 ----------------
@@ -15,12 +62,13 @@ Every script starts with:
 
 .. code-block:: python
 
-   import setupLibPaths  # adds surf and axi-pcie-core python/ to sys.path
+   import setupLibPaths  # adds the surf, axi-pcie-core and pgp_pcie_apps python/ trees
 
 This **must** be the first import.  ``setupLibPaths.py``
 (:repo:`software/scripts/setupLibPaths.py`) calls
-``pr.addLibraryPath()`` for each submodule's Python tree.  Without it,
-``import axipcie`` and ``import surf`` fail.
+``pr.addLibraryPath()`` for ``firmware/python`` and each submodule's
+Python tree.  Without it, ``import pgp_pcie_apps``, ``import axipcie``
+and ``import surf`` fail.
 
 Script Catalog
 --------------
@@ -52,9 +100,10 @@ PgpMonitor.py
 
 :repo:`software/scripts/PgpMonitor.py`
 
-Read-only monitoring variant of ``PgpTesting.py``: the same PyDM GUI
-minus the PRBS source/sink.  Useful when another application is already
-driving traffic.
+Read-only monitoring variant of ``PgpTesting.py``: the same
+``PgpRoot`` without the PRBS source/sink, plus the per-lane
+``AxiStreamDmaV2Fifo`` monitors.  Defaults to 4 lanes and 4 VCs.
+Useful when another application is already driving traffic.
 
 HtspTesting.py
 ~~~~~~~~~~~~~~
@@ -62,15 +111,18 @@ HtspTesting.py
 :repo:`software/scripts/HtspTesting.py`
 
 HTSP 100 Gbps equivalent of ``PgpTesting.py``.  Use against
-``Htsp100Gbps`` targets.
+``Htsp100Gbps`` targets.  On the bifurcated-PCIe image, ``HtspRoot``
+hides and disables the lane owned by the other PCIe endpoint at
+startup.
 
 HtspMonitor.py
 ~~~~~~~~~~~~~~
 
 :repo:`software/scripts/HtspMonitor.py`
 
-Read-only monitoring variant of ``HtspTesting.py``, analogous to
-``PgpMonitor.py``.
+Read-only monitoring variant of ``HtspTesting.py`` (``HtspRoot``
+without the PRBS source/sink), analogous to ``PgpMonitor.py``.
+Defaults to 4 VCs.
 
 PrbsTesting.py
 ~~~~~~~~~~~~~~
@@ -98,7 +150,7 @@ At SLAC S3DF (``rdsrv*``):
 
    source software/setup_env_slac.sh
 
-This activates the ``rogue_v6.12.0`` conda environment.
+This activates the ``rogue_v6.15.0`` conda environment.
 
 At PCDS / CDS:
 

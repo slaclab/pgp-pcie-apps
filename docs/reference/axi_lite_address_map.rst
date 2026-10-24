@@ -119,7 +119,8 @@ The PyRogue device tree mirrors this layout.  From any
    # Top-level
    root.AxiPcieCore.AxiVersion.UpTimeCnt.get()
    # Application region (per target)
-   root.Hardware.Pgp[0].PgpAxiL.RxFrameCnt.get()
+   root.Lane[0].RxStatus.FrameCnt.get()
 
-Adjust the path for HTSP targets; see ``software/scripts/HtspTesting.py``
-for the device-tree path through ``HtspWrapper``.
+Adjust the path for HTSP targets; see
+:repo:`firmware/python/pgp_pcie_apps/_HtspRoot.py` for the device-tree
+path through ``HtspWrapper``.

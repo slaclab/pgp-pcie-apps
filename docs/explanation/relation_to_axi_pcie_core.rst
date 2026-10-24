@@ -49,7 +49,8 @@ Everything outside ``firmware/submodules/`` belongs here.  It provides:
 * **Shared protocol RTL** under ``firmware/common/<proto>/`` (PGP2b,
   PGP3, PGP4, HTSP).
 * **PrbsTester application** under ``firmware/common/PrbsTester/``.
-* **PyRogue test scripts** under ``software/scripts/`` that drive
+* **PyRogue Root classes** in ``firmware/python/pgp_pcie_apps/`` and
+  the launcher scripts under ``software/scripts/`` that drive
   PGP/HTSP/PRBS traffic through the ``axi-pcie-core`` DMA engine.
 
 Look at this documentation for questions about:

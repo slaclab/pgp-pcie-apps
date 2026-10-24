@@ -15,7 +15,8 @@ Quick Start
    python PgpTesting.py
 
 ``PgpTesting.py`` (:repo:`software/scripts/PgpTesting.py`) builds a
-``pr.Root`` containing:
+``pgp_pcie_apps.PgpRoot`` (:repo:`firmware/python/pgp_pcie_apps/_PgpRoot.py`)
+containing:
 
 * ``AxiPcieCore``: register tree at BAR0 (versions, monitors, board ID).
 * Per-lane PGP RX/TX monitors and ``rogue.utilities.Prbs`` instances on

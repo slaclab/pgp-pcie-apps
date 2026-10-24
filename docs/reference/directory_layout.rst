@@ -13,6 +13,8 @@ The repository decomposes work into three top-level trees:
                pgp4/
                htsp/
                PrbsTester/        # Common PRBS application
+           python/
+               pgp_pcie_apps/     # PyRogue Root classes and devices
            submodules/
                ruckus/            # TCL build system
                surf/              # SLAC RTL library
@@ -23,7 +25,7 @@ The repository decomposes work into three top-level trees:
                XilinxKcu1500/
                ...
        software/
-           scripts/               # PyRogue host-side scripts
+           scripts/               # PyRogue launcher scripts
            setup_env_slac.sh      # SLAC env activation
            cds_env_setup.sh       # PCDS/CDS env activation
        docs/                      # This documentation site
@@ -58,9 +60,14 @@ Key Directories
    PCIe DMA + board management RTL and PyRogue device tree.  See its
    own documentation at https://slaclab.github.io/axi-pcie-core/.
 
+``firmware/python/pgp_pcie_apps/``
+   PyRogue library with one ``pr.Root`` per test flow (``PgpRoot``,
+   ``HtspRoot``, ``LoopbackRoot``, ``PrbsRoot``) and the ``SyncTrigger``
+   device.
+
 ``software/scripts/``
-   PyRogue host-side test and monitoring scripts; see
-   :doc:`/reference/pyrogue_scripts`.
+   PyRogue launchers that parse arguments, build a ``pgp_pcie_apps``
+   Root, and start the PyDM GUI; see :doc:`/reference/pyrogue_scripts`.
 
 Build Outputs
 -------------

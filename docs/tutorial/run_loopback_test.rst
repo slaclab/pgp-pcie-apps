@@ -26,7 +26,7 @@ Prerequisites
 
      source software/setup_env_slac.sh
 
-  This activates the ``rogue_v6.12.0`` conda environment that ships
+  This activates the ``rogue_v6.15.0`` conda environment that ships
   ``rogue``, ``pyrogue``, ``pyrogue.pydm``, and ZMQ.  At other sites,
   ensure ``rogue`` v6.12.0 or later is on ``PYTHONPATH``.
 
