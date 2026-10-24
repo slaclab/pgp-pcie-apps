@@ -13,7 +13,7 @@ import pyrogue as pr
 class SyncTrigger(pr.Device):
     def __init__(self,
             prbsWidth = 512,       # PRBS generator width in bits
-            clkFreq   = 156.25E+6, # Trigger timer clock frequency in Hz
+            clkFreq   = 250.0E+6,  # Trigger timer clock frequency in Hz (dmaClk)
             **kwargs):
         super().__init__(**kwargs)
 
