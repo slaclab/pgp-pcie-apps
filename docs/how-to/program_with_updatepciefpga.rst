@@ -91,9 +91,10 @@ erase/program cycles, not the PCIe rescan.
 Troubleshooting
 ---------------
 
-Permission denied on ``/dev/datadev_0``
-   A non-root user needs the ``udev`` rules from ``aes-stream-drivers``
-   installed; otherwise run via ``sudo``.  See :doc:`/how-to/load_driver`.
+Permission denied
+   The driver creates ``/dev/datadev_*`` with ``0666`` permissions, but
+   the PCIe rescan writes to ``sysfs``, so run the script with ``sudo``
+   as shown in `Usage`_.  See :doc:`/how-to/load_driver`.
 
 "Unable to reprogram FPGA as lost of PCIe link."
    The running driver lost the BAR window.  Run
