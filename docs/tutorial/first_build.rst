@@ -4,7 +4,7 @@ First Build: XilinxVariumC1100DmaLoopback
 This tutorial walks you through building a real PCIe bitstream for the
 **Xilinx Varium C1100** board using the ``XilinxVariumC1100DmaLoopback``
 target.  Loopback is the simplest application: every DMA channel's
-inbound (host→FPGA) stream is wired directly to its outbound (FPGA→host)
+outbound (host→FPGA) stream is wired directly to its inbound (FPGA→host)
 stream, exercising the ``axi-pcie-core`` DMA engine without any
 PGP/HTSP optical link.
 
@@ -12,7 +12,7 @@ PGP/HTSP optical link.
 
    Vivado 2024.2 is the minimum version for ``XilinxVariumC1100`` because
    the board uses the Xilinx CMS block design and HBM2 IP.  At SLAC, the
-   currently tested production toolchain is **Vivado 2025.2**, which this
+   currently tested production toolchain is **Vivado 2026.1**, which this
    tutorial assumes.
 
 The board is a Gen4x8 PCIe card with HBM2 on-board memory.  The end
@@ -28,7 +28,7 @@ Prerequisites
 
   .. code-block:: bash
 
-     source /sdf/group/faders/tools/xilinx/2025.2/Vivado/2025.2/settings64.sh
+     source /sdf/group/faders/tools/xilinx/2026.1/Vivado/2026.1/settings64.sh
 
   Outside SLAC, source your site's equivalent ``settings64.sh``.
 
@@ -64,7 +64,7 @@ After sourcing ``settings64.sh``, confirm:
 
    which vivado
    vivado -version | head -1
-   # Expected:  Vivado v2025.2 (64-bit)
+   # Expected:  Vivado v2026.1 (64-bit)
 
 Build the Bitstream
 -------------------
@@ -91,27 +91,33 @@ ruckus writes the Vivado project and per-run artifacts under:
    firmware/build/XilinxVariumC1100DmaLoopback/
 
 That is the working build tree (Vivado ``.xpr``, synth/impl runs,
-checkpoints).  The final shipping artifacts are copied to the target's
+checkpoints).  On hosts with a ``/u1`` local disk, ruckus makes
+``firmware/build`` a symlink to ``/u1/$USER/build`` so the build runs on
+local storage.  The final shipping artifacts are copied to the target's
 own ``images/`` directory (see `Build Artifacts`_ below).
 
 Expected Critical Warnings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``XilinxVariumC1100`` build emits two non-fatal ``CRITICAL_WARNING``
-lines that are expected and safe to ignore:
+The ``XilinxVariumC1100`` build emits a few dozen non-fatal
+``CRITICAL WARNING`` messages that are expected and safe to ignore.  All
+of them come from constraints that ``axi-pcie-core`` shares across the
+board's targets:
 
 * ``[Designutils 20-1280] Could not find module
-  'XilinxVariumC1100PciePhyGen4x8_pcie4c_ip'``
+  'XilinxVariumC1100PciePhyGen4x8_pcie4c_ip'`` (and its ``_gt``
+  sibling).  The PCIe PHY is delivered as a pre-compiled ``.dcp``
+  checkpoint, so the inner module is not visible to the late-XDC pass.
+  Vivado applies the PHY's own XDC when the DCP is linked in.
+* ``[Project 1-498] One or more constraints failed evaluation`` for
+  ``XilinxVariumC1100Timing.xdc`` and ``XilinxAlveoU55cCore.xdc``, with
+  the matching ``[Vivado 12-627]``, ``[Vivado 12-508]``,
+  ``[Vivado 12-4739]``, ``[Vivado 12-5201]``, ``[Constraints 18-4644]``,
+  and ``[Common 17-55]`` messages.  These constraints reference the
+  second PCIe reference clock (``pciRefClk1``) and ``U_ExtendedCore``,
+  which only exist in the ``*BifurcatedPcie`` targets.
 
-  The PCIe PHY is delivered as a pre-compiled ``.dcp`` checkpoint, so the
-  inner module is not visible to the late-XDC pass.  Vivado applies the
-  PHY's own XDC when the DCP is linked in.
-
-* ``[Project 1-498] One or more constraints failed evaluation while
-  reading constraint file [...] XilinxVariumC1100Timing.xdc``
-
-  Same root cause: the PHY is a black box at this elaboration point, and
-  the timing constraints are re-read and applied post-synthesis.
+Any other ``CRITICAL WARNING`` is worth investigating.
 
 Useful Makefile Targets
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,7 +151,8 @@ ruckus's ``IMAGENAME``:
    XilinxVariumC1100DmaLoopback-0x03040000-20260521094121-ruckman-b94c4a7.mcs   (~57 MB)
 
 ``IMAGENAME`` is defined in
-:repo:`firmware/submodules/ruckus/system_shared.mk` as
+`ruckus/system_shared.mk <https://github.com/slaclab/ruckus/blob/main/system_shared.mk>`_
+(``firmware/submodules/ruckus/system_shared.mk`` in your checkout) as
 ``$(PROJECT)-$(PRJ_VERSION)-$(BUILD_TIME)-$(USER)-$(GIT_HASH_SHORT)``,
 which embeds the full build provenance in each artifact name:
 

@@ -8,20 +8,21 @@ in hardware, generating PRBS streams on the FPGA itself and validating
 the DMA path independently of any host-side traffic generator.
 
 The build flow is identical to :doc:`/tutorial/first_build`; the
-differences are entirely inside the target's ``ruckus.tcl``.
+differences are in the target's ``hdl/`` top-level and its
+``ruckus.tcl``.
 
 Prerequisites
 -------------
 
 Same as :doc:`/tutorial/first_build`: git-lfs, recursively initialized
-submodules, Vivado 2024.2+ on ``PATH`` (Vivado 2025.2 at SLAC).
+submodules, Vivado 2024.2+ on ``PATH`` (Vivado 2026.1 at SLAC).
 
 Build
 -----
 
 .. code-block:: bash
 
-   source /sdf/group/faders/tools/xilinx/2025.2/Vivado/2025.2/settings64.sh
+   source /sdf/group/faders/tools/xilinx/2026.1/Vivado/2026.1/settings64.sh
    cd firmware/targets/XilinxVariumC1100/XilinxVariumC1100PrbsTester
    make
 
@@ -29,16 +30,24 @@ What Differs From DmaLoopback
 -----------------------------
 
 The PrbsTester ``ruckus.tcl`` (:repo:`firmware/targets/XilinxVariumC1100/XilinxVariumC1100PrbsTester/ruckus.tcl`)
-pulls in two pieces of RTL on top of what DmaLoopback uses:
+adds one line on top of what DmaLoopback loads:
 
 .. code-block:: tcl
 
-   loadRuckusTcl $::env(PROJ_DIR)/../../../submodules/axi-pcie-core/hardware/XilinxVariumC1100/ddr
    loadRuckusTcl $::env(PROJ_DIR)/../../../common/PrbsTester
 
-The first pulls in the board's HBM DMA buffer support; the second pulls
-in the in-hardware PRBS generator/checker application
-(:repo:`firmware/common/PrbsTester/rtl/PrbsLane.vhd`).
+This pulls in the in-hardware PRBS application
+(:repo:`firmware/common/PrbsTester/rtl/Hardware.vhd`, with one
+``PrbsLane`` per DMA lane wrapping ``surf``'s ``SsiPrbsTx`` /
+``SsiPrbsRx``, plus a ``SyncTrigger``).  The ``ruckus.tcl`` also selects
+the ``Performance_ExplorePostRoutePhysOpt`` implementation strategy and
+does not load a ``tb/`` simulation testbed.
+
+The top-level ``hdl/XilinxVariumC1100PrbsTester.vhd`` is a different
+design from DmaLoopback: it adds an application ``AxiLiteCrossbar``, an
+``HbmDmaBufferV2`` between the PRBS lanes and the DMA engine, and an
+inbound ``AxiStreamMonAxiL``.  The HBM buffer RTL comes from the shared
+``axi-pcie-core`` board ``ruckus.tcl`` that both targets load.
 
 The Makefile is identical: same ``PRJ_PART = XCU55N-FSVH2892-2L-E``,
 same ``PARALLEL_SYNTH = 8``, same ``target: prom``.

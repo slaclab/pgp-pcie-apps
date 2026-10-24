@@ -1,15 +1,15 @@
 Load the PCIe Kernel Driver
 ===========================
 
-``pgp-pcie-apps`` bitstreams are designed to be driven by the
-``aes-stream-drivers`` Linux kernel module (``datadev.ko``).  Once the
-module is loaded, each SLAC PCIe card appears as a ``/dev/datadev_<N>``
-device node that the PyRogue scripts in :repo:`software/scripts/` use as
-their ``AxiMemMap`` backend.
+``pgp-pcie-apps`` bitstreams are driven by the ``aes-stream-drivers``
+Linux kernel module (``datadev.ko``).  Once the module is loaded, each
+SLAC PCIe card appears as a ``/dev/datadev_<N>`` device node that the
+PyRogue scripts in :repo:`software/scripts/` open as their
+``AxiMemMap`` / ``AxiStreamDma`` backend.
 
-The driver lives in a separate repository
-(`slaclab/aes-stream-drivers <https://github.com/slaclab/aes-stream-drivers>`_)
-and is built from source.
+Building, loading, and configuring the driver is documented in the
+`aes-stream-drivers documentation <https://slaclab.github.io/aes-stream-drivers/>`_;
+this page only covers what is specific to ``pgp-pcie-apps``.
 
 Confirm the Board Is Visible to the Host
 ----------------------------------------
@@ -29,77 +29,55 @@ or running firmware that does not expose the SLAC VID/PID.  Reprogram
 it with a known-good ``.mcs`` (see
 :doc:`/how-to/program_with_updatepciefpga`) or reseat the card.
 
-Build the Driver
-----------------
+Build and Load the Driver
+-------------------------
+
+Follow the aes-stream-drivers guides:
+
+* `Build and Load the Driver
+  <https://slaclab.github.io/aes-stream-drivers/how-to/build-and-load.html>`_:
+  build ``datadev.ko``, load it with ``insmod``, and configure
+  persistent loading through ``modprobe.d``.
+* `DKMS Install
+  <https://slaclab.github.io/aes-stream-drivers/how-to/dkms-install.html>`_:
+  keep the module rebuilt across kernel updates.
+* `Module Parameters
+  <https://slaclab.github.io/aes-stream-drivers/reference/module-parameters.html>`_:
+  the ``cfg*`` DMA buffer size and count options.
+* `Device Nodes
+  <https://slaclab.github.io/aes-stream-drivers/reference/device-nodes.html>`_:
+  ``/dev/datadev_<N>`` naming and permissions.
+
+Verify
+------
 
 .. code-block:: bash
 
-   git clone --recursive https://github.com/slaclab/aes-stream-drivers
-   cd aes-stream-drivers/data_dev/driver/
-   make
-
-The build needs the running kernel's headers (``linux-headers-$(uname -r)``
-on Debian/Ubuntu, ``kernel-devel`` on RHEL).
-
-Load the Module
----------------
-
-.. code-block:: bash
-
-   sudo /sbin/insmod ./datadev.ko cfgSize=0x50000 cfgRxCount=256 cfgTxCount=16
-
-The three ``cfg*`` parameters set the DMA buffer size and the RX/TX
-buffer counts that the driver allocates.  The values shown above are
-appropriate for every target shipped from this repository; change them
-only if a specific application requires a different DMA buffer budget.
-
-Set Permissions and Verify
---------------------------
-
-.. code-block:: bash
-
-   sudo chmod 666 /proc/datadev_*
+   ls -l /dev/datadev_*
    cat /proc/datadev_0
 
-The ``cat`` should print a status block reporting the driver version,
-the number of open DMA channels, and per-channel queue depths.
+The driver creates the device nodes with ``0666`` permissions, so no
+``chmod`` or ``sudo`` is needed to open them.  ``/proc/datadev_0`` prints
+the running firmware's ``AxiVersion`` (version, git hash, build string),
+the DMA driver version, and the read/write buffer counts and sizes; the
+build string confirms which target is loaded.
 
-From this point, ``/dev/datadev_0`` (and ``/dev/datadev_1`` etc. for
-multiple cards) is ready to be opened by
-``rogue.hardware.axi.AxiMemMap`` from any PyRogue script (see
+Selecting a Card
+----------------
+
+With the default ``cfgDevName=0``, nodes are numbered in probe order
+(``/dev/datadev_0``, ``/dev/datadev_1``, ...); with ``cfgDevName=1`` the
+suffix is the PCIe bus number in hex.  Every launcher script defaults to
+``--dev /dev/datadev_0``; pass ``--dev`` to select another card (see
 :doc:`/reference/pyrogue_scripts`).
-
-Unload and Reload
------------------
-
-To unload the module for a rebuild or a driver-config change:
-
-.. code-block:: bash
-
-   sudo /sbin/rmmod datadev
-
-Then re-run ``insmod`` with the new ``.ko`` or new parameters.
-
-Persistent Load at Boot
------------------------
-
-For a permanent installation, copy ``datadev.ko`` into
-``/lib/modules/$(uname -r)/extra/``, run ``depmod -a``, and add
-``datadev`` (with the desired ``cfg*`` parameters) to
-``/etc/modules-load.d/`` and ``/etc/modprobe.d/``.  See the
-``aes-stream-drivers`` repository for the canonical procedure.
 
 Troubleshooting
 ---------------
 
-``/dev/datadev_0`` does not appear after ``insmod``
-   Check ``dmesg``.  The most common cause is a kernel-header /
-   kernel-binary mismatch (rebuild against the ``$(uname -r)`` headers).
+``/dev/datadev_0`` does not appear after loading
+   Check ``dmesg``.  See the aes-stream-drivers guides above for build
+   and kernel-header issues.
 
 PCIe link goes down after reprogramming
    The running ``datadev`` is still bound to the old BAR layout.  Rescan
    the PCIe bus or reboot the host.
-
-Permission denied on ``/dev/datadev_*``
-   Apply ``chmod`` as shown above, or install the ``udev`` rules from
-   ``aes-stream-drivers`` for a permanent fix.

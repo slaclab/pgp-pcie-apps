@@ -13,8 +13,10 @@ target designs that build into ``.bit`` and ``.mcs`` artifacts.
    :alt: Top-level diagram of the pgp-pcie-apps firmware and software stack
    :align: center
 
-The repository is hardware-agnostic and supports multiple Xilinx
-carrier boards via the :repo:`firmware/targets/` tree.
+The repository is hardware-agnostic and supports PCIe cards built
+around Xilinx UltraScale and UltraScale+ FPGAs (Xilinx, Abaco,
+AlphaData, BittWare, and SLAC boards) via the :repo:`firmware/targets/`
+tree.
 
 Features
 --------
@@ -23,8 +25,9 @@ Features
   ``surf``.
 * AXI-PCIe DMA integration via ``axi-pcie-core`` (see the
   `axi-pcie-core documentation <https://slaclab.github.io/axi-pcie-core/>`_).
-* PyRogue-based scripts under :repo:`software/scripts/` for register
-  access, monitoring, PRBS testing, and on-the-fly FPGA reprogramming.
+* A PyRogue library (:repo:`firmware/python/pgp_pcie_apps/`) and
+  launcher scripts under :repo:`software/scripts/` for register access,
+  monitoring, PRBS testing, and on-the-fly FPGA reprogramming.
 
 Getting Started
 ---------------

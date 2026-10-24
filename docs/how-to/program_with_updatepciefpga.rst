@@ -1,34 +1,32 @@
 Program a Board with ``updatePcieFpga.py``
 ==========================================
 
-``software/scripts/updatePcieFpga.py``
-(:repo:`software/scripts/updatePcieFpga.py`) programs a SPI/BPI
-configuration PROM over PCIe and then rescans the PCIe bus so the new
-bitstream becomes active.  This avoids a JTAG cable round trip when
-you just want to swap firmware on an in-rack card.
+:repo:`software/scripts/updatePcieFpga.py` is a symlink to
+``axi-pcie-core``'s ``scripts/updatePcieFpga``.  It programs the card's
+boot PROM over PCIe, reloads the FPGA, and rescans the PCIe bus so the
+new firmware becomes active without a JTAG cable or a host reboot.
+
+The script, its options, the post-reload rescan, and its error messages
+are documented in the
+`axi-pcie-core Reprogram the PCIe Card PROM how-to
+<https://slaclab.github.io/axi-pcie-core/how-to/reprogram_pcie_prom.html>`_.
+This page only covers what is specific to ``pgp-pcie-apps``.
 
 Prerequisites
 -------------
 
-- A PCIe-attached SLAC card with the ``aes-stream-drivers`` kernel
-  module loaded (``/dev/datadev_0`` present); see
-  :doc:`/how-to/load_driver`.
-- The card already runs a working ``axi-pcie-core``-based bitstream
-  with the SPI/BPI PROM access path exposed via the PyRogue device
-  tree.  (Every target built from ``pgp-pcie-apps`` includes this.)
-- A ``.mcs`` (or ``.mcs.gz``) file produced by a prior ``make`` (see
-  :doc:`/tutorial/first_build`).  The script picks the file up from a
-  directory, not by filename.
+- The ``aes-stream-drivers`` kernel module loaded and the card visible
+  as ``/dev/datadev_<N>``; see :doc:`/how-to/load_driver`.
 - The Rogue environment activated (``source software/setup_env_slac.sh``
-  at SLAC S3DF, ``source software/cds_env_setup.sh`` at PCDS/CDS, or
-  any equivalent environment that supplies ``rogue`` v6.5.0 or later).
+  at SLAC S3DF, ``source software/cds_env_setup.sh`` at PCDS/CDS).
+- A ``.mcs`` (or ``.mcs.gz``) image built for the card, from a prior
+  ``make`` (see :doc:`/tutorial/first_build`) or a release.
 
 Usage
 -----
 
-The script takes a directory of images via ``--path`` and finds the
-``.mcs`` / ``.mcs.gz`` inside.  Programming the PROM requires root (the
-script issues a PCIe rescan via ``sysfs``):
+Point ``--path`` at the target's ``images/`` directory.  ``sudo`` does
+not inherit your conda environment, so pass the interpreter explicitly:
 
 .. code-block:: bash
 
@@ -36,70 +34,23 @@ script issues a PCIe rescan via ``sysfs``):
    sudo $(which python) updatePcieFpga.py \
        --path ../../firmware/targets/XilinxVariumC1100/XilinxVariumC1100DmaLoopback/images/
 
-Useful CLI flags (defined in
-:repo:`software/scripts/updatePcieFpga.py`):
+The script lists the images it finds and prompts you to pick one.  Add
+``--dev /dev/datadev_<N>`` to select another card.
 
-.. list-table::
-   :header-rows: 1
-   :widths: 30 20 50
+Notes for pgp-pcie-apps Targets
+-------------------------------
 
-   * - Flag
-     - Default
-     - Effect
-   * - ``--dev <path>``
-     - ``/dev/datadev_0``
-     - Pick a specific card when multiple are installed.
-   * - ``--path <dir>``
-     - (required)
-     - Directory containing the ``.mcs`` or ``.mcs.gz`` to program.
-   * - ``--package <dir>``
-     -
-     - Alternate path used by the Debian package install.
-   * - ``--rescan true|false``
-     - ``true``
-     - Skip the PCIe-rescan step if you plan to reboot instead.
-   * - ``--bypass_reprogramming true|false``
-     - ``false``
-     - Debug only: skip the actual PROM write, exercise the rescan path.
-
-After Programming
-~~~~~~~~~~~~~~~~~
-
-If you ran with ``--rescan true`` (the default), the new bitstream is
-already active on the same PCIe bus address.  If you set
-``--rescan false`` (or the script reports that it could not rescan),
-reboot the host:
-
-.. code-block:: bash
-
-   sudo reboot
-
-How Long It Takes
-~~~~~~~~~~~~~~~~~
-
-A typical SPIx4 program and verify of a single-chip Varium C1100 MCS
-takes roughly 5 to 15 minutes.  Most of that time is spent in PROM
-erase/program cycles, not the PCIe rescan.
-
-Troubleshooting
----------------
-
-Permission denied on ``/dev/datadev_0``
-   A non-root user needs the ``udev`` rules from ``aes-stream-drivers``
-   installed; otherwise run via ``sudo``.  See :doc:`/how-to/load_driver`.
-
-"Unable to reprogram FPGA as loss of PCIe link"
-   The running driver lost the BAR window.  Rescan the PCIe bus or
-   reboot the host to recover.
-
-"Programming (.mcs, .mcs.gz) files NOT detected in the --path arg directory"
-   Confirm the ``images/`` directory actually contains a ``.mcs`` (or
-   ``.mcs.gz``).  A ``make`` that ran with ``GEN_MCS_IMAGE=0`` produces
-   no PROM file.
-
-MCS file too big
-   ``XilinxVariumC1100`` uses a 1 GB SPI flash, and bitstreams from
-   ``axi-pcie-core``-based projects fit comfortably.  If
-   ``write_cfgmem`` reports a size error during the original ``make``,
-   check the configured ``size`` parameter in the target's
-   ``vivado/promgen.tcl``.
+- **No PROM image:** the ``AlphaDataKu3`` targets build no ``.mcs`` and
+  their firmware reports no programmable boot PROM, so program them over
+  JTAG with the ``.bit`` instead.
+- **Bifurcated PCIe:** on the ``*BifurcatedPcie`` targets, point
+  ``--dev`` at the primary endpoint; the secondary endpoint stops with
+  ``No PROM type detected!!!``.
+- **Lost PCIe link:** if the script reports
+  ``Unable to reprogram FPGA as lost of PCIe link``, the recovery script
+  it refers to is
+  ``firmware/submodules/axi-pcie-core/scripts/rescanPcieFpga.sh`` in this
+  repository.
+- **No .mcs in images/:** with ``GEN_MCS_IMAGE=0`` (and
+  ``GEN_MCS_IMAGE_GZIP=0``) the build copies no ``.mcs`` into
+  ``images/``; see :doc:`/reference/make_targets`.

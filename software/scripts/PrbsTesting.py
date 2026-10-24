@@ -8,338 +8,179 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import setupLibPaths  # noqa: F401 (adds the python/ paths)
 
-import setupLibPaths
 import argparse
 
-import rogue
-import rogue.hardware.axi
-import rogue.interfaces.stream
-
-import pyrogue as pr
+import pyrogue
 import pyrogue.pydm
-import pyrogue.utilities.prbs
-import pyrogue.interfaces.simulation
 
-import axipcie            as pcie
-import surf.axi           as axi
-import surf.protocols.ssi as ssi
+import pgp_pcie_apps
 
 #################################################################
-
-# Set the argument parser
-parser = argparse.ArgumentParser()
 
 # Convert str to bool
-argBool = lambda s: s.lower() in ['true', 't', 'yes', '1']
-
-# Add arguments
-parser.add_argument(
-    "--dev",
-    type     = str,
-    required = False,
-    default  = '/dev/datadev_0',
-    help     = "path to device",
-)
-
-parser.add_argument(
-    "--numLane",
-    type     = int,
-    required = False,
-    default  = 1,
-    help     = "# of DMA Lanes",
-)
-
-parser.add_argument(
-    "--prbsWidth",
-    type     = int,
-    required = False,
-    default  = 512,
-    help     = "PRBS generator width in bits",
-)
-
-parser.add_argument(
-    "--numVc",
-    type     = int,
-    required = False,
-    default  = 1,
-    help     = "# of VC (virtual channels)",
-)
-
-parser.add_argument(
-    "--loopback",
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Enable DMA loopback mode",
-)
-
-parser.add_argument(
-    "--fwRx",
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Enable FW PRBS RX",
-)
-
-parser.add_argument(
-    "--fwTx",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable FW PRBS TX",
-)
-
-parser.add_argument(
-    "--swRx",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable SW PRBS RX",
-)
-
-parser.add_argument(
-    "--swTx",
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Enable SW PRBS TX",
-)
-
-parser.add_argument(
-    "--pollEn",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable auto-polling",
-)
-
-parser.add_argument(
-    "--initRead",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--syncTrig",
-    type     = argBool,
-    required = False,
-    default  = False,
-    help     = "Enable sync triggers",
-)
-
-# Get the arguments
-args = parser.parse_args()
+def argBool(s):
+    return s.lower() in ['true', 't', 'yes', '1']
 
 #################################################################
 
-class SyncTrigger(pr.Device):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+if __name__ == "__main__":
 
-        self.prbsByte = args.prbsWidth>>3
+    # Set the argument parser
+    parser = argparse.ArgumentParser()
 
-        self.add(pr.RemoteVariable(
-            name         = "PacketLength",
-            description  = "Packet length in PRBS width units",
-            offset       =  0x0,
-            bitSize      =  32,
-            mode         = "RW",
-            disp         = '{}',
-            hidden       = True,
-        ))
+    # Add arguments
+    parser.add_argument(
+        "--dev",
+        type     = str,
+        required = False,
+        default  = '/dev/datadev_0',
+        help     = "path to device",
+    )
 
-        self.add(pr.LinkVariable(
-            name         = 'PacketSize',
-            mode         = "RW",
-            units         = "Bytes",
-            disp         = '{}',
-            typeStr      = 'UInt32',
-            linkedGet    = lambda: (self.PacketLength.value()+1)*self.prbsByte,
-            linkedSet    = lambda value, write: self.PacketLength.set( int(value/self.prbsByte)-1 ),
-            dependencies = [self.PacketLength],
-        ))
+    parser.add_argument(
+        "--numLane",
+        type     = int,
+        required = False,
+        default  = 1,
+        help     = "# of DMA Lanes",
+    )
 
-        self.add(pr.RemoteVariable(
-            name         = "TimerSize",
-            description  = "Timer reload value in clock cycles",
-            offset       =  0x4,
-            bitSize      =  32,
-            mode         = "RW",
-            hidden       = True,
-        ))
+    parser.add_argument(
+        "--prbsWidth",
+        type     = int,
+        required = False,
+        default  = 512,
+        help     = "PRBS generator width in bits",
+    )
 
-        self.add(pr.RemoteVariable(
-            name         = "RunEnable",
-            description  = "Enable trigger generation",
-            offset       =  0x8,
-            bitSize      =  1,
-            mode         = "RW",
-        ))
+    parser.add_argument(
+        "--numVc",
+        type     = int,
+        required = False,
+        default  = 1,
+        help     = "# of VC (virtual channels)",
+    )
 
-        self.add(pr.LinkVariable(
-            name         = 'Rate',
-            mode         = "RW",
-            units         = "Hz",
-            disp         = '{}',
-            typeStr      = 'UInt32',
-            linkedGet    = lambda: int(156.25E+6/float(self.TimerSize.value())),
-            linkedSet    = lambda value, write: self.TimerSize.set( int(156.25E+6/value) ),
-            dependencies = [self.TimerSize],
-        ))
+    parser.add_argument(
+        "--loopback",
+        type     = argBool,
+        required = False,
+        default  = False,
+        help     = "Enable DMA loopback mode",
+    )
 
-class MyRoot(pr.Root):
-    def __init__(   self,
-            name        = "pciServer",
-            description = "DMA Loopback Testing",
-            **kwargs):
-        super().__init__(timeout=5.0, **kwargs)
+    parser.add_argument(
+        "--fwRx",
+        type     = argBool,
+        required = False,
+        default  = False,
+        help     = "Enable FW PRBS RX",
+    )
 
-        self.zmqServer = pyrogue.interfaces.ZmqServer(root=self, addr='127.0.0.1', port=0)
-        self.addInterface(self.zmqServer)
+    parser.add_argument(
+        "--fwTx",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable FW PRBS TX",
+    )
 
-        self._syncTrig = args.syncTrig
+    parser.add_argument(
+        "--swRx",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable SW PRBS RX",
+    )
 
-        # Create an arrays to be filled
-        self.dmaStream = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-        self.prbsRx    = [[None for x in range(args.numVc)] for y in range(args.numLane)]
-        self.prbsTx     = [[None for x in range(args.numVc)] for y in range(args.numLane)]
+    parser.add_argument(
+        "--swTx",
+        type     = argBool,
+        required = False,
+        default  = False,
+        help     = "Enable SW PRBS TX",
+    )
 
-        # Create PCIE memory mapped interface
-        self.memMap = rogue.hardware.axi.AxiMemMap(args.dev,)
+    parser.add_argument(
+        "--pollEn",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable auto-polling",
+    )
 
-        # Add the PCIe core device to base
-        self.add(pcie.AxiPcieCore(
-            offset      = 0x00000000,
-            memBase     = self.memMap,
-            numDmaLanes = args.numLane,
-            expand      = True,
-        ))
+    parser.add_argument(
+        "--initRead",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable read all variables at start",
+    )
 
-        for i in range(args.numLane):
-            self.add(axi.AxiStreamDmaV2Fifo(
-                name    = f'MigDmaBuffer[{i}]',
-                offset  = 0x0010_0000+i*0x100,
-                memBase = self.memMap,
-                expand  = False,
-            ))
+    parser.add_argument(
+        "--syncTrig",
+        type     = argBool,
+        required = False,
+        default  = False,
+        help     = "Enable sync triggers",
+    )
 
-        self.add(axi.AxiStreamMonAxiL(
-            name        = 'BuffIbMon',
-            offset      = 0x0020_0000,
-            numberLanes = args.numLane,
-            memBase     = self.memMap,
-        ))
+    parser.add_argument(
+        "--boardType",
+        type     = str,
+        required = False,
+        default  = None,
+        help     = "define the type of PCIe card, used to select I2C mapping and buffer monitors. Options: [none or XilinxVariumC1100, XilinxKcu1500, etc]",
+    )
 
-        # Loop through the DMA channels
-        for lane in range(args.numLane):
+    parser.add_argument(
+        "--guiType",
+        type     = str,
+        required = False,
+        default  = 'PyDM',
+        help     = "Sets the GUI type (PyDM or None)",
+    )
 
-            # Loop through the virtual channels
-            for vc in range(args.numVc):
+    # Get the arguments
+    args = parser.parse_args()
 
-                if (args.fwTx) or (args.loopback):
-                    # Add the FW PRBS TX Module
-                    self.add(ssi.SsiPrbsTx(
-                        name       = ('FwPrbsTx[%d][%d]' % (lane,vc)),
-                        memBase    = self.memMap,
-                        offset     = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+0)),
-                        clock_freq = 250e6,
-                        expand     = False,
-                    ))
+    #################################################################
 
-                if (args.fwRx) or (args.loopback):
-                    # Add the FW PRBS RX Module
-                    self.add(ssi.SsiPrbsRx(
-                        name        = ('FwPrbsRx[%d][%d]' % (lane,vc)),
-                        memBase     = self.memMap,
-                        offset      = 0x00800000 + (0x10000*lane) + (0x1000*(2*vc+1)),
-                        rxClkPeriod = 4.0e-9,
-                        expand      = False,
-                    ))
+    with pgp_pcie_apps.PrbsRoot(
+        dev       = args.dev,
+        numLane   = args.numLane,
+        numVc     = args.numVc,
+        prbsWidth = args.prbsWidth,
+        loopback  = args.loopback,
+        fwRx      = args.fwRx,
+        fwTx      = args.fwTx,
+        swRx      = args.swRx,
+        swTx      = args.swTx,
+        syncTrig  = args.syncTrig,
+        boardType = args.boardType,
+        pollEn    = args.pollEn,
+        initRead  = args.initRead,
+    ) as root:
 
-        if self._syncTrig:
-            self.add(SyncTrigger(
-                offset  = 0x00880000,
-                memBase = self.memMap,
-                expand  = True,
-            ))
+        ######################
+        # Development PyDM GUI
+        ######################
+        if (args.guiType == 'PyDM'):
+            pyrogue.pydm.runPyDM(serverList=root.zmqServer.address)
 
-        # Loop through the DMA channels
-        for lane in range(args.numLane):
+        #################
+        # No GUI
+        #################
+        elif (args.guiType == 'None'):
+            print("Running without GUI...")
+            pyrogue.waitCntrlC()
 
-            # Loop through the virtual channels
-            for vc in range(args.numVc):
+        ####################
+        # Undefined GUI type
+        ####################
+        else:
+            raise ValueError("Invalid GUI type (%s)" % (args.guiType))
 
-                # Set the DMA loopback channel
-                self.dmaStream[lane][vc] = rogue.hardware.axi.AxiStreamDma(args.dev,(0x100*lane)+vc,1)
-                # self.dmaStream[lane][vc].setDriverDebug(0)
-
-                if (args.loopback):
-                    # Loopback the PRBS data
-                    self.dmaStream[lane][vc] >> self.dmaStream[lane][vc]
-
-                else:
-                    if (args.swRx):
-                        # Connect the SW PRBS Receiver module
-                        self.prbsRx[lane][vc] = pr.utilities.prbs.PrbsRx(
-                            name         = ('SwPrbsRx[%d][%d]'%(lane,vc)),
-                            width        = args.prbsWidth,
-                            checkPayload = False,
-                            expand       = True,
-                        )
-                        self.dmaStream[lane][vc] >> self.prbsRx[lane][vc]
-                        self.add(self.prbsRx[lane][vc])
-
-                    if (args.swTx):
-                        # Connect the SW PRBS Transmitter module
-                        self.prbsTx[lane][vc] = pr.utilities.prbs.PrbsTx(
-                            name    = ('SwPrbsTx[%d][%d]'%(lane,vc)),
-                            width   = args.prbsWidth,
-                            expand  = False,
-                        )
-                        self.prbsTx[lane][vc] >> self.dmaStream[lane][vc]
-                        self.add(self.prbsTx[lane][vc])
-
-        @self.command()
-        def EnableAllFwTx():
-            fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
-            for tx in fwTxDevices:
-                tx.TxEn.set(True)
-
-        @self.command()
-        def DisableAllFwTx():
-            fwTxDevices = root.find(typ=ssi.SsiPrbsTx)
-            for tx in fwTxDevices:
-                tx.TxEn.set(False)
-
-        @self.command()
-        def EnableAllSwCheck():
-            swDev = root.find(typ=pr.utilities.prbs.PrbsRx)
-            for rx in swDev:
-                rx.checkPayload.set(True)
-
-        @self.command()
-        def DisableAllSwCheck():
-            swDev = root.find(typ=pr.utilities.prbs.PrbsRx)
-            for rx in swDev:
-                rx.checkPayload.set(False)
-
-    def start(self, **kwargs):
-        super().start(**kwargs)
-        fwTxDevices = self.find(typ=ssi.SsiPrbsTx)
-        for tx in fwTxDevices:
-            tx.AxiEn.set(not self._syncTrig)
-
-#################################################################
-
-with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
-
-    swRxDevices = root.find(typ=pr.utilities.prbs.PrbsRx)
-    for rx in swRxDevices:
-        rx.checkPayload.set(False)
-
-    pyrogue.pydm.runPyDM(serverList = root.zmqServer.address)
-
-#################################################################
+    #################################################################

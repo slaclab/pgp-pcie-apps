@@ -3,8 +3,10 @@ Architecture
 
 ``pgp-pcie-apps`` is a three-layer wrapper around ``axi-pcie-core``,
 ``surf``, and ``ruckus``.  Each layer has a single responsibility; the
-boundaries between them are what allow the same RTL to ship across 15
-boards and four protocols.
+boundaries between them are what allow the same protocol RTL to ship
+across boards.  All 15 boards have DMA loopback targets; PGP/HTSP
+protocol targets exist for ``SlacPgpCardG4``, ``XilinxAlveoU200``,
+``XilinxKcu1500``, and ``XilinxVariumC1100``.
 
 The Three Layers
 ----------------
@@ -25,10 +27,10 @@ The Three Layers
             ▼
    ┌──────────────────────────────────────────────────────────────┐
    │  Hardware (board + protocol adapter)                         │
-   │  firmware/common/<proto>/hardware/<Board>/core/Hardware.vhd  │
+   │  firmware/common/<proto>/hardware/<Board>/*/Hardware.vhd     │
    │                                                              │
-   │  - Adapts generic PgpLaneWrapper to board port widths        │
-   │  - Pure structural, no protocol logic                        │
+   │  - Maps board GT/QSFP ports onto the lane wrapper            │
+   │  - Mostly structural, no framing logic                       │
    └────────┬─────────────────────────────────────────────────────┘
             │
             │ instantiates
@@ -47,19 +49,23 @@ Why Three Layers
 ~~~~~~~~~~~~~~~~
 
 Layer 1 (target) is the only place that knows physical pins.  Adding a
-new board involves new target VHDLs but **no changes to layers 2 or 3**.
+new board needs new target VHDLs plus a layer-2 ``Hardware`` adapter for
+each protocol, but **no changes to layer 3**.
 
-Layer 2 (hardware adapter) is the only place that knows
-board-specific port widths (QSFP count, transceiver lane count).  It is
-a thin structural wrapper with no actual logic.  This is the
-"anti-pattern that pays for itself": every (board, protocol) pair has a
-separate ``Hardware.vhd``, but each one is small, and the contract
-between layers is enforced by the unified ``Hardware`` entity port list.
+Layer 2 (hardware adapter) is the only place that knows board-specific
+port widths (QSFP count, transceiver lane count).  Every (board,
+protocol) pair has its own ``Hardware.vhd`` (under ``core/``, or
+``rtl/`` for the PGP2b ``SlacPgpCardG4`` and ``XilinxKcu1500``
+adapters).  Most are thin wrappers around ``PgpLaneWrapper`` /
+``PgpGtyLaneWrapper``; the ``SlacPgpCardG4`` adapters instead build the
+QPLL, an AXI-Lite crossbar, and the lanes directly.  The adapters share
+a common core of ports (``axil*``, ``dmaClk`` / ``dmaRst``,
+``dmaOb*`` / ``dmaIb*``); generics and sideband ports vary by protocol.
 
-Layer 3 (shared protocol layer) is the only place that knows
-PGP/HTSP framing, QPLL configuration, and AXI-Stream-to-DMA bridging.
-Once a protocol works on one board, it works on all boards that ship a
-layer-2 adapter for that protocol.
+Layer 3 (shared protocol layer) holds the PGP/HTSP lane logic, QPLL
+configuration, and AXI-Stream-to-DMA bridging.  Once a protocol works on
+one board, it works on all boards that ship a layer-2 adapter for that
+protocol.
 
 What axi-pcie-core Provides Underneath
 --------------------------------------
@@ -106,12 +112,14 @@ GT-Family Selection
 The shared ``ruckus.tcl`` uses ``getFpgaFamily`` to conditionally load
 either:
 
-* ``firmware/common/<proto>/shared/rtl/gtyUs+/`` (GTY UltraScale+: Alveo
-  U-series, Varium C1100, VCU128), or
-* ``firmware/common/<proto>/shared/rtl/gthUs/`` (GTH UltraScale: KCU105,
-  KCU116, KCU1500, PgpCardG4).
+* ``firmware/common/<proto>/shared/rtl/gtyUs+/`` (GTY UltraScale+:
+  ``XilinxAlveoU200``, ``XilinxVariumC1100``), or
+* ``firmware/common/<proto>/shared/rtl/gthUs/`` (GTH UltraScale:
+  ``XilinxKcu1500``, ``SlacPgpCardG4``).
 
 Targets do not need to know which GT family they use;
 ``getFpgaFamily`` makes the choice at build time, and the
 ``Hardware.vhd`` adapter instantiates the matching GTH entity
-(``PgpLaneWrapper`` / ``PgpLane``) or GTY entity (``PgpGtyLaneWrapper``).
+(``PgpLaneWrapper`` / ``PgpLane``) or GTY entity
+(``PgpGtyLaneWrapper`` for PGP3/PGP4; PGP2b keeps the
+``PgpLaneWrapper`` name in ``gtyUs+/``).

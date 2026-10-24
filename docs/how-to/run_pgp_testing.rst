@@ -15,11 +15,15 @@ Quick Start
    python PgpTesting.py
 
 ``PgpTesting.py`` (:repo:`software/scripts/PgpTesting.py`) builds a
-``pr.Root`` containing:
+``pgp_pcie_apps.PgpRoot`` (:repo:`firmware/python/pgp_pcie_apps/_PgpRoot.py`)
+containing:
 
 * ``AxiPcieCore``: register tree at BAR0 (versions, monitors, board ID).
-* Per-lane PGP RX/TX monitors and ``rogue.utilities.Prbs`` instances on
-  each virtual channel.
+* ``Lane[n]``: PGP core status and control (``Pgp4AxiL``, ``Pgp3AxiL``,
+  or ``Pgp2bAxi`` per ``--version``), plus ``PgpTxAxisMon[n]`` and
+  ``PgpRxAxisMon[n]``.
+* ``SwPrbsRx[n][vc]`` / ``SwPrbsTx[n][vc]``: ``pyrogue.utilities.prbs``
+  PRBS receiver and transmitter on each virtual channel.
 
 It then launches the PyDM GUI exposing the live monitor tree.  Use
 ``--version`` (default ``4``) to select the PGP generation, and
@@ -33,17 +37,21 @@ In the GUI:
 - ``AxiPcieCore.AxiVersion.UpTimeCnt`` is incrementing.
 - ``AxiPcieCore.AxiVersion.PCIE_HW_TYPE_G`` matches the board (e.g.,
   ``XilinxVariumC1100``).
-- Per-lane ``PgpMonitor.RxLinkReady`` shows ``True``.
-- ``PgpMonitor.RxFrameErrorCnt`` and ``TxFrameErrorCnt`` are zero (or
-  the saturation count of the counters).
-- PRBS error counters per VC stay at zero.
+- ``Lane[n].RxStatus.LinkReady`` shows ``True`` (PGP4; on PGP3 it is
+  ``Lane[n].RxLocalLinkReady``).
+- ``Lane[n].RxStatus.FrameErrorCnt`` and
+  ``Lane[n].TxStatus.FrameErrorCnt`` are zero and not incrementing.
+- ``SwPrbsRx[n][vc].rxErrors`` stays at zero.
 
 Read-Only Monitoring
 ~~~~~~~~~~~~~~~~~~~~
 
 For monitoring without driving traffic, use
-``software/scripts/PgpMonitor.py``: the same GUI without the PRBS
-source/sink.
+``software/scripts/PgpMonitor.py``: the same ``PgpRoot`` with the PRBS
+source/sink disabled.  With ``--boardType XilinxAlveoU200``,
+``XilinxKcu1500``, or ``XilinxVariumC1100`` it also adds the
+``AxiStreamDmaV2Fifo`` DMA buffer monitors.  Its defaults are
+``--numLane 4 --numVc 4``.
 
 Selecting a Card
 ~~~~~~~~~~~~~~~~
@@ -61,7 +69,9 @@ the PGP optics and instead drive the DMA path with in-hardware PRBS
 generators.  Use
 ``software/scripts/PrbsTesting.py``
 (:repo:`software/scripts/PrbsTesting.py`) instead of ``PgpTesting.py``
-for those targets.
+for those targets, and pass ``--boardType`` (for example
+``--boardType XilinxVariumC1100``) to include that board's DMA buffer
+monitors.
 
 For HTSP Targets
 ----------------

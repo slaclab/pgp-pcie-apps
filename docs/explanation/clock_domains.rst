@@ -11,8 +11,8 @@ The Three Domains
 ``dmaClk`` (250 MHz nominal)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Source: ``<Board>Core.dmaClk`` output.  Derived from the PCIe PHY's
-recovered reference clock and exposed back to the rest of the design.
+Source: ``<Board>Core.dmaClk`` output, the PCIe hard-IP user clock
+exposed by the PHY wrapper to the rest of the design.
 
 Lives here:
 
@@ -21,16 +21,20 @@ Lives here:
 * The application side of every ``dmaObMasters`` / ``dmaIbMasters``
   pair.
 
-The DMA bus width (``DMA_AXIS_CONFIG_G``) is per-board; the shared
+The DMA bus width (``DMA_AXIS_CONFIG_G``) is set per target (for
+example, 8 bytes on the ``XilinxVariumC1100`` PGP4 targets and 64 bytes
+on ``XilinxVariumC1100DmaLoopback``); the shared
 ``PgpLaneRx`` / ``PgpLaneTx`` auto-resize between this width and the
 fixed protocol-layer width (``PGP4_AXIS_CONFIG_C``).
 
 ``axilClk`` (typically 156.25 MHz)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Source: ``userClk156`` from the board (gigabit reference clock divider),
-optionally divided down by a ``ClockManagerUltraScale`` MMCM in the
-target top-level.
+Source: a ``ClockManagerUltraScale`` MMCM in the target top-level.
+Its input depends on the board: the 156.25 MHz ``userClk156`` on
+``XilinxAlveoU200`` and the ``XilinxKcu1500`` PGP3/PGP4 targets, the
+100 MHz ``userClk`` on ``XilinxVariumC1100``, and ``dmaClk`` on
+``SlacPgpCardG4`` and ``XilinxKcu1500Pgp2b``.
 
 Lives here:
 
@@ -44,10 +48,12 @@ The boundary between ``dmaClk`` and ``axilClk`` is handled inside
 ``pgpClk`` (per-lane, GT-recovered)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Source: ``surf.Pgp4GtyUs`` recovered RX clock per lane (PGP3/PGP4
-provide an explicit recovered clock per direction).  The exact
-frequency depends on the line rate; for example, PGP4 at 6.25 Gbps
-yields 156.25 MHz, and PGP4 at 25 Gbps yields 390.625 MHz.
+Source: the per-lane GT TX user clock that ``surf.Pgp4GtyUs`` (or
+``Pgp3GtyUs``) exports as ``pgpClk``; the PGP RX user interface runs on
+the same clock, so there is one ``pgpClk`` per lane.  (PGP2b instead
+exports separate ``pgpTxClk`` / ``pgpRxClk``.)  The GT runs 64b66b with
+a 64-bit user interface, so ``pgpClk`` is the line rate divided by 66:
+about 94.7 MHz at 6.25 Gbps and 156.25 MHz at 10.3125 Gbps.
 
 Lives here:
 
@@ -67,19 +73,25 @@ Every domain crossing in the application layer uses one of two
   PGP TX) and for any ``dmaClk ↔ axilClk`` stream crossing (rare).
 * **Single-bit / vector crossings**: ``surf.Synchronizer`` and
   ``surf.SynchronizerVector``.  Used for ``dmaBuffGrpPause`` propagation
-  into ``pgpClk`` and for ``pgpTxIn.locData(0)`` toggles.
+  into ``pgpClk``, and for the DDR buffer's ``eventTrigMsgCtrl.pause``
+  into ``pgpClk`` where it drives ``pgpTxIn.locData(0)`` (not needed on
+  ``XilinxVariumC1100``, where ``HbmDmaBuffer`` already outputs on
+  ``pgpClk``).
 
-No combinational paths cross domain boundaries.  Every crossing is
-explicit in the RTL via one of those two primitives.
+No combinational paths cross domain boundaries.  Every crossing uses an
+explicit ``surf`` synchronizer primitive; besides the two above, the
+design also uses ``AxiLiteAsync`` (inside ``AxiPcieReg``), ``RstSync``,
+and asynchronous ``AxiStreamMonAxiL`` instances.
 
 Why dmaClk Is 250 MHz
 ---------------------
 
-The 250 MHz figure is set by ``DMA_CLK_FREQ_C`` in
-``axi-pcie-core``'s per-board ``AxiPciePkg.vhd``.  It is the highest
-clock frequency that meets timing on all 15 supported boards with the
-standard ``AxiStreamDmaV2`` instantiation.  Raising it would require
-re-timing the DMA engine and is not a per-target decision.
+``dmaClk`` is the 250 MHz user clock of the PCIe hard IP, so its
+frequency is fixed by the PCIe PHY IP configuration in
+``axi-pcie-core``.  ``DMA_CLK_FREQ_C`` in each board's
+``AxiPciePkg.vhd`` records that value for consumers such as
+``AxiPcieReg`` and ``AxiPcieDma``.  Changing it is not a per-target
+decision.
 
 Implications for Application Design
 -----------------------------------
