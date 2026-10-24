@@ -10,7 +10,9 @@
 import pyrogue as pr
 import os
 
-top_level = os.path.realpath(__file__).split('software')[0]
+# This file lives in <top_level>/software/scripts/
+top_level = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
 
-pr.addLibraryPath(top_level+'firmware/submodules/axi-pcie-core/python')
-pr.addLibraryPath(top_level+'firmware/submodules/surf/python')
+pr.addLibraryPath(os.path.join(top_level, 'firmware/submodules/axi-pcie-core/python'))
+pr.addLibraryPath(os.path.join(top_level, 'firmware/submodules/surf/python'))
+pr.addLibraryPath(os.path.join(top_level, 'firmware/python'))

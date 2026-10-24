@@ -8,170 +8,103 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import setupLibPaths  # noqa: F401 (adds the python/ paths)
 
-import setupLibPaths
-import rogue
 import argparse
 
-import rogue.hardware.axi
-import rogue.interfaces.stream
-
-import pyrogue as pr
 import pyrogue.pydm
-import pyrogue.utilities.prbs
 
-import axipcie            as pcie
-import surf.axi           as axi
-import surf.protocols.pgp as pgp
-
-#rogue.Logging.setLevel(rogue.Logging.Debug)
+import pgp_pcie_apps
 
 #################################################################
-
-# Set the argument parser
-parser = argparse.ArgumentParser()
 
 # Convert str to bool
-argBool = lambda s: s.lower() in ['true', 't', 'yes', '1']
-
-# Add arguments
-parser.add_argument(
-    "--dev",
-    type     = str,
-    required = False,
-    default  = '/dev/datadev_0',
-    help     = "path to device",
-)
-
-parser.add_argument(
-    "--numLane",
-    type     = int,
-    required = False,
-    default  = 4,
-    help     = "# of DMA Lanes",
-)
-
-parser.add_argument(
-    "--numVc",
-    type     = int,
-    required = False,
-    default  = 4,
-    help     = "# of VC (virtual channels)",
-)
-
-parser.add_argument(
-    "--version",
-    type     = int,
-    required = False,
-    default  = 4,
-    help     = "PGP Protocol Version",
-)
-
-parser.add_argument(
-    "--pollEn",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable auto-polling",
-)
-
-parser.add_argument(
-    "--initRead",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--boardType",
-    type     = str,
-    required = False,
-    default  = None,
-    help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or SlacPgpCardG4, Kcu1500, etc]",
-)
-
-# Get the arguments
-args = parser.parse_args()
+def argBool(s):
+    return s.lower() in ['true', 't', 'yes', '1']
 
 #################################################################
 
-class MyRoot(pr.Root):
-    def __init__(   self,
-            name        = "pciServer",
-            description = "DMA Loopback Testing",
-            **kwargs):
-        super().__init__(timeout=5.0, **kwargs)
+if __name__ == "__main__":
 
-        self.zmqServer = pyrogue.interfaces.ZmqServer(root=self, addr='127.0.0.1', port=0)
-        self.addInterface(self.zmqServer)
+    # Set the argument parser
+    parser = argparse.ArgumentParser()
 
-        # Create PCIE memory mapped interface
-        self.memMap = rogue.hardware.axi.AxiMemMap(args.dev)
+    # Add arguments
+    parser.add_argument(
+        "--dev",
+        type     = str,
+        required = False,
+        default  = '/dev/datadev_0',
+        help     = "path to device",
+    )
 
-        # Add the PCIe core device to base
-        self.add(pcie.AxiPcieCore(
-            offset     = 0x00000000,
-            memBase     = self.memMap,
-            numDmaLanes = args.numLane,
-            boardType   = args.boardType,
-            expand      = True,
-        ))
+    parser.add_argument(
+        "--numLane",
+        type     = int,
+        required = False,
+        default  = 4,
+        help     = "# of DMA Lanes",
+    )
 
-        # Add PGP Core
-        for lane in range(args.numLane):
-            if (args.version == 4):
-                self.add(pgp.Pgp4AxiL(
-                    name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000),
-                    memBase = self.memMap,
-                    numVc   = args.numVc,
-                    writeEn = True,
-                    expand  = True,
-                ))
-            elif (args.version == 3):
-                self.add(pgp.Pgp3AxiL(
-                    name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000),
-                    memBase = self.memMap,
-                    numVc   = args.numVc,
-                    writeEn = True,
-                    expand  = False,
-                ))
-            else:
-                self.add(pgp.Pgp2bAxi(
-                    name    = f'Lane[{lane}]',
-                    offset  = (0x00800000 + lane*0x00010000 + 0x1000),
-                    memBase = self.memMap,
-                    expand  = False,
-                ))
+    parser.add_argument(
+        "--numVc",
+        type     = int,
+        required = False,
+        default  = 4,
+        help     = "# of VC (virtual channels)",
+    )
 
-            self.add(axi.AxiStreamMonAxiL(
-                name        = (f'PgpTxAxisMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x3000),
-                numberLanes = args.numVc,
-                memBase     = self.memMap,
-                expand      = False,
-            ))
+    parser.add_argument(
+        "--version",
+        type     = int,
+        required = False,
+        default  = 4,
+        choices  = [2, 3, 4],
+        help     = "PGP Protocol Version",
+    )
 
-            self.add(axi.AxiStreamMonAxiL(
-                name        = (f'PgpRxAxisMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x4000),
-                numberLanes = args.numVc,
-                memBase     = self.memMap,
-                expand      = False,
-            ))
-        for lane in range(args.numLane):
-            self.add(axi.AxiStreamDmaV2Fifo(
-                name        = (f'AxiStreamDmaV2Fifo[{lane}]'),
-                offset      = (0x0010_0000 + lane*0x100),
-                memBase     = self.memMap,
-                expand      = False,
-            ))
+    parser.add_argument(
+        "--pollEn",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable auto-polling",
+    )
 
-#################################################################
+    parser.add_argument(
+        "--initRead",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable read all variables at start",
+    )
 
-with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
-     pyrogue.pydm.runPyDM(serverList = root.zmqServer.address)
+    parser.add_argument(
+        "--boardType",
+        type     = str,
+        required = False,
+        default  = None,
+        help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or SlacPgpCardG4, Kcu1500, etc]",
+    )
 
-#################################################################
+    # Get the arguments
+    args = parser.parse_args()
+
+    #################################################################
+
+    # Monitor only: no SW PRBS, plus the DMA FIFO monitors
+    with pgp_pcie_apps.PgpRoot(
+        dev        = args.dev,
+        numLane    = args.numLane,
+        numVc      = args.numVc,
+        version    = args.version,
+        swRx       = False,
+        swTx       = False,
+        dmaFifoMon = True,
+        boardType  = args.boardType,
+        pollEn     = args.pollEn,
+        initRead   = args.initRead,
+    ) as root:
+        pyrogue.pydm.runPyDM(serverList=root.zmqServer.address)
+
+    #################################################################

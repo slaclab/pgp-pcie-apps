@@ -8,137 +8,82 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import setupLibPaths  # noqa: F401 (adds the python/ paths)
 
-import setupLibPaths
-import rogue
 import argparse
 
-import rogue.hardware.axi
-import rogue.interfaces.stream
-
-import pyrogue as pr
 import pyrogue.pydm
-import pyrogue.utilities.prbs
 
-import axipcie             as pcie
-import surf.axi            as axi
-import surf.protocols.htsp as htsp
+import pgp_pcie_apps
 
 #################################################################
-
-# Set the argument parser
-parser = argparse.ArgumentParser()
 
 # Convert str to bool
-argBool = lambda s: s.lower() in ['true', 't', 'yes', '1']
-
-# Add arguments
-parser.add_argument(
-    "--dev",
-    type     = str,
-    required = False,
-    default  = '/dev/datadev_0',
-    help     = "path to device",
-)
-
-parser.add_argument(
-    "--numLane",
-    type     = int,
-    required = False,
-    default  = 2,
-    help     = "# of DMA Lanes",
-)
-
-parser.add_argument(
-    "--numVc",
-    type     = int,
-    required = False,
-    default  = 4,
-    help     = "# of VC (virtual channels)",
-)
-
-parser.add_argument(
-    "--pollEn",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable auto-polling",
-)
-
-parser.add_argument(
-    "--initRead",
-    type     = argBool,
-    required = False,
-    default  = True,
-    help     = "Enable read all variables at start",
-)
-
-parser.add_argument(
-    "--boardType",
-    type     = str,
-    required = False,
-    default  = None,
-    help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or XilinxVariumC1100, XilinxAlveoU200, etc]",
-)
-
-# Get the arguments
-args = parser.parse_args()
+def argBool(s):
+    return s.lower() in ['true', 't', 'yes', '1']
 
 #################################################################
 
-class MyRoot(pr.Root):
-    def __init__(   self,
-            name        = "pciServer",
-            description = "DMA Loopback Testing",
-            **kwargs):
-        super().__init__(timeout=5.0, **kwargs)
+if __name__ == "__main__":
 
-        self.zmqServer = pyrogue.interfaces.ZmqServer(root=self, addr='127.0.0.1', port=0)
-        self.addInterface(self.zmqServer)
+    # Set the argument parser
+    parser = argparse.ArgumentParser()
 
-        # Create PCIE memory mapped interface
-        self.memMap = rogue.hardware.axi.AxiMemMap(args.dev)
+    # Add arguments
+    parser.add_argument(
+        "--dev",
+        type     = str,
+        required = False,
+        default  = '/dev/datadev_0',
+        help     = "path to device",
+    )
 
-        # Add the PCIe core device to base
-        self.add(pcie.AxiPcieCore(
-            offset      = 0x00000000,
-            memBase     = self.memMap,
-            numDmaLanes = 2,
-            boardType   = args.boardType,
-            expand      = False,
-        ))
+    parser.add_argument(
+        "--numVc",
+        type     = int,
+        required = False,
+        default  = 4,
+        help     = "# of VC (virtual channels)",
+    )
 
-        # Add devices
-        for lane in range(2):
+    parser.add_argument(
+        "--pollEn",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable auto-polling",
+    )
 
-            self.add(htsp.HtspAxiL(
-                name    = f'Lane[{lane}]',
-                offset  = (0x00800000 + lane*0x1_0000),
-                memBase = self.memMap,
-                numVc   = args.numVc,
-                writeEn = True,
-                expand  = True,
-            ))
+    parser.add_argument(
+        "--initRead",
+        type     = argBool,
+        required = False,
+        default  = True,
+        help     = "Enable read all variables at start",
+    )
 
-            self.add(axi.AxiStreamMonAxiL(
-                name        = (f'TxVcMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x1000),
-                numberLanes = args.numVc,
-                memBase     = self.memMap,
-                expand      = False,
-            ))
+    parser.add_argument(
+        "--boardType",
+        type     = str,
+        required = False,
+        default  = None,
+        help     = "define the type of PCIe card, used to select I2C mapping. Options: [none or XilinxVariumC1100, XilinxAlveoU200, etc]",
+    )
 
-            self.add(axi.AxiStreamMonAxiL(
-                name        = (f'RxVcMon[{lane}]'),
-                offset      = (0x00800000 + lane*0x00010000 + 0x2000),
-                numberLanes = args.numVc,
-                memBase     = self.memMap,
-                expand      = False,
-            ))
+    # Get the arguments
+    args = parser.parse_args()
 
-#################################################################
+    #################################################################
 
-with MyRoot(pollEn=args.pollEn, initRead=args.initRead) as root:
-     pyrogue.pydm.runPyDM(serverList = root.zmqServer.address)
+    # Monitor only: no SW PRBS
+    with pgp_pcie_apps.HtspRoot(
+        dev       = args.dev,
+        numVc     = args.numVc,
+        swPrbs    = False,
+        boardType = args.boardType,
+        pollEn    = args.pollEn,
+        initRead  = args.initRead,
+    ) as root:
+        pyrogue.pydm.runPyDM(serverList=root.zmqServer.address)
 
-#################################################################
+    #################################################################
