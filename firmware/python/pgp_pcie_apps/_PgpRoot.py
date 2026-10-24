@@ -19,7 +19,7 @@ import axipcie            as pcie
 import surf.axi           as axi
 import surf.protocols.pgp as pgp
 
-rogue.Version.minVersion('6.0.0')
+rogue.Version.minVersion('6.15.0')
 
 class PgpRoot(pr.Root):
     def __init__(self,

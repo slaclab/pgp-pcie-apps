@@ -21,7 +21,7 @@ import surf.protocols.ssi as ssi
 
 import pgp_pcie_apps
 
-rogue.Version.minVersion('6.0.0')
+rogue.Version.minVersion('6.15.0')
 
 class PrbsRoot(pr.Root):
     def __init__(self,
