@@ -15,10 +15,12 @@ Prerequisites
   :doc:`/how-to/load_driver`.
 - The card already runs a working ``axi-pcie-core``-based bitstream
   with the SPI/BPI PROM access path exposed via the PyRogue device
-  tree.  (Every target built from ``pgp-pcie-apps`` includes this.)
+  tree.  Every target includes this except the ``AlphaDataKu3`` ones;
+  on ``*BifurcatedPcie`` cards use the primary endpoint's
+  ``/dev/datadev_*``.
 - A ``.mcs`` (or ``.mcs.gz``) file produced by a prior ``make`` (see
-  :doc:`/tutorial/first_build`).  The script picks the file up from a
-  directory, not by filename.
+  :doc:`/tutorial/first_build`).  The script takes a directory, not a
+  filename.
 - The Rogue environment activated (``source software/setup_env_slac.sh``
   at SLAC S3DF, ``source software/cds_env_setup.sh`` at PCDS/CDS, or
   any equivalent environment that supplies ``rogue`` v6.5.0 or later).
@@ -26,9 +28,12 @@ Prerequisites
 Usage
 -----
 
-The script takes a directory of images via ``--path`` and finds the
-``.mcs`` / ``.mcs.gz`` inside.  Programming the PROM requires root (the
-script issues a PCIe rescan via ``sysfs``):
+The script lists the ``.mcs`` / ``.mcs.gz`` images in the ``--path``
+directory (images matching the running ``ImageName`` first) and prompts
+you to choose one; it asks for confirmation if the chosen image does not
+match the running firmware.  SPIx8 boards need both the ``_primary`` and
+``_secondary`` files.  Programming the PROM requires root (the script
+issues a PCIe rescan via ``sysfs``):
 
 .. code-block:: bash
 
@@ -50,11 +55,13 @@ Useful CLI flags (defined in
      - ``/dev/datadev_0``
      - Pick a specific card when multiple are installed.
    * - ``--path <dir>``
-     - (required)
-     - Directory containing the ``.mcs`` or ``.mcs.gz`` to program.
-   * - ``--package <dir>``
-     -
-     - Alternate path used by the Debian package install.
+     - ``None``
+     - Image directory (required unless ``--package`` or
+       ``--bypass_reprogramming true`` is given).
+   * - ``--package <module>``
+     - ``None``
+     - Python package to import; its ``ImageDir`` attribute is used as
+       the image directory.
    * - ``--rescan true|false``
      - ``true``
      - Skip the PCIe-rescan step if you plan to reboot instead.
@@ -88,18 +95,17 @@ Permission denied on ``/dev/datadev_0``
    A non-root user needs the ``udev`` rules from ``aes-stream-drivers``
    installed; otherwise run via ``sudo``.  See :doc:`/how-to/load_driver`.
 
-"Unable to reprogram FPGA as loss of PCIe link"
-   The running driver lost the BAR window.  Rescan the PCIe bus or
+"Unable to reprogram FPGA as lost of PCIe link."
+   The running driver lost the BAR window.  Run
+   ``firmware/submodules/axi-pcie-core/scripts/rescanPcieFpga.sh`` or
    reboot the host to recover.
 
 "Programming (.mcs, .mcs.gz) files NOT detected in the --path arg directory"
    Confirm the ``images/`` directory actually contains a ``.mcs`` (or
-   ``.mcs.gz``).  A ``make`` that ran with ``GEN_MCS_IMAGE=0`` produces
-   no PROM file.
+   ``.mcs.gz``).  With ``GEN_MCS_IMAGE=0`` (and ``GEN_MCS_IMAGE_GZIP=0``)
+   no ``.mcs`` is copied into ``images/``.
 
 MCS file too big
-   ``XilinxVariumC1100`` uses a 1 GB SPI flash, and bitstreams from
-   ``axi-pcie-core``-based projects fit comfortably.  If
-   ``write_cfgmem`` reports a size error during the original ``make``,
-   check the configured ``size`` parameter in the target's
-   ``vivado/promgen.tcl``.
+   If ``write_cfgmem`` reports a size error during the original
+   ``make``, check the configured ``size`` parameter (in MB) in the
+   target's ``vivado/promgen.tcl``.

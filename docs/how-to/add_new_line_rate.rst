@@ -1,15 +1,17 @@
 Add a New Line Rate
 ===================
 
-PGP2b, PGP3, PGP4, and HTSP each support a small set of line rates.  Add
-a new rate by cloning an existing target and changing the ``RATE_G``
+PGP3 and PGP4 targets select their line rate with the ``RATE_G``
+generic.  Add a new rate by cloning an existing target and changing it.
+PGP2b (fixed 3.125 Gbps GT IP) and HTSP (fixed 100G CAUI-4) have no rate
 generic.
 
 Procedure
 ---------
 
 1. Identify the closest existing target.  For example, start from
-   ``XilinxKcu1500Pgp4_6Gbps`` to add ``XilinxKcu1500Pgp4_10Gbps``.
+   ``XilinxKcu1500Pgp4_10Gbps`` to add ``XilinxKcu1500Pgp4_12Gbps``
+   (``"12.5Gbps"``).
 
 2. Clone the directory and rename per
    :doc:`/how-to/add_new_board_target`.
@@ -22,15 +24,18 @@ Procedure
    * ``"10.3125Gbps"``
    * ``"12.5Gbps"``
    * ``"15.46875Gbps"``
-   * ``"25.0Gbps"`` (PGP4 with FEC only)
+   * ``"25.0Gbps"`` (PGP4, GTY boards only)
 
-   The exact set of supported strings is decoded by the ``surf`` GT
-   wrappers (e.g., ``Pgp4GtyUs`` / ``Pgp4GthUs`` under
-   ``firmware/submodules/surf/protocols/pgp/pgp4/``) and differs between
-   GTY and GTH; search there for ``RATE_G`` to see what is mapped.
+   The exact set of supported strings differs between GTY and GTH.  GTY
+   rates are decoded in
+   ``firmware/submodules/surf/protocols/pgp/pgp3/gtyUs+/rtl/Pgp3GtyUsIpWrapper.vhd``
+   and ``Pgp3GtyUsQpll.vhd`` (shared by PGP3 and PGP4).  GTH rates are
+   limited by the assert in ``pgp4/gthUs/rtl/Pgp4GthUs.vhd`` (up to
+   ``"15.46875Gbps"``).
 
-4. For PGP4 25 Gbps targets, also set ``PGP_FEC_ENABLE_G => true`` (FEC
-   is required at that line rate).
+4. The existing 25 Gbps target (``XilinxVariumC1100Pgp4_25Gbps_Fec``)
+   also sets ``PGP_FEC_ENABLE_G => true`` to enable RS-FEC.  That generic
+   is only exposed by the ``XilinxVariumC1100`` PGP4 adapter.
 
 5. The QPLL configuration is auto-selected from ``RATE_G`` inside
    ``PgpLaneWrapper`` / ``PgpGtyLaneWrapper``, so you should not need to
@@ -43,8 +48,9 @@ Verification
 
 After the build completes:
 
-- ``make`` exits 0 with no critical warnings beyond the documented PCIe
-  PHY black-box messages (see :doc:`/tutorial/first_build`).
+- ``make`` exits 0 with no critical warnings beyond the expected ones
+  for the board (see :doc:`/tutorial/first_build` for
+  ``XilinxVariumC1100``).
 - The Vivado timing report shows no failing endpoints at the new clock
   rate.
 - After flashing, run ``software/scripts/PgpTesting.py`` against the

@@ -26,9 +26,11 @@ Prerequisites
 
      source software/setup_env_slac.sh
 
-  This activates the ``rogue_v6.15.0`` conda environment that ships
-  ``rogue``, ``pyrogue``, ``pyrogue.pydm``, and ZMQ.  At other sites,
-  ensure ``rogue`` v6.12.0 or later is on ``PYTHONPATH``.
+  This activates a ``rogue_v6.15.0`` conda environment (``rogue``,
+  ``pyrogue``, ``pyrogue.pydm``, and ZMQ) from your own miniforge
+  install at ``/sdf/group/faders/users/$USER/miniforge3``; edit the path
+  if yours differs.  At other sites, ensure ``rogue`` v6.15.0 or later
+  is on ``PYTHONPATH``.
 
 Run the Test
 ------------
@@ -39,16 +41,28 @@ Run the Test
    python LoopbackTesting.py
 
 ``LoopbackTesting.py`` (:repo:`software/scripts/LoopbackTesting.py`) builds a
-custom ``pr.Root`` that opens BAR0, opens DMA streams, and connects an
-``rogue.utilities.Prbs`` transmitter and receiver around the firmware
-DMA loopback path.  It then starts the PyDM GUI, which exposes
-``AxiPcieCore.AxiVersion``, the IB and OB ``AxiStreamMonAxiL`` traffic
-monitors, and live error counts.
+``pgp_pcie_apps.LoopbackRoot``
+(:repo:`firmware/python/pgp_pcie_apps/_LoopbackRoot.py`), which opens
+BAR0 and the DMA streams and attaches a SW PRBS transmitter
+(``SwPrbsTx[lane][vc]``) and receiver (``SwPrbsRx[lane][vc]``) to each
+lane and VC.  At start it prints ``Number of RX buffers = N`` and
+enables every SW PRBS transmitter, so traffic flows without any GUI
+action.  It then starts the PyDM GUI.
+
+Useful Flags
+~~~~~~~~~~~~
+
+* ``--numLane N`` must match the target's DMA lane count: 1 (the
+  default) for ``XilinxVariumC1100DmaLoopback``, 6 for
+  ``XilinxKcu1500DmaLoopback``.
+* ``--dev /dev/datadev_N`` selects another card.
+* ``--guiType None`` runs headless until Ctrl-C (see
+  :doc:`/reference/pyrogue_scripts`).
 
 Backend Selection
 ~~~~~~~~~~~~~~~~~
 
-``LoopbackTesting.py`` accepts a ``--type`` flag:
+``LoopbackTesting.py`` also accepts a ``--type`` flag:
 
 * ``--type pcie`` (default): real ``/dev/datadev_*`` backend.
 * ``--type sim``: rogue TCP-socket backend for software co-simulation
@@ -63,8 +77,10 @@ In the PyDM GUI:
 * ``AxiPcieCore.AxiVersion.UpTimeCnt`` is incrementing.
 * ``AxiPcieCore.AxiVersion.BuildStamp`` matches the ``.bit`` you flashed.
 * ``AxiPcieCore.AxiVersion.PCIE_HW_TYPE_G`` shows ``XilinxVariumC1100``.
-* The IB and OB stream monitors show matching frame counts and the PRBS
-  error counters stay at **zero**.
+* ``AxiPcieCore.DmaIbAxisMon`` and ``AxiPcieCore.DmaObAxisMon`` show
+  matching frame counts.
+* ``SwPrbsRx[*][*].rxCount`` increments and ``SwPrbsRx[*][*].rxErrors``
+  stays at **zero**.
 
 If the PRBS error counters increase, the DMA path is dropping or
 corrupting data.  See the

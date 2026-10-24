@@ -21,32 +21,44 @@ The address window from ``0x00100000`` upwards is forwarded as the
 Application Region (Top-Level pgp-pcie-apps Crossbar)
 -----------------------------------------------------
 
-The top-level target VHDL (e.g.,
+The top-level target VHDL of the PGP targets (e.g.,
 :repo:`firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps/hdl/XilinxVariumC1100Pgp4_6Gbps.vhd`)
 instantiates an AXI-Lite crossbar inside the ``app`` clock domain with
-the following layout:
+the following layout.  Exceptions: the ``XilinxVariumC1100`` HTSP
+targets use a two-slot crossbar (``0x00100000`` and ``0x00800000``), and
+the ``SlacPgpCardG4`` protocol targets and the DmaLoopback targets have
+no top-level crossbar.
 
 .. list-table::
    :header-rows: 1
-   :widths: 18 22 60
+   :widths: 16 10 24 50
 
    * - Offset
+     - Size
      - Slave
      - Contents
    * - ``0x00100000``
-     - ``MigDmaBuffer`` (optional)
-     - When the target includes the DDR/HBM-backed DMA buffer; otherwise
-       responds with ``DECERR``.
+     - 1 MB
+     - ``MigDmaBuffer`` / ``HbmDmaBuffer``
+     - One ``AxiStreamDmaV2Fifo`` per DMA lane (``0x100`` stride):
+       ``HbmDmaBuffer`` on ``XilinxVariumC1100``, ``MigDmaBuffer`` on
+       ``XilinxKcu1500`` / ``XilinxAlveoU200``.
    * - ``0x00200000``
-     - Utility A
-     - Per-target utility AXI-Lite slave.
+     - 1 MB
+     - (unused)
+     - Unconnected on the PGP targets (responds with ``SLVERR``).  On
+       ``XilinxVariumC1100PrbsTester`` this slot is ``BuffIbMon``
+       (``AxiStreamMonAxiL``).
    * - ``0x00300000``
-     - Utility B
-     - Per-target utility AXI-Lite slave.
+     - 1 MB
+     - (unused)
+     - Unconnected (``SLVERR``).
    * - ``0x00400000``
-     - Utility C
-     - Per-target utility AXI-Lite slave.
+     - 1 MB
+     - (unused)
+     - Unconnected (``SLVERR``) except on ``XilinxAlveoU200Htsp_FebEmu``.
    * - ``0x00800000``
+     - 8 MB
      - ``Hardware`` (PgpLaneWrapper / HtspWrapper)
      - The protocol layer; see `Hardware Sub-Tree`_ below.
 
@@ -83,7 +95,7 @@ Per-Lane Layout
 ~~~~~~~~~~~~~~~
 
 Within each lane window the ``PgpGtyLane`` / ``PgpLane`` further
-decodes:
+decodes (PGP3 and PGP4):
 
 .. list-table::
    :header-rows: 1
@@ -93,14 +105,13 @@ decodes:
      - Slave
      - Contents
    * - ``0x0000``
-     - GT core
-     - ``surf.Pgp4GtyUs`` registers: link status, line rate, FEC.
-   * - ``0x1000``
-     - PGP monitor
-     - ``surf.Pgp4AxiL``: RX/TX frame counters, drops, link state.
-   * - ``0x2000``
-     - Control
-     - Lane-specific control bits (``locData`` pause, etc.).
+     - PGP core monitor
+     - ``surf.Pgp4AxiL`` / ``Pgp3AxiL`` inside ``Pgp4GtyUs`` /
+       ``Pgp3GtyUs`` (GT DRP disabled): link state, RX/TX frame and
+       error counters.
+   * - ``0x1000``, ``0x2000``
+     - (unused)
+     - Unconnected on PGP3 / PGP4.
    * - ``0x3000``
      - TX stream monitor
      - ``surf.AxiStreamMonAxiL``: per-VC TX frame/byte counters.
@@ -108,17 +119,20 @@ decodes:
      - RX stream monitor
      - ``surf.AxiStreamMonAxiL``: per-VC RX frame/byte counters.
 
+PGP2b lanes use the three middle slots: GT DRP at ``0x0000``,
+``surf.Pgp2bAxi`` at ``0x1000``, and ``PgpMiscCtrl`` at ``0x2000``.
+
 Tracing in Software
 -------------------
 
-The PyRogue device tree mirrors this layout.  From any
-``LoopbackTesting.py`` or ``PgpTesting.py`` session:
+The PyRogue device tree mirrors this layout.  From a ``PgpTesting.py``
+session against a PGP4 target:
 
 .. code-block:: python
 
-   # Top-level
+   # Top-level (any Root)
    root.AxiPcieCore.AxiVersion.UpTimeCnt.get()
-   # Application region (per target)
+   # Application region
    root.Lane[0].RxStatus.FrameCnt.get()
 
 Adjust the path for HTSP targets; see

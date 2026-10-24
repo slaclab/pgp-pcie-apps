@@ -15,7 +15,7 @@ Everything in ``firmware/submodules/axi-pcie-core/`` is owned by the
 ``slaclab/axi-pcie-core`` repository.  It provides:
 
 * **PCIe PHY wrapping**: per-board pre-compiled Vivado ``.dcp``
-  checkpoints under ``hardware/<Board>/pcie/``.
+  checkpoints under ``hardware/<Board>/pcie*/ip/``.
 * **AXI-Stream DMA engine**: ``AxiPcieDma`` + ``AxiStreamDmaV2``,
   shared across all boards.
 * **BAR0 register crossbar**: ``AxiPcieReg`` plus PROM access (SPI,
@@ -76,15 +76,15 @@ instantiates **both** sides:
    -- from axi-pcie-core: PCIe DMA + board management
    U_Core : entity axi_pcie_core.XilinxVariumC1100Core
       generic map (
-         BUILD_INFO_G      => BUILD_INFO_C,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
-         DMA_SIZE_G        => 1)
+         BUILD_INFO_G      => BUILD_INFO_G,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
+         DMA_SIZE_G        => 8)
       port map ( ... );
 
    -- from pgp-pcie-apps: the protocol layer
    U_Hardware : entity work.Hardware
       generic map (
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
+         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_G,
          RATE_G            => "6.25Gbps")
       port map ( ... );
 
@@ -107,8 +107,10 @@ When to Update Which Repo
 Version Coordination
 --------------------
 
-``pgp-pcie-apps`` pins ``axi-pcie-core`` to a specific commit via
-``.gitmodules``.  Bumping the pin is a deliberate, atomic operation:
+``pgp-pcie-apps`` pins ``axi-pcie-core`` to a specific commit via the
+submodule gitlink recorded in the superproject (``.gitmodules`` only
+holds the path and URL).  Bumping the pin is a deliberate, atomic
+operation:
 
 .. code-block:: bash
 

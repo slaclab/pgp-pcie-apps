@@ -19,8 +19,11 @@ Quick Start
 containing:
 
 * ``AxiPcieCore``: register tree at BAR0 (versions, monitors, board ID).
-* Per-lane PGP RX/TX monitors and ``rogue.utilities.Prbs`` instances on
-  each virtual channel.
+* ``Lane[n]``: PGP core status and control (``Pgp4AxiL``, ``Pgp3AxiL``,
+  or ``Pgp2bAxi`` per ``--version``), plus ``PgpTxAxisMon[n]`` and
+  ``PgpRxAxisMon[n]``.
+* ``SwPrbsRx[n][vc]`` / ``SwPrbsTx[n][vc]``: ``pyrogue.utilities.prbs``
+  PRBS receiver and transmitter on each virtual channel.
 
 It then launches the PyDM GUI exposing the live monitor tree.  Use
 ``--version`` (default ``4``) to select the PGP generation, and
@@ -34,17 +37,19 @@ In the GUI:
 - ``AxiPcieCore.AxiVersion.UpTimeCnt`` is incrementing.
 - ``AxiPcieCore.AxiVersion.PCIE_HW_TYPE_G`` matches the board (e.g.,
   ``XilinxVariumC1100``).
-- Per-lane ``PgpMonitor.RxLinkReady`` shows ``True``.
-- ``PgpMonitor.RxFrameErrorCnt`` and ``TxFrameErrorCnt`` are zero (or
-  the saturation count of the counters).
-- PRBS error counters per VC stay at zero.
+- ``Lane[n].RxStatus.LinkReady`` shows ``True`` (PGP4; on PGP3 it is
+  ``Lane[n].RxLocalLinkReady``).
+- ``Lane[n].RxStatus.FrameErrorCnt`` and
+  ``Lane[n].TxStatus.FrameErrorCnt`` are zero and not incrementing.
+- ``SwPrbsRx[n][vc].rxErrors`` stays at zero.
 
 Read-Only Monitoring
 ~~~~~~~~~~~~~~~~~~~~
 
 For monitoring without driving traffic, use
-``software/scripts/PgpMonitor.py``: the same GUI without the PRBS
-source/sink.
+``software/scripts/PgpMonitor.py``: the same ``PgpRoot`` with the PRBS
+source/sink disabled and the ``AxiStreamDmaV2Fifo`` monitors added.
+Its defaults are ``--numLane 4 --numVc 4``.
 
 Selecting a Card
 ~~~~~~~~~~~~~~~~

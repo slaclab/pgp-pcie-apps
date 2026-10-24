@@ -1,20 +1,24 @@
 PyRogue Scripts
 ===============
 
-Every script under :repo:`software/scripts/` is a thin PyDM launcher:
-it parses its command-line arguments, builds one of the ``pr.Root``
-classes from the ``pgp_pcie_apps`` library, and starts the PyDM GUI.
-All scripts accept ``--dev`` (default ``/dev/datadev_0``) to select the
-card and ``--guiType`` (``PyDM`` by default, or ``None``) to run headless.
-Only ``LoopbackTesting.py`` also accepts ``--type`` to select the
-backend (``pcie`` or ``sim``).
+Each launcher script under :repo:`software/scripts/`
+(``LoopbackTesting.py``, ``PgpTesting.py``, ``PgpMonitor.py``,
+``HtspTesting.py``, ``HtspMonitor.py``, ``PrbsTesting.py``) parses its
+command-line arguments, builds one of the ``pr.Root`` classes from the
+``pgp_pcie_apps`` library, and starts the PyDM GUI.  All launchers
+accept ``--dev`` (default ``/dev/datadev_0``) to select the card and
+``--guiType`` (``PyDM`` by default, or ``None``) to run headless.  Only
+``LoopbackTesting.py`` also accepts ``--type`` to select the backend
+(``pcie`` or ``sim``).  ``updatePcieFpga.py`` is a standalone PROM
+programming tool and ``setupLibPaths.py`` is a path helper.
 
 Running Headless
 ----------------
 
 ``--guiType None`` starts the Root and its ZMQ server without opening
-PyDM, then waits for Ctrl-C.  Attach a GUI or a script from any host
-that can reach the server port printed at startup:
+PyDM, then waits for Ctrl-C.  The ZMQ server binds ``127.0.0.1``, so
+attach a GUI or a script on the same host (use an SSH tunnel from
+elsewhere) using the port printed at startup:
 
 .. code-block:: bash
 
@@ -62,9 +66,10 @@ module per ``pr.Root``, so they can be reused outside the launchers
      - ``pr.Device`` for the PrbsTester trigger generator at
        ``0x0088_0000``
 
-Every Root takes its options as constructor keyword arguments (the
-script's command-line flags map onto them one to one) plus the
-standard ``pr.Root`` ``pollEn`` / ``initRead`` arguments:
+Every Root takes its options as constructor keyword arguments (most
+command-line flags map directly onto them; the Monitor scripts fix the
+PRBS options) plus the standard ``pr.Root`` ``pollEn`` / ``initRead``
+arguments:
 
 .. code-block:: python
 
@@ -77,7 +82,7 @@ standard ``pr.Root`` ``pollEn`` / ``initRead`` arguments:
 Common Bootstrap
 ----------------
 
-Every script starts with:
+Every launcher script starts with:
 
 .. code-block:: python
 
@@ -97,8 +102,8 @@ LoopbackTesting.py
 
 :repo:`software/scripts/LoopbackTesting.py`
 
-Drives the DMA loopback path with a PRBS source and a PRBS sink wired
-through ``rogue.utilities.Prbs``.  Use this against any ``DmaLoopback``
+Drives the DMA loopback path with a PRBS source and a PRBS sink
+(``pyrogue.utilities.prbs.PrbsTx`` / ``PrbsRx``).  Use this against any ``DmaLoopback``
 target (e.g., ``XilinxVariumC1100DmaLoopback``).
 
 .. code-block:: bash
@@ -121,7 +126,9 @@ PgpMonitor.py
 
 Read-only monitoring variant of ``PgpTesting.py``: the same
 ``PgpRoot`` without the PRBS source/sink, plus the per-lane
-``AxiStreamDmaV2Fifo`` monitors.  Defaults to 4 lanes and 4 VCs.
+``AxiStreamDmaV2Fifo`` monitors (only present on targets with a
+DDR/HBM DMA buffer, so not ``SlacPgpCardG4``).  Defaults to 4 lanes and
+4 VCs.
 Useful when another application is already driving traffic.
 
 HtspTesting.py
@@ -169,7 +176,9 @@ At SLAC S3DF (``rdsrv*``):
 
    source software/setup_env_slac.sh
 
-This activates the ``rogue_v6.15.0`` conda environment.
+This sources a per-user miniforge install at
+``/sdf/group/faders/users/$USER/miniforge3`` and activates its
+``rogue_v6.15.0`` conda environment.
 
 At PCDS / CDS:
 
@@ -177,7 +186,9 @@ At PCDS / CDS:
 
    source software/cds_env_setup.sh
 
-This activates the ``rogue_v6.5.0`` conda environment.
+This activates the ``rogue_v6.5.0`` conda environment, which is older
+than the v6.15.0 that the ``pgp_pcie_apps`` Roots require, so only
+``updatePcieFpga.py`` works there.
 
-Outside SLAC, ensure ``rogue`` v6.5.0 or later is on ``PYTHONPATH`` and
+Outside SLAC, ensure ``rogue`` v6.15.0 or later is on ``PYTHONPATH`` and
 that ``pyrogue.pydm`` is importable.

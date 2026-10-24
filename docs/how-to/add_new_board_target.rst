@@ -15,22 +15,26 @@ To add ``firmware/targets/<Board>/<Board><Protocol>_<Rate>/`` for an
 existing supported board:
 
 1. **Copy** the nearest existing target.  For example, to add
-   ``XilinxVariumC1100Pgp4_25Gbps``, clone
+   ``XilinxVariumC1100Pgp4_12Gbps`` (``"12.5Gbps"``), clone
    ``XilinxVariumC1100Pgp4_15Gbps``:
 
    .. code-block:: bash
 
       cp -r firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_15Gbps \
-            firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_25Gbps
+            firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_12Gbps
+
+   Then delete the copied ``build.info`` and ``images/`` (they belong to
+   the source target), and review ``vivado/post_synthesis.tcl`` if
+   present (it may carry ILA debug-probe settings).
 
 2. **Rename** the top-level ``hdl/`` files and the entity to match the
    new target directory:
 
    .. code-block:: bash
 
-      cd firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_25Gbps/hdl
-      mv XilinxVariumC1100Pgp4_15Gbps.vhd  XilinxVariumC1100Pgp4_25Gbps.vhd
-      mv XilinxVariumC1100Pgp4_15Gbps.xdc  XilinxVariumC1100Pgp4_25Gbps.xdc
+      cd firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_12Gbps/hdl
+      mv XilinxVariumC1100Pgp4_15Gbps.vhd  XilinxVariumC1100Pgp4_12Gbps.vhd
+      mv XilinxVariumC1100Pgp4_15Gbps.xdc  XilinxVariumC1100Pgp4_12Gbps.xdc
       # then edit the .vhd to rename the VHDL entity to match
 
 3. **Update** the ``RATE_G`` (or equivalent) generic in the top-level
@@ -46,7 +50,7 @@ existing supported board:
 How the ruckus.tcl Chain Works
 ------------------------------
 
-Every protocol target's ``ruckus.tcl`` follows the same pattern (see
+Protocol targets' ``ruckus.tcl`` files follow the same pattern (see
 :repo:`firmware/targets/XilinxVariumC1100/XilinxVariumC1100Pgp4_6Gbps/ruckus.tcl`
 for a worked example):
 
@@ -72,6 +76,13 @@ The three ``loadRuckusTcl`` calls pull in:
 
 The trailing ``loadSource`` and ``loadConstraints`` calls add your
 target's own top-level VHDL and XDC.
+
+Some boards add further ``axi-pcie-core`` loads (for example
+``.../hardware/XilinxKcu1500/ddr`` for the DDR buffer, or
+``.../hardware/XilinxVariumC1100/pcie-extended`` for the
+``*BifurcatedPcie`` targets), and many targets also set an
+implementation strategy or a ``sim_1`` top.  Copy the ``ruckus.tcl``
+from a target on the same board rather than writing one from scratch.
 
 See :doc:`/explanation/architecture` for why the chain is layered this
 way.

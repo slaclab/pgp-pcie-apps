@@ -4,7 +4,8 @@ Load the PCIe Kernel Driver
 ``pgp-pcie-apps`` bitstreams are designed to be driven by the
 ``aes-stream-drivers`` Linux kernel module (``datadev.ko``).  Once the
 module is loaded, each SLAC PCIe card appears as a ``/dev/datadev_<N>``
-device node that the PyRogue scripts in :repo:`software/scripts/` use as
+device node (with the default ``cfgDevName=0``; with ``cfgDevName=1``
+the suffix is the PCIe bus number in hex) that the PyRogue scripts in :repo:`software/scripts/` use as
 their ``AxiMemMap`` backend.
 
 The driver lives in a separate repository
@@ -58,11 +59,12 @@ Set Permissions and Verify
 
 .. code-block:: bash
 
-   sudo chmod 666 /proc/datadev_*
+   sudo chmod 666 /dev/datadev_*
    cat /proc/datadev_0
 
-The ``cat`` should print a status block reporting the driver version,
-the number of open DMA channels, and per-channel queue depths.
+The ``cat`` should print a status block with the running firmware's
+``AxiVersion`` (version, git hash, build string), the DMA driver version,
+and the read/write buffer counts and sizes.
 
 From this point, ``/dev/datadev_0`` (and ``/dev/datadev_1`` etc. for
 multiple cards) is ready to be opened by

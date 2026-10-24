@@ -17,7 +17,7 @@ PGP RX Path (Optical → Host DMA)
         ▼  per-VC AXI-Stream
    PgpLaneRx                                     <-- pgpClk
         │   ┌── rxlinkReady blowoff filter
-        │   ├── per-VC URAM FIFO (4×4 k deep, 64-bit)
+        │   ├── per-VC FIFO with resize to the DMA width
         │   └── surf.AxiStreamMux (burst arbitration, 128-word)
         ▼
    surf.AxiStreamFifoV2 (async)                 pgpClk → dmaClk
@@ -35,8 +35,13 @@ from ``axi-pcie-core``):
 
    PgpLaneRx → buffIbMasters → MigDmaBuffer → DDR/HBM → back to dmaIbMasters
 
-The DDR/HBM buffer enables event-triggered readout: frames sit in
-on-board memory until the host issues a read request via descriptor.
+The DDR/HBM buffer is a large elastic FIFO (``AxiStreamDmaV2Fifo``)
+that absorbs bursts when host DMA cannot keep up.  It drains to
+``dmaIbMasters`` on its own; its almost-full pause is exported as
+``eventTrigMsgCtrl`` (see the back-pressure section below).
+
+The per-VC RX FIFO is URAM-backed (4 x 4k deep) in the PGP4 GTY lane and
+block RAM (4k deep) elsewhere.
 
 PGP TX Path (Host DMA → Optical)
 --------------------------------
@@ -84,17 +89,15 @@ AXI-Lite Register Path (Software → Firmware Registers)
         ▼
    Top-level AxiLiteCrossbar (in <Target>.vhd)
         │
-        ├── 0x00100000  MigDmaBuffer (optional)
-        ├── 0x00200000-0x00400000  Utility A/B/C
+        ├── 0x00100000  MigDmaBuffer / HbmDmaBuffer (optional)
+        ├── 0x00200000-0x00400000  unused on PGP targets
         └── 0x00800000  Hardware (PgpLaneWrapper)
                 │
                 ▼  per-lane crossbar (stride 0x10000)
             Lane[0..7]
                 │
                 ▼  per-lane internal crossbar
-                ├── 0x0000  GT core
-                ├── 0x1000  PGP monitor
-                ├── 0x2000  Ctrl
+                ├── 0x0000  PGP core monitor (PGP3/PGP4)
                 ├── 0x3000  TX stream monitor
                 └── 0x4000  RX stream monitor
 
@@ -103,18 +106,21 @@ The full per-lane register layout is in :doc:`/reference/axi_lite_address_map`.
 Back-Pressure Path (DMA Pause → PGP Pause)
 ------------------------------------------
 
-``axi-pcie-core``'s DMA engine asserts ``dmaBuffGrpPause`` when host-side
-DMA buffers fill up.  ``pgp-pcie-apps`` propagates that signal back into
-two places:
+Two signals carry back-pressure toward the remote end of the link:
 
-* Into ``PgpLaneRx.disableSel``: synchronized to ``pgpClk``, it blocks
-  ingress on the affected VCs to stop new frames from being absorbed.
-* Into ``pgpTxIn.locData(0)``: once synchronized, it signals the
-  **remote** end of the PGP link to pause via the PGP4 in-band
-  flow-control channel.
+* ``axi-pcie-core``'s DMA engine asserts ``dmaBuffGrpPause`` when
+  host-side DMA buffers fill up.  ``PgpLaneRx`` synchronizes it to
+  ``pgpClk`` and drives the ``AxiStreamMux`` ``disableSel``, so the
+  affected per-VC FIFOs stop draining.  As they fill, they assert
+  ``pgpRxCtrl.pause``, which the PGP core turns into in-band flow
+  control to the remote sender.
+* On targets with a DDR/HBM buffer, the buffer's
+  ``eventTrigMsgCtrl.pause`` is sent to the remote end as the user
+  sideband bit ``pgpTxIn.locData(0)``, for the remote application to act
+  on.
 
-This is the canonical SLAC two-sided back-pressure model: stop ingress
-locally **and** ask the upstream sender to slow down.
+Together these stop ingress locally **and** tell the upstream sender to
+slow down.
 
 State
 -----
