@@ -75,15 +75,26 @@ architecture mapping of PgpGtyLane is
               ite(RATE_G = "3.125Gbps", 3.125E+9/66.0,
                   156.25E+6)));
 
-   constant NUM_AXI_MASTERS_C : natural := 5;
+   constant NUM_AXI_MASTERS_C : natural := 3;
 
    constant GT_INDEX_C     : natural := 0;
-   constant MON_INDEX_C    : natural := 1;
-   constant CTRL_INDEX_C   : natural := 2;
-   constant TX_MON_INDEX_C : natural := 3;
-   constant RX_MON_INDEX_C : natural := 4;
+   constant TX_MON_INDEX_C : natural := 1;
+   constant RX_MON_INDEX_C : natural := 2;
 
-   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXI_MASTERS_C, AXI_BASE_ADDR_G, 16, 12);
+   -- GT slot spans 8 KB: the PGP core's internal crossbar places the PGP monitor at +0x0000 and the GT DRP at +0x1000
+   constant AXI_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXI_MASTERS_C-1 downto 0) := (
+      GT_INDEX_C     => (
+         baseAddr     => AXI_BASE_ADDR_G + x"0000",
+         addrBits     => 13,
+         connectivity => x"FFFF"),
+      TX_MON_INDEX_C => (
+         baseAddr     => AXI_BASE_ADDR_G + x"3000",
+         addrBits     => 12,
+         connectivity => x"FFFF"),
+      RX_MON_INDEX_C => (
+         baseAddr     => AXI_BASE_ADDR_G + x"4000",
+         addrBits     => 12,
+         connectivity => x"FFFF"));
 
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXI_MASTERS_C-1 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXI_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_OK_C);
@@ -136,7 +147,7 @@ begin
       generic map (
          TPD_G            => TPD_G,
          RATE_G           => RATE_G,
-         EN_DRP_G         => false,
+         EN_DRP_G         => true,
          EN_PGP_MON_G     => true,
          NUM_VC_G         => NUM_VC_G,
          AXIL_CLK_FREQ_G  => 156.25E+6,
