@@ -48,7 +48,8 @@ module per ``pr.Root``, so they can be reused outside the launchers
      - ``PgpTesting.py``, ``PgpMonitor.py``
      - ``AxiPcieCore``, per-lane PGP2b/PGP3/PGP4 core and RX/TX
        ``AxiStreamMonAxiL``, optional SW PRBS per VC, optional
-       ``AxiStreamDmaV2Fifo`` monitors (selected by ``boardType``)
+       ``AxiStreamDmaV2Fifo`` monitors and per-lane ``PgpGtDrp`` GT DRP
+       devices (both selected by ``boardType``)
    * - ``HtspRoot``
      - ``HtspTesting.py``, ``HtspMonitor.py``
      - ``AxiPcieCore``, two ``HtspAxiL`` lanes with RX/TX

@@ -22,6 +22,10 @@ containing:
 * ``Lane[n]``: PGP core status and control (``Pgp4AxiL``, ``Pgp3AxiL``,
   or ``Pgp2bAxi`` per ``--version``), plus ``PgpTxAxisMon[n]`` and
   ``PgpRxAxisMon[n]``.
+* ``PgpGtDrp[n]``: GT transceiver DRP registers, added when
+  ``--boardType`` is ``SlacPgpCardG4`` or ``XilinxKcu1500``
+  (``surf.xilinx.Gthe3Channel``) or ``XilinxAlveoU200`` or
+  ``XilinxVariumC1100`` (``Gtye4Channel``).
 * ``SwPrbsRx[n][vc]`` / ``SwPrbsTx[n][vc]``: ``pyrogue.utilities.prbs``
   PRBS receiver and transmitter on each virtual channel.
 

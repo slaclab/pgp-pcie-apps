@@ -97,6 +97,10 @@ after another (``make`` or ``make build``).  Publishing is a separate
 ``make release`` step.  For day-to-day development, ``cd`` into the
 specific target directory and run ``make`` there.
 
+``make syn`` (not the default) is a faster pre-release check: it runs
+``make clean`` then ``make syn`` (synthesis only, no implementation or
+bitstream) on each release target, and stops on the first failure.
+
 Image Generation Flags
 ----------------------
 
