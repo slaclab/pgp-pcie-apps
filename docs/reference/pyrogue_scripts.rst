@@ -9,7 +9,9 @@ command-line arguments, builds one of the ``pr.Root`` classes from the
 accept ``--dev`` (default ``/dev/datadev_0``) to select the card and
 ``--guiType`` (``PyDM`` by default, or ``None``) to run headless.  Only
 ``LoopbackTesting.py`` also accepts ``--type`` to select the backend
-(``pcie`` or ``sim``).  ``updatePcieFpga.py`` is a standalone PROM
+(``pcie`` or ``sim``).  ``PgpEyeScan.py`` is a headless command-line tool: it
+takes ``--dev`` and ``--boardType`` but not ``--guiType``, and never starts
+PyDM.  ``updatePcieFpga.py`` is a standalone PROM
 programming tool and ``setupLibPaths.py`` is a path helper.
 
 Running Headless
@@ -134,6 +136,22 @@ Read-only monitoring variant of ``PgpTesting.py``: the same
 boards whose PGP targets have a DDR/HBM DMA buffer).  Defaults to 4
 lanes and 4 VCs.
 Useful when another application is already driving traffic.
+
+PgpEyeScan.py
+~~~~~~~~~~~~~
+
+:repo:`software/scripts/PgpEyeScan.py`
+
+Headless eye scan of the GT receivers.  Builds a ``PgpRoot`` with polling and
+the read at start turned off, runs the selected mode (``Status``, ``Probe``,
+``Bathtub``, ``Eye`` or ``Margin``) lane by lane, writes one run folder with
+the per-lane result files and prints a cross-lane summary table.
+
+.. code-block:: bash
+
+   python PgpEyeScan.py --boardType XilinxKcu1500 --lanes 4-7 --mode Bathtub --outDir ./scans
+
+See :doc:`/how-to/run_eye_scan`.
 
 HtspTesting.py
 ~~~~~~~~~~~~~~

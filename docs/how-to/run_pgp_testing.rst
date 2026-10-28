@@ -25,7 +25,8 @@ containing:
 * ``PgpGtDrp[n]``: GT transceiver DRP registers, added when
   ``--boardType`` is ``SlacPgpCardG4`` or ``XilinxKcu1500``
   (``surf.xilinx.Gthe3Channel``) or ``XilinxAlveoU200`` or
-  ``XilinxVariumC1100`` (``Gtye4Channel``).
+  ``XilinxVariumC1100`` (``Gtye4Channel``).  Each GT device carries an
+  ``EyeScan`` child, see :doc:`/how-to/run_eye_scan`.
 * ``SwPrbsRx[n][vc]`` / ``SwPrbsTx[n][vc]``: ``pyrogue.utilities.prbs``
   PRBS receiver and transmitter on each virtual channel.
 
