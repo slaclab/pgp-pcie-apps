@@ -89,6 +89,14 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--lineRate",
+        type     = float,
+        required = False,
+        default  = 0.0,
+        help     = "line rate in Gb/s for the eye-scan time estimate and metadata, 0 = not defined and the scan measures it with a warning",
+    )
+
+    parser.add_argument(
         "--guiType",
         type     = str,
         required = False,
@@ -111,6 +119,7 @@ if __name__ == "__main__":
         swTx       = False,
         dmaFifoMon = True,
         boardType  = args.boardType,
+        lineRate   = args.lineRate,
         pollEn     = args.pollEn,
         initRead   = args.initRead,
     ) as root:
