@@ -69,3 +69,8 @@ linux*
 .planning/
 planning/
 CLAUDE.md
+
+# eyescans
+*.png
+*.csv
+*.npz

@@ -15,4 +15,5 @@ assumes basic familiarity with the build flow (see
    select_protocol
    program_with_updatepciefpga
    run_pgp_testing
+   run_eye_scan
    simulate_dma_loopback
