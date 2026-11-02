@@ -18,20 +18,11 @@ import rogue.hardware.axi
 import axipcie            as pcie
 import surf.axi           as axi
 import surf.protocols.pgp as pgp
-import surf.xilinx        as xil
 
 rogue.Version.minVersion('6.5.0')
 
 # Boards whose PGP targets have a MIG/HBM DMA buffer at 0x0010_0000
 DMA_BUFFER_BOARDS = ['XilinxAlveoU200', 'XilinxKcu1500', 'XilinxVariumC1100']
-
-# GT DRP device class per boardType (same strings as axipcie.AxiPcieCore; other boards get no PgpGtDrp)
-GT_DRP_CLASS = {
-    'SlacPgpCardG4':     xil.Gthe3Channel,
-    'XilinxKcu1500':     xil.Gthe3Channel,
-    'XilinxAlveoU200':   xil.Gtye4Channel,
-    'XilinxVariumC1100': xil.Gtye4Channel,
-}
 
 class PgpRoot(pr.Root):
     def __init__(self,
@@ -44,8 +35,13 @@ class PgpRoot(pr.Root):
             prbsWidth    = 256,   # SW PRBS generator width in bits
             dmaFifoMon   = False, # Include the AxiStreamDmaV2Fifo monitors (DMA_BUFFER_BOARDS only)
             boardType    = None,  # PCIe card type, used to select the I2C mapping and the GT DRP device
+            lineRate     = 0.0,   # Line rate in Gb/s for the eye-scan time estimate and metadata (0 = not defined)
             **kwargs):
         super().__init__(timeout=5.0, **kwargs)
+
+        # Line rate given to the eye-scan children once the root has started
+        self._lineRate = lineRate
+        self._eyeGts   = []
 
         self.zmqServer = pr.interfaces.ZmqServer(root=self, addr='127.0.0.1', port=0)
         self.addInterface(self.zmqServer)
@@ -81,14 +77,15 @@ class PgpRoot(pr.Root):
             # Add PGP Core
             laneBase = 0x0080_0000 + lane*0x1_0000
             if version == 4:
-                self.add(pgp.Pgp4AxiL(
+                laneDev = pgp.Pgp4AxiL(
                     name    = f'Lane[{lane}]',
                     offset  = laneBase,
                     memBase = self.memMap,
                     numVc   = numVc,
                     writeEn = True,
                     expand  = True,
-                ))
+                )
+                self.add(laneDev)
             elif version == 3:
                 self.add(pgp.Pgp3AxiL(
                     name    = f'Lane[{lane}]',
@@ -109,13 +106,20 @@ class PgpRoot(pr.Root):
                 raise ValueError(f'Invalid PGP version ({version})')
 
             # Add GT DRP (PGP2b at lane+0x0000, PGP3/PGP4 at lane+0x1000 inside the PGP core)
-            if boardType in GT_DRP_CLASS:
-                self.add(GT_DRP_CLASS[boardType](
+            # GT DRP device class per boardType from axi-pcie-core (other boards get no PgpGtDrp)
+            if boardType in pcie.GT_CHANNEL_CLASS:
+                gt = pcie.GT_CHANNEL_CLASS[boardType](
                     name    = f'PgpGtDrp[{lane}]',
                     offset  = laneBase + (0x0000 if version == 2 else 0x1000),
                     memBase = self.memMap,
                     expand  = False,
-                ))
+                )
+                self.add(gt)
+
+                # Eye scan resets the PGP4 RX path to bring its sampler alive (only GT classes with an EyeScan child)
+                if version == 4 and hasattr(gt, 'EyeScan'):
+                    pgp.Pgp4EyeScanLink.connectRxReset(gt, laneDev)
+                    self._eyeGts.append(gt)
 
             self.add(axi.AxiStreamMonAxiL(
                 name        = f'PgpTxAxisMon[{lane}]',
@@ -171,3 +175,10 @@ class PgpRoot(pr.Root):
             def DisableAllSwTx():
                 for tx in self.find(typ=pr.utilities.prbs.PrbsTx):
                     tx.txEnable.set(False)
+
+    # A LocalVariable can only be set once the update queue exists, so the line rate is set after the start
+    def start(self):
+        super().start()
+        if self._lineRate > 0:
+            for gt in self._eyeGts:
+                gt.EyeScan.LineRateGbps.set(self._lineRate)
