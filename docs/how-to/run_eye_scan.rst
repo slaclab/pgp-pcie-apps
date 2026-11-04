@@ -55,8 +55,8 @@ Headless Use
 ------------
 
 ``PgpEyeScan.py`` builds a ``PgpRoot`` for an idle PGP4 link (no software PRBS,
-polling off, no read at start) and runs one mode on the selected lanes, one
-lane at a time.  It takes ``--dev`` (default ``/dev/datadev_0``) and
+polling off, no read at start) and runs one mode on the selected lanes
+(see `Parallel Lanes`_).  It takes ``--dev`` (default ``/dev/datadev_0``) and
 ``--boardType`` (``SlacPgpCardG4``, ``XilinxKcu1500`` or
 ``XilinxVariumC1100``, default ``XilinxKcu1500``), but not ``--guiType``: it
 never starts PyDM.  The scan options, checks, summaries and result files come
@@ -86,7 +86,7 @@ Main flags and their defaults:
      - Meaning
    * - ``--lanes``
      - ``4-7``
-     - lanes to scan, for example ``4-7``, ``4,6`` or ``5``
+     - lanes to scan: single lanes and ranges separated by commas, for example ``4-7``, ``5``, ``0,1,3,4`` or ``0,4-7``
    * - ``--numLane``
      - ``8``
      - number of DMA lanes of the image
@@ -138,13 +138,16 @@ Main flags and their defaults:
    * - ``--noPng true``
      - ``false``
      - skip the PNG plots
+   * - ``--parallel``
+     - ``true``
+     - ``Bathtub``, ``Eye`` and ``Margin``: scan every selected lane at the same time, see `Parallel Lanes`_
    * - ``--loopback``
      - not set
      - see `Loopback`_
 
 The remaining flags (``--prescale``, ``--softCold``, ``--noResetHook``,
 ``--repeat``, ``--traffic``) are listed by ``python PgpEyeScan.py --help``.
-``--noPng``, ``--softCold`` and ``--noResetHook`` take a value, ``true`` or
+``--noPng``, ``--parallel``, ``--softCold`` and ``--noResetHook`` take a value, ``true`` or
 ``false`` (for example ``--noPng true``), and any other value is refused.
 
 Every ``Bathtub``, ``Eye``, ``Margin`` and ``Probe`` invocation creates one run
@@ -152,7 +155,9 @@ folder ``eyescan_<yyyymmdd_hhmmss>[_<tag>]`` under ``--outDir``.  It holds an
 ``.npz``, a ``.csv`` and (unless ``--noPng true``) the PNG plots of each lane
 for Bathtub, Eye and Margin, and the ``.npz`` of each lane only for Probe;
 nothing is overwritten.  Every mode shows a progress bar with the percent done and the estimated time
-to completion: ``Bathtub``, ``Eye`` and ``Margin`` also show the scan stage,
+to completion: ``Bathtub``, ``Eye`` and ``Margin`` run in parallel show one
+combined bar with the percent of each lane (see `Parallel Lanes`_), run with
+``--parallel false`` they show one bar per lane with the scan stage,
 ``Probe`` counts the ``--repeat`` repetitions of each lane and ``Status`` the
 lanes, and the rows of those two modes print once their bar closes.  When the
 lanes are done the script prints one cross-lane summary table.  An opening followed by ``[E]`` is extrapolated to
@@ -165,10 +170,31 @@ opening lines.
 The exit code is 0 when every requested lane ran and ended ``OK`` or
 ``CLOSED`` and every file was saved, and 2 when a lane ended in another
 status, a save failed, or a stop ended the run before every lane ran.  The
-first Ctrl-C stops the run: a running scan is aborted and its partial result
-is saved, the registers are restored, no further lane is started, and the
-table of the lanes that finished is still printed.  A second Ctrl-C forces the
-exit.
+first Ctrl-C stops the run: every running scan is aborted and its partial
+result is saved, the registers are restored, no further lane is started, and
+the table of the lanes that finished is still printed.  A second Ctrl-C forces
+the exit.
+
+Parallel Lanes
+--------------
+
+``Bathtub``, ``Eye`` and ``Margin`` scan every selected lane at the same time
+by default (``--parallel true``), one thread per lane.  The lanes do not share
+any scan state: each ``PgpGtDrp[n].EyeScan`` has its own sampler, DRP port,
+scan lock and engine, and the reset hook pulses only ``Lane[n].Ctrl.ResetRx``,
+which resets the RX datapath of that GT alone (not the QPLL), so a lane never
+sees the resets of its neighbours.  Almost all of the scan time is the dwell
+of the sampler, so a parallel run takes about as long as its slowest lane.
+
+* One combined bar shows the mean progress, the ETA and the percent of each
+  lane (``done`` once a lane ended).
+* The per-lane lines (saved files, openings, raw words, warnings) print in lane
+  order once every lane ended, followed by the cross-lane table.
+* A lane that fails ends ``ERROR`` in the table and the other lanes keep
+  scanning.
+
+``--parallel false`` runs the lanes one at a time, as ``Status`` and ``Probe``
+always do.
 
 Loopback
 --------
@@ -281,6 +307,19 @@ Measured:
   that range on lanes 4, 5 and 7 and inside the allowed band on lane 6 only.
   That is reported as wider, not as a pass: the QSFP module was re-seated after
   the original battery, so its CDR state changed.
+* Parallel lanes on the Varium C1100, lanes 0 to 7 over the fiber loopbacks
+  of both QSFPs, at 6.25 Gb/s, ``Margin`` with the default floors and grid,
+  run parallel, then ``--parallel false``, then parallel again: the runs took
+  239 s, 1646 s and 246 s, so about 6.8 times faster in parallel.  Each lane took
+  227 to 239 s in parallel and 200 to 212 s alone.  Every lane ended ``OK`` with
+  no link drop during the scan and its raw words unchanged apart from the two
+  enable bits; ``PhyRxInitCnt`` did not move, and ``LinkDownCnt`` rose by 1 to 8
+  per lane in both modes.  Over the three runs the openings of each lane agreed
+  within 0.03 UI horizontally and 2% in open area (apart from one ``[I]``
+  horizontal value on lane 5), the two parallel runs differing as much as
+  either did from the serial one.  A Ctrl-C 6 s into a
+  parallel ``Bathtub`` of lanes 0 to 7 aborted all 8 lanes, saved their partial
+  results and restored their registers.
 * QSFP[0] lanes 0 to 3 of both cards, with the QSFP module present and no
   fiber (the module and the missing fiber were not confirmed by hand), at
   6.25 Gb/s with default floors and grid:
